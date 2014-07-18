@@ -115,3 +115,17 @@ run this to get the latest changes to the service manager configuration files fr
 #Deploying smserver
 
 Do it yourself via Jenkins! We have a job: service-manager-deploy
+
+#SM Server
+Service Manager also has a feature for allowing integration tests
+
+run smserver.py and it will run a service that can fire up services on demmand
+
+## API
+
+| Path                                   | Supported Methods | Description  |
+| -------------------------------------- | ------------------| ------------ |
+|```/ping```             |        GET        ||
+|```/start```             |        POST        ||
+|```/stop```             |        POST        ||
+|```/version_variable```             |        GET        ||
