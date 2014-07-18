@@ -10,7 +10,7 @@ A set of utilities to run applications and micro services during the development
 #Prerequsites
 
 ### Pip
-Install pip [https://pypi.python.org/pypi/pip]
+Install [pip](https://pypi.python.org/pypi/pip)
 
 #### Install required python packages with pip
 
@@ -51,30 +51,19 @@ This information should live in ~/.sbt/.credentials, but the location can also b
 Please ensure these enviroment variables have been exported.
 
 ```
-WORKSPACE=<root-path>/hmrc-development-environment/hmrc/
+WORKSPACE=<root-path>/development-folder/
 JAVA_HOME=location_of_your_java (can be found by typing which java)
 jenkins_user="<nexus-username>"
 jenkins_key="<jenkins-api-token>"
 ```
+
 You can get your Jenkins API Token by:
 
-1. Visit [CI-DEV](https://ci-dev.tax.service.gov.uk/)
+1. Visit [CI-DEV](http://your.jenkins.installation/)
 2. Click your username top right to visit your profile
 3. Select configure on the left
 4. Press 'Show API Token...'
 5. Copy and paste that token into the `jenkins_key` export.
-
-### Getting service-manager-config
-
-Before you are able to run the Application Manager you need to get the config.
-You will need to be connected to the VPN to do this.
-
-You can do this by:
-
-```
-cd $WORKSPACE/scripts && \
-./get-service-manager-config.sh
-```
 
 #Common use cases / Getting started
 For a list of commands type './sm.py --help'
@@ -87,27 +76,10 @@ Starting all services using binaries:
 ###1. Modify your services.json file 
 The application automatically looks for your config in `$WORKSPACE/service-manager-config`
 
-You can change this directly in $WORKSPACE/service-manager-config to test your changes locally, 
-however, to make these changes permanently, you will need to modify the file in puppet:
-
-(for hmrc this is in the [puppet repo] )
-[puppet repo]: https://github.tools.tax.service.gov.uk/HMRC/puppet/tree/master/modules/hmrc_smserver/files  "here"
+You can change this directly in $WORKSPACE/service-manager-config to test your changes locally
 
 Add a new application at the bottom of the services.json. 
 There are plenty of example of how to do this by looking at existing entries
-
-###2. Create a pull request in puppet with the above changes!!
-
-#Getting / Updating configuration
-
-A script exists here:
-https://github.tools.tax.service.gov.uk/HMRC/scripts/blob/master/get-service-manager-config.sh
-
-run this to get the latest changes to the service manager configuration files from jenkins.
-
-#Deploying smserver
-
-Do it yourself via Jenkins! We have a job: service-manager-deploy
 
 #SM Server
 Service Manager also has a feature for allowing integration tests
