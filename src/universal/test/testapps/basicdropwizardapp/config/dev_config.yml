@@ -1,0 +1,39 @@
+
+# HTTP-specific options.
+http:
+
+  # The port on which the HTTP server listens for service requests.
+  port: 8080
+
+  # The port on which the HTTP server listens for administrative requests.
+  adminPort: 8081
+
+# Logging settings.
+logging:
+
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: INFO
+
+  # Logger-specific levels.
+  loggers:
+
+    # Sets the level for 'com.example.app' to DEBUG.
+    com.github.sullis: DEBUG
+
+  # Settings for logging to stdout.
+  console:
+
+    # If true, write log statements to stdout.
+    enabled: true
+
+    # Do not display log statements below this threshold to stdout.
+    threshold: ALL
+
+  # Settings for logging to a file.
+  file:
+
+    # If true, write log statements to a file.
+    enabled: true
+
+    # Do not write log statements below this threshold to the file.
+    threshold: ALL

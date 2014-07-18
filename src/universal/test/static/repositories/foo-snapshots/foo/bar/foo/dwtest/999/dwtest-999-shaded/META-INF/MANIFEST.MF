@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Build-Jdk: 1.7.0_45
+Built-By: vsharman
+Created-By: Apache Maven 3.1.1
+Main-Class: com.github.sullis.dropwizard.helloworld.HelloWorldService
+Archiver-Version: Plexus Archiver
+

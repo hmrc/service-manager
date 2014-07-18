@@ -1,0 +1,12 @@
+{
+    "EXTERNAL_EXAMPLE_TEMPLATE" : {
+        "type": "external",
+        "includeInStartAndStopAll": false,
+        "pattern": "some.namespace=${SERVICE-ID}",
+        "some_parameter" : "some parameter value",
+        "anestedvalue" : {
+            "override" : "wont have this",
+            "anotherunique" : "value"
+        }
+    }
+}

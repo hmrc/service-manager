@@ -1,0 +1,194 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion> 
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>5</version>
+  </parent>
+  <groupId>com.fasterxml.jackson</groupId>
+  <artifactId>jackson-datatype-guava</artifactId>
+  <name>Jackson-datatype-Guava</name>
+  <version>1.9.0</version>
+  <packaging>bundle</packaging>
+  <description>Add-on datatype-support module for Jackson (http://jackson.codehaus.org) that handles
+Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just collection ones)
+  </description>
+  <url>http://wiki.fasterxml.com/JacksonModuleGuava</url>
+  <scm>
+    <connection>scm:git:git@github.com:FasterXML/jackson-datatype-guava.git</connection>
+    <developerConnection>scm:git:git@github.com:FasterXML/jackson-datatype-guava.git</developerConnection>
+    <url>http://github.com/FasterXML/jackson-datatype-guava</url>    
+  </scm>
+  <developers>
+        <developer>
+            <id>tatu</id>
+            <name>Tatu Saloranta</name>
+            <email>tatu@fasterxml.com</email>
+        </developer>
+  </developers>
+
+  <prerequisites>
+    <maven>2.2.1</maven>
+  </prerequisites>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <!-- Licensing -->
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <organization>
+    <name>fasterxml.com</name>
+    <url>http://fasterxml.com</url>
+  </organization>
+
+  <dependencies>
+    <!-- Extends Jackson; supports Guava datatypes, so: -->
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <!-- For now, 1.8 might work as well, but module interface of 1.7 is not compatible -->
+      <version>1.9.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <!-- Guava has the weirdest versioning system... r07 is the latest as of Nov-2010 -->
+      <version>r07</version>
+    </dependency>
+
+     <!-- and for testing, JUnit is needed -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>  
+    </resources>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>2.0</version>
+            <configuration>
+                <mavenExecutorId>forked-path</mavenExecutorId>
+            </configuration>
+        </plugin>
+        <plugin><!-- plug-in to attach source bundle in repo -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.1.2</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.6.1</version>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                    <encoding>UTF-8</encoding>
+                    <maxmemory>512m</maxmemory>
+                    <links>
+                        <link>http://java.sun.com/javase/6/docs/api/</link>
+                    </links>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+        </plugin>
+
+        <!-- Plus, let's make jars OSGi bundles as well  -->
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>2.3.6</version>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+              <Bundle-Vendor>fasterml.com</Bundle-Vendor>
+              <Import-Package>
+com.google.common.collect,
+org.codehaus.jackson,
+org.codehaus.jackson.map,
+org.codehaus.jackson.map.type,
+org.codehaus.jackson.type
+</Import-Package>
+              <Private-Package>
+</Private-Package>
+              <Export-Package>
+com.fasterxml.jackson.datatype.guava,
+com.fasterxml.jackson.datatype.guava.deser,
+com.fasterxml.jackson.datatype.guava.serializer
+</Export-Package>
+            </instructions>
+          </configuration>
+        </plugin>
+    </plugins>
+  </build>
+  <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.1</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+  </profiles>
+  <!-- NOTE: repositories from parent POM -->
+</project>
