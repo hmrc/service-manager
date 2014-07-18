@@ -46,11 +46,6 @@ This information should live in ~/.sbt/.credentials, but the location can also b
 }
 ```
 
-### Scripts project
-
-Clone the [Scripts project](https://github.tools.tax.service.gov.uk/HMRC/scripts)
-`git clone git@github.tools.tax.service.gov.uk:HMRC/scripts.git`
-
 # Required environmental variables
 
 Please ensure these enviroment variables have been exported.
