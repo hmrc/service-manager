@@ -46,7 +46,7 @@ This information should live in ~/.sbt/.credentials, but the location can also b
 }
 ```
 
-# Required environmental variables
+### Required environmental variables
 
 Please ensure these enviroment variables have been exported.
 
