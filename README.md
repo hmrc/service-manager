@@ -10,15 +10,13 @@ A set of utilities to run applications and micro services during the development
 #Prerequsites
 
 ### Pip
-Install pip
+Install pip [https://pypi.python.org/pypi/pip]
 
-https://pypi.python.org/pypi/pip
+#### Install required python packages with pip
 
-### Install required python packages with pip
-
-run:
-
+```
 pip install -qr requirements.txt
+```
 
 ### Nexus Credentials
 
