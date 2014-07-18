@@ -72,7 +72,7 @@
             "cmd": [
                 "./startappfromcode.sh"
             ],
-            "repo": "git@github.tools.tax.service.gov.uk:HMRC/application-manager.git"
+            "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
             "artifact": "dwtest",
@@ -107,7 +107,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.tools.tax.service.gov.uk:HMRC/application-manager.git"
+            "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
              "artifact": "playtest",
