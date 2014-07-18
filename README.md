@@ -1,7 +1,11 @@
-Application Manager
+Service Manager
 ===================
 
-A set of utilities to run applications and micro services and make development easier in a micros service environment
+Developing with lots of microservices often draws complaints from the eventual complexity for the developer. i.e. 10 different services to start that are constantly evolving, owned by different teams and using different technologies... What if there was a way to manage this so you can just get on with your work...
+
+Introducing Service Manager
+
+A set of utilities to run applications and micro services during the development and testing phase... and make development easier in a micros service environment
 
 #Prerequsites
 
