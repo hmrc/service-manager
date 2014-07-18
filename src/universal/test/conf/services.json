@@ -1,0 +1,164 @@
+{
+    "FAKE_NEXUS": {
+        "name": "Simple file server",
+        "type": "external",
+        "location": "../",
+        "cmd": [
+            "python",
+            "fakenexus.py"
+        ],
+        "healthcheck": {
+            "url": "http://localhost:8060/ping",
+            "response": "pong"
+        },
+        "pattern": ".*fakenexus.*"
+    },
+    "TEST_ONE": {
+        "name": "Test service one",
+        "type": "external",
+        "location": ".",
+        "cmd": [
+            "sleep",
+            "99087347347346734673872"
+        ],
+        "pattern": ".*99087347347346734673872.*"
+    },
+    "TEST_TWO": {
+        "name": "Test Service two",
+        "type": "external",
+        "location": ".",
+        "cmd": [
+            "sleep",
+            "ljrgkjerkjewrfjkergjklerglkerg"
+        ],
+        "pattern": ".*ljrgkjerkjewrfjkergjklerglkerg.*"
+    },
+    "TEST_THREE": {
+        "name": "Test Service Three",
+        "type": "external",
+        "location": ".",
+        "cmd": [
+            "sleep",
+            "ergkhuerg8erg8oergjnerg8erg"
+        ],
+        "pattern": ".*ergkhuerg8erg8oergjnerg8erg.*"
+    },
+    "TEST_TEMPLATE": {
+        "template" : "EXTERNAL_EXAMPLE_TEMPLATE",
+        "name": "Test Service Three",
+        "cmd": [
+            "sleep",
+            "ergkhuerg8erg8oergjnerg8erg"
+        ],
+        "some_parameter" : "value we expect",
+        "anestedvalue" : {
+            "override" : "will have this value",
+            "new" : "and this value"
+        }
+    },
+    "DROPWIZARD_NEXUS_END_TO_END_TEST": {
+        "name": "Test Dropwizard App",
+        "type": "dropwizard",
+        "versionEnv": "HODSTUBS_VERSION",
+        "location": "/application-manager/src/universal/test/testapps/basicdropwizardapp",
+        "hasServiceMappings": false,
+        "defaultPort" : 8080,
+        "defaultAdminPort" : 8081,
+        "healthcheck": {
+            "url": "http://localhost:${port}/helloworld",
+            "response": ""
+        },
+        "sources": {
+            "cmd": [
+                "./startappfromcode.sh"
+            ],
+            "repo": "git@github.tools.tax.service.gov.uk:HMRC/application-manager.git"
+        },
+        "binary": {
+            "artifact": "dwtest",
+            "groupId":"foo/bar/foo/",
+            "nexus" : "/content/repositories/",
+            "configurationFile": "../../../../../../../../../testapps/basicdropwizardapp/config/dev_config.yml",
+            "cmd" : [
+                "java",
+                "-jar",
+                "dwtest-999-shaded.jar",
+                "server",
+                "dwtest-999-shaded/config/dev_config.yml"
+            ]
+        }
+    },
+    "PLAY_NEXUS_END_TO_END_TEST": {
+        "name": "A simple play application for testing",
+        "type": "play",
+        "location": "/testapps/basicplayapp",
+        "hasServiceMappings": true,
+        "defaultPort" : 8500,
+        "hasMongo" : true,
+        "healthcheck": {
+            "url": "http://localhost:${port}",
+            "response": ""
+        },
+        "sources": {
+            "cmd": [
+                "play",
+                "start"
+            ],
+            "extra_params": [
+                 "-DFoo=false"
+            ],
+            "repo": "git@github.tools.tax.service.gov.uk:HMRC/application-manager.git"
+        },
+        "binary": {
+             "artifact": "playtest",
+             "groupId":"foo/bar/foo/",
+             "nexus": "/content/repositories/",
+             "destinationSubdir" : "basicplayapp",
+             "cmd": [
+                     "./basicplayapp/bin/basicplayapp",
+                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+                     "-J-Xmx256m",
+                     "-J-Xms256m",
+                     "-J-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    "PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND": {
+        "name": "Assets",
+        "type": "assets",
+        "includeInStartAndStopAll": false,
+        "cmd": [
+            "grunt"
+        ],
+        "always_run_from" : "RELEASE",
+        "versionEnv": "FRONTEND_VERSION",
+        "location": "/assets-frontend",
+        "pattern": "SimpleHTTPServer",
+        "source_pattern": "grunt",
+        "defaultPort" : 9032,
+        "hasMongo": false,
+        "hasServiceMappings": true,
+        "healthcheck": {
+            "url": "http://localhost:${port}",
+            "response": "200"
+        },
+        "sources": {
+            "cmd": [
+                "./server.sh",
+                "dev"
+            ],
+            "repo": "foo@foo.com"
+        },
+        "binary": {
+            "artifact": "assets-frontend",
+            "groupId":"foo/bar/foo/",
+            "nexus": "/content/repositories/",
+            "nexus-api": "/service/local/repositories/",
+            "destinationSubdir": "assets-frontend",
+            "cmd": [
+                "python -m SimpleHTTPServer 9032"
+            ]
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{
+	"nexus" : {
+	        "protocol" : "http",
+            "host": "localhost:8060",
+            "repoMappings" : {
+                "RELEASE" : "foo-releases",
+                "SNAPSHOT" : "foo-snapshots"
+             }
+	},
+	"playExtractionDir" : "/var/tmp"
+}
