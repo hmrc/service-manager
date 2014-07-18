@@ -59,7 +59,7 @@ jenkins_key="<jenkins-api-token>"
 
 You can get your Jenkins API Token by:
 
-1. Visit [CI-DEV](http://your.jenkins.installation/)
+1. Visit [Your Jenkins Instance](http://your.jenkins.installation/)
 2. Click your username top right to visit your profile
 3. Select configure on the left
 4. Press 'Show API Token...'
