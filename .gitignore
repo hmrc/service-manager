@@ -37,3 +37,7 @@ lib_managed/*
 nohup.out
 
 results.xml
+
+build/
+dist/
+servicemanager.egg-info/
