@@ -8,8 +8,8 @@ import traceback
 from bottle import route, run, request, response
 
 from servicemanager.server import smserverlogic
-from smcontext import SmApplication
-from smutil import pretty_print_list
+from servicemanager.smcontext import SmApplication
+from servicemanager.smutil import pretty_print_list
 
 
 parser = argparse.ArgumentParser(description='Service Manager Server - Start, Stop and View services')
