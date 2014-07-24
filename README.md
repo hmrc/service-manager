@@ -12,7 +12,7 @@ A set of utilities to run applications and micro services during the development
 ### Pip
 Install [pip](https://pypi.python.org/pypi/pip)
 
-#### Install required python packages with pip
+#### Install Service Manager
 
 ```
 pip install servicemanager
