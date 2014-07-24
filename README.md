@@ -11,52 +11,9 @@ A set of utilities to run applications and micro services during the development
 
 See [here](https://github.com/hmrc/service-manager/wiki/Install#install-service-manager)
 
-### Nexus Credentials
+#Environment Requirements
 
-Nexus credentials can come from one of multiple sources:
-
-1) Environment variables
-```
-export NEXUS_PASS=<nexus-password>
-export NEXUS_USER=<nexus-username>
-```
-the NEXUS_PASS and NEXUS_USER environment variable names can be customised to your needs in config.json e.g.
-```
-{
- "nexusPasswordEnvironmentVar":"MY_NEXUS_PASS_ENV_VAR",
- "nexusUserEnvironmentVar":"MY_NEXUS_USER_ENV_VAR"
-}
-```
-2) Credentials file
-```
-user=<nexus-username>
-password=<nexus-password>
-```
-This information should live in ~/.sbt/.credentials, but the location can also be customised in config.json e.g.
-```
-{
- "sbtCredentialsFile":"/path/to/my/credentials/file"
-}
-```
-
-### Required environmental variables
-
-Please ensure these enviroment variables have been exported.
-
-```
-WORKSPACE=<root-path>/development-folder/
-JAVA_HOME=location_of_your_java (can be found by typing which java)
-jenkins_user="<nexus-username>"
-jenkins_key="<jenkins-api-token>"
-```
-
-You can get your Jenkins API Token by:
-
-1. Visit [Your Jenkins Instance](http://your.jenkins.installation/)
-2. Click your username top right to visit your profile
-3. Select configure on the left
-4. Press 'Show API Token...'
-5. Copy and paste that token into the `jenkins_key` export.
+See [here](https://github.com/hmrc/service-manager/wiki/Required-Environment-Settings)
 
 #Common use cases / Getting started
 For a list of commands type 'sm --help'
