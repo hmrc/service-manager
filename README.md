@@ -17,6 +17,10 @@ Install [pip](https://pypi.python.org/pypi/pip)
 ```
 pip install servicemanager
 ```
+Or if you want to upgrade to the newest
+```
+pip install servicemanager --upgrade
+```
 
 ### Nexus Credentials
 
