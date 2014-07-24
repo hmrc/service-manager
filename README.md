@@ -70,8 +70,8 @@ You can get your Jenkins API Token by:
 5. Copy and paste that token into the `jenkins_key` export.
 
 #Common use cases / Getting started
-For a list of commands type './sm.py --help'
-For current run status type './sm.py -s'
+For a list of commands type 'sm --help'
+For current run status type 'sm -s'
 
 Starting all services using binaries:
 sm --start "*" -f
