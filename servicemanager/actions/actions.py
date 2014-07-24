@@ -5,7 +5,7 @@ import time
 import calendar
 import glob
 
-import subprocess
+from servicemanager import subprocess
 
 
 def _start_services(context, service_names, fatjar, release, wait, proxy):

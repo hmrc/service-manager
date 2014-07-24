@@ -1,21 +1,22 @@
 import os
 import sys
 
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../servicemanager'))
+
 # dont do this in production code, this is bad practice it would seem, only for tests
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../bin'))
+from servicemanager.actions import actions
+from servicemanager.server import smserverlogic
 
 import time
 import shutil
 import unittest
 import smcontext
 
-from actions import actions
-from serviceresolver import ServiceResolver
-from server import smserverlogic
+from servicemanager.serviceresolver import ServiceResolver
 
 from BaseHTTPServer import HTTPServer
 from SocketServer import ThreadingMixIn
-from smcredentials import EnvNexusCredentials, CredentialsResolver, SbtNexusCredentials
+from servicemanager.smcredentials import EnvNexusCredentials, CredentialsResolver, SbtNexusCredentials
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):

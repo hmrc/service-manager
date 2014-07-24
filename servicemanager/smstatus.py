@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from thirdparty.prettytable import PrettyTable
-from service.smservice import SmServiceStatus
-from smcontext import ServiceManagerException
-from actions.colours import BColors
+from servicemanager.thirdparty.prettytable import PrettyTable
+from servicemanager.service.smservice import SmServiceStatus
+from servicemanager.smcontext import ServiceManagerException
+from servicemanager.actions.colours import BColors
 
 
 def _format_healthcheck_status(healthcheck):

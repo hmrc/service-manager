@@ -8,12 +8,12 @@ import re
 
 import requests
 
-import subprocess
+from servicemanager import subprocess
 from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
-from smprocess import SmProcess
-from smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
-from smnexus import SmNexus
-from smrepo import clone_repo_if_requred
+from servicemanager.smprocess import SmProcess
+from servicemanager.smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
+from servicemanager.smnexus import SmNexus
+from servicemanager.smrepo import clone_repo_if_requred
 
 
 class SmPythonServiceStarter(SmMicroServiceStarter):

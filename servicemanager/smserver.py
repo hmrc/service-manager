@@ -6,10 +6,11 @@ import argparse
 import traceback
 
 from bottle import route, run, request, response
-from server import smserverlogic
 
+from servicemanager.server import smserverlogic
 from smcontext import SmApplication
 from smutil import pretty_print_list
+
 
 parser = argparse.ArgumentParser(description='Service Manager Server - Start, Stop and View services')
 parser.add_argument('-c', '--conf', type=str, help='Specify the folder holding service configuration files')

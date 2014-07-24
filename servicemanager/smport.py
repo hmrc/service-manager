@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import socket
 
-from thirdparty.atomicinteger import AtomicInteger
+from servicemanager.thirdparty.atomicinteger import AtomicInteger
 
 
 class PortProvider:

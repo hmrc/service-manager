@@ -8,12 +8,13 @@ import time
 import json
 import copy
 
-from subprocess import Popen
-from service.smservice import SmMicroServiceStarter
+from servicemanager.subprocess import Popen
+from ..service.smservice import SmMicroServiceStarter
 from smjvmservice import SmJvmService, SmJvmServiceStarter
-from smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
-from smnexus import SmNexus
-from actions.colours import BColors
+from ..smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
+from ..smnexus import SmNexus
+from ..actions.colours import BColors
+
 
 b = BColors()
 

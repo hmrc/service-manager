@@ -3,15 +3,14 @@
 import time
 import argparse
 import json
-
-from serviceresolver import ServiceResolver
-from smstatus import dostatus
-from smcontext import SmApplication, SmContext, ServiceManagerException
-from smrepo import pull_rebase_repo
 from collections import OrderedDict
-from actions import actions
-import smrepo
 
+from servicemanager.serviceresolver import ServiceResolver
+from servicemanager.smstatus import dostatus
+from servicemanager.smcontext import SmApplication, SmContext, ServiceManagerException
+from servicemanager.smrepo import pull_rebase_repo
+from servicemanager.actions import actions
+import servicemanager.smrepo
 
 def _process_command():
 
