@@ -74,7 +74,7 @@ For a list of commands type './sm.py --help'
 For current run status type './sm.py -s'
 
 Starting all services using binaries:
-./sm.py --start "*" -f
+sm --start "*" -f
 
 #Adding a new application
 ###1. Modify your services.json file 
@@ -88,7 +88,7 @@ There are plenty of example of how to do this by looking at existing entries
 #SM Server
 Service Manager also has a feature for allowing integration tests
 
-run smserver.py and it will run a service that can fire up services on demmand
+run smserver and it will run a service that can fire up services on demmand
 
 ## API
 
