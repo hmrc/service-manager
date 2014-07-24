@@ -5,7 +5,7 @@ Developing with lots of microservices often draws complaints from the eventual c
 
 Introducing Service Manager
 
-A set of utilities to run applications and micro services during the development and testing phase... and make development easier in a micros service environment
+A set of utilities to run applications and micro services during the development and testing phase... and make development easier in a micro service environment
 
 #Prerequsites
 
@@ -15,7 +15,7 @@ Install [pip](https://pypi.python.org/pypi/pip)
 #### Install required python packages with pip
 
 ```
-pip install -qr requirements.txt
+pip install servicemanager
 ```
 
 ### Nexus Credentials
