@@ -7,20 +7,9 @@ Introducing Service Manager
 
 A set of utilities to run applications and micro services during the development and testing phase... and make development easier in a micro service environment
 
-#Prerequsites
+#Installing
 
-### Pip
-Install [pip](https://pypi.python.org/pypi/pip)
-
-#### Install Service Manager
-
-```
-pip install servicemanager
-```
-Or if you want to upgrade to the newest
-```
-pip install servicemanager --upgrade
-```
+See [here](https://github.com/hmrc/service-manager/wiki/Install#install-service-manager)
 
 ### Nexus Credentials
 
