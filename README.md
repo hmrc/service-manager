@@ -7,9 +7,9 @@ Introducing Service Manager
 
 A set of utilities to run applications and micro services during the development and testing phase... and make development easier in a micro service environment
 
-####[How do I install](https://github.com/hmrc/service-manager/wiki/Install#install-service-manager)?
+####[How do I install?](https://github.com/hmrc/service-manager/wiki/Install#install-service-manager)
 
-####[How do I setup](https://github.com/hmrc/service-manager/wiki/Required-Environment-Settings)?
+####[How do I setup?](https://github.com/hmrc/service-manager/wiki/Required-Environment-Settings)
 
 #Common use cases / Getting started
 For a list of commands type 'sm --help'
