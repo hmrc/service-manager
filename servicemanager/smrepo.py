@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import os
-from actions.colours import BColors
 
-import subprocess
+from actions.colours import BColors
+from servicemanager import subprocess
+
 
 b = BColors()
 

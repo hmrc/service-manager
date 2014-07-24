@@ -4,12 +4,14 @@ import time
 import urllib
 import hashlib
 import urllib2
-import requests
 import base64
 from xml.dom.minidom import parse
 
-from smfile import remove_if_exists
+import requests
+
+from servicemanager.smfile import remove_if_exists
 from actions.colours import BColors
+
 
 b = BColors()
 

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-py.test -v --junitxml results.xml src/universal/test/tests.py
+py.test -v --junitxml results.xml test/tests.py

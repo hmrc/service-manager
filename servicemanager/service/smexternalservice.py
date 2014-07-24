@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import os
-
-import subprocess
-import smfile
-from service.smservice import SmServiceStarter, SmService, SmServiceStatus
-from smprocess import SmProcess, kill_pid
-import requests
 import re
+
+import requests
+
+from servicemanager.service.smservice import SmServiceStarter, SmService, SmServiceStatus
+from servicemanager.smprocess import SmProcess, kill_pid
+from servicemanager import subprocess
+
 
 class SmExternalServiceStarter(SmServiceStarter):
 

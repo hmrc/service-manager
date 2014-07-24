@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import json
-
 import time
 import re
-import requests
 from abc import abstractmethod
-from smprocess import SmProcess, kill_pid
-from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
-from smrepo import clone_repo_if_requred
+
+import requests
+
+from servicemanager.smprocess import SmProcess, kill_pid
+from servicemanager.service.smservice import SmService, SmMicroServiceStarter, SmServiceStatus
+from servicemanager.smrepo import clone_repo_if_requred
 
 
 class SmJvmServiceStarter(SmMicroServiceStarter):

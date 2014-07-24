@@ -11,12 +11,13 @@ from pymongo import Connection
 
 from smcredentials import CredentialsResolver
 from smprocess import kill_by_test_id, test_has_running_processes
-from service.smplayservice import SmPlayService, SmPlayServiceStarter
+from servicemanager.service.smplayservice import SmPlayService, SmPlayServiceStarter
 from service.smdropwizardservice import SmDropwizardService, SmDropwizardServiceStarter
 from service.smexternalservice import SmExternalService, SmExternalServiceStarter
 from service.smpythonservice import SmPythonServiceStarter, SmPythonService
 from smutil import pretty_print_list, if_not, unify_lists
 from actions.colours import BColors
+
 
 b = BColors()
 

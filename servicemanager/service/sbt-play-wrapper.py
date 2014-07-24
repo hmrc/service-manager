@@ -3,7 +3,7 @@ import sys
 import os
 import json
 
-import subprocess
+from servicemanager import subprocess
 
 
 try:

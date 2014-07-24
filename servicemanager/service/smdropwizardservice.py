@@ -2,12 +2,12 @@
 
 import os
 
-from subprocess import Popen
-from smfile import force_chdir
-from smnexus import SmNexus
-from service.smservice import SmMicroServiceStarter
+from servicemanager.subprocess import Popen
+from servicemanager.smfile import force_chdir
+from servicemanager.smnexus import SmNexus
+from servicemanager.service.smservice import SmMicroServiceStarter
 from smjvmservice import SmJvmService, SmJvmServiceStarter
-from actions.colours import BColors
+from servicemanager.actions.colours import BColors
 
 b = BColors()
 

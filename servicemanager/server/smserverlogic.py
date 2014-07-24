@@ -10,8 +10,8 @@ import re
 from abc import abstractmethod
 from bottle import request, response
 
-from smcontext import SmContext, ServiceManagerException
-from smport import PortProvider
+from ..smcontext import SmContext, ServiceManagerException
+from ..smport import PortProvider
 
 RUN_ON_PORT = 8085
 RUN_ON_HOST = 'localhost'
