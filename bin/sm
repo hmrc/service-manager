@@ -1,0 +1,132 @@
+#!/usr/bin/env python
+
+import time
+import argparse
+import json
+from collections import OrderedDict
+
+from servicemanager.serviceresolver import ServiceResolver
+from servicemanager.smstatus import dostatus
+from servicemanager.smcontext import SmApplication, SmContext, ServiceManagerException
+from servicemanager.smrepo import pull_rebase_repo
+from servicemanager.actions import actions
+import servicemanager.smrepo
+
+def _process_command():
+
+    parser = argparse.ArgumentParser(description='Service Manager - Start, Stop and View services')
+    parser.add_argument('-r', '--release', action='store_true', help='Used with start to run services using release versions')
+    parser.add_argument('-f', '--fatjar', action='store_true', help='Used with start to run services using fatjars')
+    parser.add_argument('-F', '--feature', action='append', help='Enable a given feature for all services started')
+    parser.add_argument('-s', '--status', nargs='*', help='Get the status of a single service or a list of services')
+    parser.add_argument('-n', '--shownotrunning', action='store_true', help='Used with status command to show services that are not running')
+    parser.add_argument('--proxy', type=str, help='Use with start to start those items with a proxy, i.e. add at the end --proxy localhost:8888')
+    parser.add_argument('-o', '--offline', action='store_true', help='Offline mode: uses existing binaries instead of looking for an updated version online')
+    parser.add_argument('--start', type=str, nargs='*', help='Starts a single service/profile, or a list of services/profiles')
+    parser.add_argument('--restart', type=str, nargs='*', help='Restarts a single service/profile or a list of services/profiles')
+    parser.add_argument('--stop', type=str, nargs='*', help='Stops a single service by id')
+    parser.add_argument('--pullall', action='store_true', help='Pulls all repos that you currently have')
+    parser.add_argument('--noprogress', action='store_true', help='Stops file download progress from being displayed')
+    parser.add_argument('--cleanlogs', action='store_true', help='Deletes the log files for all services')
+    parser.add_argument('-w', '--wait', type=int, help='Waits for started services to pass healthchecks before returning')
+    parser.add_argument('-d', '--describe',  action='store_true', help='Gives an outline of available services and profiles')
+    parser.add_argument('-i', '--info', action='store_true', help='Shows info for started services, including git revision (if available) and java options')
+    parser.add_argument('--ports', action='store_true', help='Shows a list of used default ports and their services')
+    parser.add_argument('--port', type=int, help='Overrides the default http port the service is started on. Ignored if start is used with more than one service')
+    parser.add_argument('--checkports', action='store_true', help='Validates default ports for duplicates - returns code 1 if duplicates exist')
+    parser.add_argument('--printconfig', type=str, nargs='*', help='Print the config for a given list of services, if empty, show all')
+    parser.add_argument('-c', '--config', type=str, help='Sets the configuration directory location, defaults to $WORKSPACE/service-manager-config')
+    parser.add_argument('--getdascode', action='store_true', help='Checkout all of the code if you haven\'t already')
+
+    args = parser.parse_args()
+
+    show_progress = not args.noprogress
+
+    application = SmApplication(configuration_dir_parameter=args.config, features=args.feature)
+    context = SmContext(application, None, args.offline, show_progress)
+    service_resolver = ServiceResolver(application)
+
+    # Actions
+    if args.stop:
+        for service_name in service_resolver.resolve_services_from_array(args.stop):
+            if context.has_service(service_name):
+                context.kill(service_name)
+            elif context.is_profile(service_name):
+                actions.stop_profile(context, service_name)
+            else:
+                print "The requested service %s does not exist" % service_name
+
+    if args.status is not None:
+            dostatus(context, args.status, args.shownotrunning)
+
+    if args.describe:
+        context.application.describe()
+
+    if args.restart:
+        for service_name in service_resolver.resolve_services_from_array(args.restart):
+            if service_name not in context.application.services:
+                print "The requested service %s does not exist" % service_name
+            else:
+                context.kill(service_name)
+        time.sleep(5)
+        for service_name in service_resolver.resolve_services_from_array(args.restart):
+            if context.has_service(service_name):
+                actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.restart, args.port))
+
+    if args.start:
+        for service_name in service_resolver.resolve_services_from_array(args.start):
+            if context.has_service(service_name):
+                actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.start, args.port))
+            else:
+                print "The requested service %s does not exist" % service_name
+
+    if args.cleanlogs:
+        for service_name in context.application.services:
+            actions.clean_logs(context, service_name)
+
+    if args.printconfig is not None:
+        if len(args.printconfig) > 0:
+            for service_name in args.printconfig:
+                print json.dumps(context.application.services[service_name], indent=2, separators=(',', ': '))
+        else:
+            print json.dumps(context.application.services, indent=2, separators=(',', ': '))
+
+    if args.info:
+        for service_name in context.application.services:
+            actions.display_info(context, service_name)
+    
+    if args.pullall:
+        for service_name in context.application.services:
+            pull_rebase_repo(context, service_name, context.application.services[service_name])
+
+    if args.ports:
+        ports_used = context.get_ports_used()
+        for port in OrderedDict(sorted(ports_used.items(), key=lambda t: t[0])):
+            print str(port) + " -> " + ports_used[port]
+
+    if args.checkports:
+        ports_used = {}
+        for service_name in context.application.services:
+            service = context.application.services[service_name]
+            if "defaultPort" in service:
+                if service["defaultPort"] in ports_used:
+                    SmApplication.exit_with_error("Duplicate port found : " + str(service["defaultPort"]) +
+                                                  " in services: " + service_name + " and " + ports_used[service["defaultPort"]])
+                ports_used[service["defaultPort"]] = service_name
+            if "defaultAdminPort" in service:
+                if service["defaultAdminPort"] in ports_used:
+                    SmApplication.exit_with_error("Duplicate port found : " + str(service["defaultAdminPort"]) +
+                                                  " in services: " + service_name + " and " + ports_used[service["defaultAdminPort"]])
+                    ports_used[service["defaultAdminPort"]] = service_name
+
+    if args.getdascode:
+        for service_name in context.application.services:
+            service_data = context.application.services[service_name]
+            if "sources" in service_data and "location" in service_data and "repo" in service_data["sources"]:
+                path = context.application.workspace + service_data["location"]
+                smrepo.clone_repo_if_required_raw(service_name, service_data["sources"]["repo"], path, context)
+
+try:
+    _process_command()
+except ServiceManagerException as e:
+    print e.message
