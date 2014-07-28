@@ -127,6 +127,28 @@ class TestActions(unittest.TestCase):
         context.kill(servicetostart)
         self.assertEqual(context.get_service(servicetostart).status(), [])
 
+    def test_failing_play_from_jar(self):
+
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+
+        context.kill_everything()
+
+        response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
+        self.assertTrue(response1)
+        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+
+        try:
+
+            servicetostart = "BROKEN_PLAY_PROJECT"
+            retVal = actions.start_one(context, servicetostart, True, False, None, port=None)
+            print(retVal)
+            self.assertIsEqual(retVal, -1)
+
+        finally:
+            context.kill_everything()
+
+
     def test_start_and_stop_one_duplicate(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
@@ -390,4 +412,4 @@ class TestCredentialsResolver(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(TestActions)

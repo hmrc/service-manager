@@ -2,7 +2,7 @@
     "FAKE_NEXUS": {
         "name": "Simple file server",
         "type": "external",
-        "location": "../",
+        "location": ".",
         "cmd": [
             "python",
             "fakenexus.py"
@@ -116,6 +116,42 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
+                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+                     "-J-Xmx256m",
+                     "-J-Xms256m",
+                     "-J-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    "BROKEN_PLAY_PROJECT": {
+        "name": "A simple, but broken play application for testing",
+        "type": "play",
+        "location": "/testapps/failingplayapp",
+        "hasServiceMappings": true,
+        "defaultPort" : 8500,
+        "hasMongo" : true,
+        "healthcheck": {
+            "url": "http://localhost:${port}/ping/ping",
+            "response": ""
+        },
+        "sources": {
+            "cmd": [
+                "play",
+                "start"
+            ],
+            "extra_params": [
+                 "-DFoo=false"
+            ],
+            "repo": "git@github.com:hmrc/service-manager.git"
+        },
+        "binary": {
+             "artifact": "failingplaytest",
+             "groupId":"foo/bar/foo/",
+             "nexus": "/content/repositories/",
+             "destinationSubdir" : "failingplayapp",
+             "cmd": [
+                     "./failingplayapp/bin/failingplayapp",
                      "-DProd.microservice.whitelist.useWhitelist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
