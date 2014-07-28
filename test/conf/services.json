@@ -2,7 +2,7 @@
     "FAKE_NEXUS": {
         "name": "Simple file server",
         "type": "external",
-        "location": ".",
+        "location": "../",
         "cmd": [
             "python",
             "fakenexus.py"
