@@ -65,6 +65,14 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         return extra_params
 
+    def get_start_command(self, run_from):
+        if run_from == "SOURCE":
+            source_cmd = copy.copy(self.service_data["sources"]["cmd"])
+            source_cmd[-1] = source_cmd[-1] + " " +  " ".join(self.sbt_extra_params())
+            return source_cmd
+        else:
+            return self.service_data["binary"]["cmd"] + self._build_extra_params()
+
     def start_from_binary(self):
         microservice_target_path = self.context.get_microservice_target_path(self.service_name)
         force_chdir(microservice_target_path)
@@ -77,7 +85,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         parent, _ = os.path.split(unzip_dir)
         force_pushdir(parent)
 
-        cmd_with_params = self.service_data["binary"]["cmd"] + self._build_extra_params()
+        cmd_with_params = self.get_start_command("BINARY")
         if os.path.exists(cmd_with_params[0]):
             os.chmod(cmd_with_params[0], stat.S_IRWXU)
         else:
@@ -111,11 +119,16 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         return target_dir
 
-    def start_from_sources(self):
+    def sbt_extra_params(self):
         sbt_extra_params = self._build_extra_params()
 
         if "extra_params" in self.service_data["sources"]:
             sbt_extra_params += self.service_data["sources"]["extra_params"]
+
+        return sbt_extra_params
+
+    def start_from_sources(self):
+        sbt_extra_params = self.sbt_extra_params()
 
         service_data = self.context.service_data(self.service_name)
         microservice_path = self.context.application.workspace + service_data["location"]
@@ -123,14 +136,12 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         remove_if_exists("RUNNING_PID")
 
         env_copy = os.environ.copy()
-        env_copy["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params)
+        env_copy["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params) # TODO: not needed i think anymore...
 
         makedirs_if_not_exists("logs")
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            cmd = copy.copy(self.service_data["sources"]["cmd"])
-            cmd[-1] = cmd[-1] + " " +  " ".join(sbt_extra_params)
-            serialised_cmd = json.dumps(cmd)
+            serialised_cmd = json.dumps(self.self.get_start_command("SOURCE"))
             Popen(["python", self.sbt_py_filename, serialised_cmd], env=env_copy, stdout=out, stderr=err)
 
         seconds_remaining = SmPlayServiceStarter.PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS

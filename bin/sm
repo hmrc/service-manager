@@ -10,7 +10,7 @@ from servicemanager.smstatus import dostatus
 from servicemanager.smcontext import SmApplication, SmContext, ServiceManagerException
 from servicemanager.smrepo import pull_rebase_repo
 from servicemanager.actions import actions
-import servicemanager.smrepo
+from servicemanager import smrepo
 
 def _process_command():
 
@@ -37,6 +37,7 @@ def _process_command():
     parser.add_argument('--printconfig', type=str, nargs='*', help='Print the config for a given list of services, if empty, show all')
     parser.add_argument('-c', '--config', type=str, help='Sets the configuration directory location, defaults to $WORKSPACE/service-manager-config')
     parser.add_argument('--getdascode', action='store_true', help='Checkout all of the code if you haven\'t already')
+    parser.add_argument('--showcmdfor', type=str, nargs='*', help='Shows how sm will try start the service')
 
     args = parser.parse_args()
 
@@ -121,6 +122,15 @@ def _process_command():
             if "sources" in service_data and "location" in service_data and "repo" in service_data["sources"]:
                 path = context.application.workspace + service_data["location"]
                 smrepo.clone_repo_if_required_raw(service_name, service_data["sources"]["repo"], path, context)
+
+    if args.showcmdfor:
+        for service_name in service_resolver.resolve_services_from_array(args.showcmdfor):
+            if context.has_service(service_name):
+                cmd = actions.get_start_cmd(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.showcmdfor, args.port))
+                print " ".join(cmd)
+            else:
+                print "The requested service %s does not exist" % service_name
+
 
 try:
     _process_command()
