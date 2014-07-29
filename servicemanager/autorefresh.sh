@@ -7,9 +7,9 @@ do
 
     if [ "$1" = "--test" ] 
     then
-        python sm.py --status --config $WORKSPACE/application-manager/src/universal/test/conf/ > /tmp/smstatus.txt 2>&1
+        sm --status --config $WORKSPACE/service-manager-config > /tmp/smstatus.txt 2>&1
     else
-        python sm.py --status > /tmp/smstatus.txt 2>&1
+        sm --status > /tmp/smstatus.txt 2>&1
     fi
 
     clear
