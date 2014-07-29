@@ -312,14 +312,9 @@ class SmContext():
                 return service.service_data["always_run_from"]
         return original_runfrom
 
-    def start_service(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None):
-
+    def get_service_starter(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None):
         service = self.get_service(service_name)
         run_from = self.get_run_from_service_override_value_or_use_default(service, run_from)
-
-        feature_string = pretty_print_list(" with feature$s $list enabled", self.features)
-
-        self.log("Starting '%s' from %s%s..." % (service_name, run_from, feature_string))
 
         if not service_mapping_ports:
             service_mapping_ports = {}
@@ -341,7 +336,13 @@ class SmContext():
         else:
             raise self.exception("Unknown service type '%s' for service '%s' - please check services.json" % (service_type, service_name))
 
-        service_process_id = starter.start()
+        return starter
+
+    def start_service(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None):
+        service_starter = self.get_service_starter(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version)
+        feature_string = pretty_print_list(" with feature$s $list enabled", self.features)
+        self.log("Starting '%s' from %s%s..." % (service_name, run_from, feature_string))
+        service_process_id = service_starter.start()
 
         if service_process_id:
             feature_string = pretty_print_list(" and feature$s $list enabled", self.features)
