@@ -11,6 +11,7 @@ import time
 import shutil
 import unittest
 import smcontext
+from servicemanager.service.smplayservice import SmPlayServiceStarter
 
 from servicemanager.serviceresolver import ServiceResolver
 
@@ -172,6 +173,33 @@ class TestActions(unittest.TestCase):
         time.sleep(5)
         self.assertEqual(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status(), [])
 
+class TestStartCommands(unittest.TestCase):
+
+    def setUp(self):
+        set_up_and_clean_workspace()
+
+    def test_play_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PLAY_NEXUS_END_TO_END_TEST", True, False, None, port=None)
+        #starter = SmPlayServiceStarter(context, "PLAY_NEXUS_END_TO_END_TEST", True, False, None, None, None, None)
+        expected = [ './basicplayapp/bin/basicplayapp',
+                                '-DProd.microservice.whitelist.useWhitelist=false',
+                                '-DProd.mongodb.uri=mongodb://localhost:27017/auth',
+                                '-J-Xmx256m',
+                                '-J-Xms256m',
+                                '-J-XX:MaxPermSize=128m',
+                                '-Dhttp.port=8500',
+                                '-Dservice.manager.serviceName=PLAY_NEXUS_END_TO_END_TEST',
+                                '-Dservice.manager.runFrom=True']
+        self.assertEqual(starter.get_start_command("BINARY"), expected)
+
+    def test_play_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PLAY_NEXUS_END_TO_END_TEST", True, False, None, port=None)
+        expected = [ 'play', 'start -Dhttp.port=8500 -Dservice.manager.serviceName=PLAY_NEXUS_END_TO_END_TEST -Dservice.manager.runFrom=True -DFoo=false']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
 class TestServerFunctionality(unittest.TestCase):
     def setUp(self):

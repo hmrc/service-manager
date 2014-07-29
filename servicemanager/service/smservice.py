@@ -85,6 +85,10 @@ class SmMicroServiceStarter(SmServiceStarter):
         self.sources = self.service_data["sources"]
 
     @abstractmethod
+    def get_start_command(self, context = None):
+        pass
+
+    @abstractmethod
     def start(self):
         pass
 
