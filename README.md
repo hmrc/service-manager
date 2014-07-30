@@ -30,7 +30,7 @@ There are plenty of example of how to do this by looking at existing entries
 #SM Server
 Service Manager also has a feature for allowing integration tests
 
-run smserver and it will run a service that can fire up services on demmand
+run smserver and it will run a service that can fire up services on demand
 
 ## API
 
