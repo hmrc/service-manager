@@ -262,6 +262,36 @@ class TestStartCommands(unittest.TestCase):
         expected = ['./startappfromcode.sh']
         self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
+    def test_python_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
+        expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
+        cmd = starter.get_start_command("BINARY")
+        self.assertEqual(cmd, expected)
+
+    def test_python_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
+        expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+
+    def test_external_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
+        expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
+        cmd = starter.get_start_command("BINARY")
+        self.assertEqual(cmd, expected)
+
+    def test_external_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
+        expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+
 class TestServerFunctionality(unittest.TestCase):
     def setUp(self):
         set_up_and_clean_workspace()
