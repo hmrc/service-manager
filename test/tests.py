@@ -201,6 +201,36 @@ class TestStartCommands(unittest.TestCase):
         expected = [ 'play', 'start -Dhttp.port=8500 -Dservice.manager.serviceName=PLAY_NEXUS_END_TO_END_TEST -Dservice.manager.runFrom=True -DFoo=false']
         self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
+    def test_dropwizard_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("DROPWIZARD_NEXUS_END_TO_END_TEST", "foo", proxy=None)
+        expected = [
+            '/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/bin/java',
+            '-Dfile.encoding=UTF8',
+            '-Xmx64M',
+            '-XX:+CMSClassUnloadingEnabled',
+            '-XX:MaxPermSize=64m',
+            '-Ddw.http.port=8080',
+            '-Dservice.manager.serviceName=DROPWIZARD_NEXUS_END_TO_END_TEST',
+            '-Dservice.manager.serviceName=DROPWIZARD_NEXUS_END_TO_END_TEST',
+            '-Dservice.manager.runFrom=foo',
+            '-jar',
+            'dwtest-foo-shaded.jar',
+            'server',
+            'dev_config.yml']
+        cmd = starter.get_start_command("BINARY")
+        cmd[-1] = cmd[-1].split("/")[-1]
+        cmd[len(cmd) -3] = cmd[len(cmd) -3].split("/")[-1]
+        self.assertEqual(cmd, expected)
+
+    def test_dropwizard_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("DROPWIZARD_NEXUS_END_TO_END_TEST", "foo", proxy=None)
+        expected = ['./startappfromcode.sh']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+
 class TestServerFunctionality(unittest.TestCase):
     def setUp(self):
         set_up_and_clean_workspace()
