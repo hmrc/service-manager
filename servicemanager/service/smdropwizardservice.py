@@ -33,6 +33,30 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
     def _get_jar_filename(self):
         return self.context.get_jar_filename(self.service_name, self.run_from)
 
+    def _get_binary_start_cmd(self):
+        binary_data = self.service_data["binary"]
+        filename = self._get_jar_filename()
+
+        if "configurationFile" not in binary_data:
+            print "ERROR: required config 'configurationFile' does not exist"
+            return None
+
+        configuration_file = binary_data["configurationFile"]
+        output_configuration_file = os.path.join(self.run_from, configuration_file)
+        microservice_target_path = self.context.get_microservice_target_path(self.service_name)
+        _java_bin = os.path.join(self.java_home, os.path.join("bin", "java"))
+        extra_params = self._build_extra_params()
+        cmd = [_java_bin] + self.java_options + extra_params
+        os.path.join(microservice_target_path, filename)
+        return cmd + ["-jar",  microservice_target_path + filename, "server", microservice_target_path + output_configuration_file]
+
+
+    def get_start_command(self, run_from):
+        if run_from == "SOURCE":
+            return self.sources["cmd"]
+        else:
+            return self._get_binary_start_cmd()
+
     def start_from_binary(self):
 
         microservice_target_path = self.context.get_microservice_target_path(self.service_name)
@@ -53,23 +77,12 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
             print "ERROR: required config 'configurationFile' does not exist"
             return None
 
-        output_configuration_file = os.path.join(self.run_from, configuration_file)
-
         binary_to_run = os.path.join(microservice_target_path, filename)
         if os.path.exists(binary_to_run):
             force_chdir(self.run_from)
             os.system("jar xvf " + microservice_target_path + filename + " " + configuration_file + " > /dev/null")
             force_chdir(microservice_target_path)
-
-            _java_bin = os.path.join(self.java_home, os.path.join("bin", "java"))
-
-            extra_params = self._build_extra_params()
-
-            cmd = [_java_bin] + self.java_options + extra_params
-
-            os.path.join(microservice_target_path, filename)
-
-            cmd = cmd + ["-jar",  microservice_target_path + filename, "server", microservice_target_path + output_configuration_file]
+            cmd = self.get_start_command("BINARY")
             process = Popen(cmd, env=os.environ.copy(), stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
             if process.returncode == 1:
                 print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
@@ -117,7 +130,7 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
             # SBT is so specific should this be in configuration?
             new_env["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params)
             os.chdir(base_dir)
-            process = Popen(cmd, env=new_env, stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
+            process = Popen(self.get_start_command("SOURCE"), env=new_env, stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
         except Exception, e:
             self.log("Could not start service in '%s' due to exception: %s" % (base_dir, str(e)))
 
