@@ -66,6 +66,10 @@ class SmServiceStarter(SmServiceBase):
     def process_arguments(self):
         pass
 
+    @abstractmethod
+    def get_start_command(self, context = None):
+        return ["get_start_command() not implemented for this type of service - fork and make a pull request :)"]
+
 
 class SmMicroServiceStarter(SmServiceStarter):
 
@@ -83,10 +87,6 @@ class SmMicroServiceStarter(SmServiceStarter):
             raise context.exception("Invalid services.json entry for %s service '%s', missing 'sources'" % (self.service_type, self.service_name))
 
         self.sources = self.service_data["sources"]
-
-    @abstractmethod
-    def get_start_command(self, context = None):
-        pass
 
     @abstractmethod
     def start(self):
