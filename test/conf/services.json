@@ -65,8 +65,8 @@
         "defaultPort" : 8080,
         "defaultAdminPort" : 8081,
         "healthcheck": {
-            "url": "http://localhost:${port}/helloworld",
-            "response": ""
+            "url": "http://localhost:${port}/ping",
+            "response": "pong"
         },
         "sources": {
             "cmd": [

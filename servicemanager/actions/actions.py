@@ -6,7 +6,8 @@ import calendar
 import glob
 
 from servicemanager import subprocess
-
+from servicemanager.smcontext import ServiceManagerException
+from servicemanager.smprocess import SmProcess
 
 def start_one(context, service_name, fatjar, release, proxy, port=None):
     if release:
@@ -58,7 +59,8 @@ def _wait_for_services(context, service_names, seconds_to_wait):
             if _now() >= end_time:
                 break
 
-            if service.run_healthcheck:
+            processes = SmProcess.processes_matching(service.pattern)
+            if all(map(service.run_healthcheck, processes)):
                 print "Service '%s' has started successfully" % service.service_name
                 waiting_for_services.remove(service)
             else:
@@ -73,11 +75,7 @@ def _wait_for_services(context, service_names, seconds_to_wait):
         services_timed_out = []
         for service in waiting_for_services:
             services_timed_out += [service.service_name]
-        print "Timed out starting service(s): %s" % ", ".join(services_timed_out)
-        sys.exit(-1)
-    else:
-        print "All services passed healthcheck"
-
+        raise ServiceManagerException("Timed out starting service(s): %s" % ", ".join(services_timed_out))
 
 def clean_logs(context, service_name):
     data = context.service_data(service_name)
@@ -143,3 +141,16 @@ def display_info(context, service_name):
     if arguments == "":
         comments += "(Not Running) "
     print "| " + comments
+
+
+def start_and_wait(service_resolver, context, start, fatjar, release, proxy, port, seconds_to_wait):
+
+    all_services = service_resolver.resolve_services_from_array(start)
+    for service_name in all_services:
+        if context.has_service(service_name):
+            start_one(context, service_name, fatjar, release, proxy, overridden_port(start, port))
+        else:
+            print "The requested service %s does not exist" % service_name
+
+    _wait_for_services(context, all_services, seconds_to_wait)
+    print "All services passed healthcheck"

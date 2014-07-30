@@ -1,4 +1,4 @@
-name := "basicplayapp"
+name := "failingplayapp"
 
 version := "1.0-SNAPSHOT"
 

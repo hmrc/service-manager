@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../serviceman
 # dont do this in production code, this is bad practice it would seem, only for tests
 from servicemanager.actions import actions
 from servicemanager.server import smserverlogic
+from servicemanager.smcontext import ServiceManagerException
 
 import time
 import shutil
@@ -18,16 +19,17 @@ from BaseHTTPServer import HTTPServer
 from SocketServer import ThreadingMixIn
 from servicemanager.smcredentials import EnvNexusCredentials, CredentialsResolver, SbtNexusCredentials
 
-
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 
 
 def set_up_and_clean_workspace():
-    if os.path.exists(os.path.join(os.path.dirname(__file__), "workspace")):
-        shutil.rmtree(os.path.join(os.path.dirname(__file__), "workspace"))
-    os.mkdir(os.path.join(os.path.dirname(__file__), "workspace"))
-    os.environ["WORKSPACE"] = os.path.join(os.path.dirname(__file__), "workspace")
+    workspace_dir = os.path.join(os.path.dirname(__file__), "workspace")
+    if os.path.exists(workspace_dir):
+        shutil.rmtree(workspace_dir)
+    os.mkdir(workspace_dir)
+    os.environ["WORKSPACE"] = workspace_dir
+    os.chdir(workspace_dir)
 
 
 class TestFileServer(unittest.TestCase):
@@ -91,17 +93,21 @@ class TestActions(unittest.TestCase):
 
     def test_dropwizard_from_source(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        sm_application = smcontext.SmApplication(config_dir_override)
+        context = smcontext.SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
+
         servicetostart = "DROPWIZARD_NEXUS_END_TO_END_TEST"
-        actions.start_one(context, servicetostart, False, False, None, port=None)
-        actions._wait_for_services(context, ["DROPWIZARD_NEXUS_END_TO_END_TEST"], 90)
+        actions.start_and_wait(service_resolver, context, [servicetostart], False, False, None, port=None, seconds_to_wait=90)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart)
         self.assertEqual(context.get_service(servicetostart).status(), [])
 
     def test_dropwizard_from_jar(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        sm_application = smcontext.SmApplication(config_dir_override)
+        context = smcontext.SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
 
         # start fake nexus
         actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
@@ -109,20 +115,22 @@ class TestActions(unittest.TestCase):
         time.sleep(5)
 
         servicetostart = "DROPWIZARD_NEXUS_END_TO_END_TEST"
-        actions.start_one(context, servicetostart, True, False, None, port=None)
-        actions._wait_for_services(context, ["DROPWIZARD_NEXUS_END_TO_END_TEST"], 90)
+        actions.start_and_wait(service_resolver, context, [servicetostart], True, False, None, port=None, seconds_to_wait=90)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart)
         context.kill("FAKE_NEXUS")
+        time.sleep(5)
         self.assertEqual(context.get_service(servicetostart).status(), [])
         self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
 
     def test_play_from_source(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        sm_application = smcontext.SmApplication(config_dir_override)
+        context = smcontext.SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
+
         servicetostart = "PLAY_NEXUS_END_TO_END_TEST"
-        actions.start_one(context, servicetostart, False, False, None, port=None)
-        actions._wait_for_services(context, ["PLAY_NEXUS_END_TO_END_TEST"], 90)
+        actions.start_and_wait(service_resolver, context, [servicetostart], False, False, None, port=None, seconds_to_wait=90)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart)
         self.assertEqual(context.get_service(servicetostart).status(), [])
@@ -130,7 +138,9 @@ class TestActions(unittest.TestCase):
     def test_failing_play_from_jar(self):
 
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        sm_application = smcontext.SmApplication(config_dir_override)
+        context = smcontext.SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
 
         context.kill_everything()
 
@@ -139,12 +149,11 @@ class TestActions(unittest.TestCase):
         self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
 
         try:
-
-            servicetostart = "BROKEN_PLAY_PROJECT"
-            retVal = actions.start_one(context, servicetostart, True, False, None, port=None)
-            print(retVal)
-            self.assertIsEqual(retVal, -1)
-
+            servicetostart = ["BROKEN_PLAY_PROJECT"]
+            actions.start_and_wait(service_resolver, context, servicetostart, fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=2)
+            self.fail("Did not expect the project to startup.")
+        except ServiceManagerException as sme:
+            self.assertEqual("Timed out starting service(s): BROKEN_PLAY_PROJECT", sme.message)
         finally:
             context.kill_everything()
 
@@ -291,7 +300,7 @@ class TestConfiguration(unittest.TestCase):
     def test_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         application = smcontext.SmApplication(config_dir_override, None)
-        self.assertEqual(len(application.services), 8)
+        self.assertEqual(len(application.services), 9)
         self.assertEqual(application.services["TEST_TEMPLATE"]["type"], "external")
         self.assertEqual(application.services["TEST_TEMPLATE"]["pattern"], "some.namespace=TEST_TEMPLATE")
         self.assertEqual(application.services["TEST_TEMPLATE"]["includeInStartAndStopAll"], False)
@@ -322,7 +331,7 @@ class TestServiceResolver(unittest.TestCase):
         self.assertTrue("DROPWIZARD_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND" in all_services)
-        self.assertEqual(8, len(all_services))
+        self.assertEqual(9, len(all_services))
 
         test_profile = service_resolver.resolve_services("TEST")
         self.assertTrue("TEST_ONE" in test_profile)
@@ -412,4 +421,4 @@ class TestCredentialsResolver(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main(TestActions)
+    unittest.main()
