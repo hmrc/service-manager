@@ -11,8 +11,7 @@ object Application extends Controller {
     Ok(views.html.index("Your new application is ready."))
   }
 
-  val die = Action {
-    Future { Thread.sleep(100); System.exit(-1) }
+  val failPing = Action {
     InternalServerError("fail")
   }
 

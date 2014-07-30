@@ -74,13 +74,14 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             nexus.download_jar_if_necessary(self.run_from, self.version)
 
         unzip_dir = self._unzip_play_application()
-        force_pushdir(unzip_dir + "/..")
+        parent, _ = os.path.split(unzip_dir)
+        force_pushdir(parent)
 
         cmd_with_params = self.service_data["binary"]["cmd"] + self._build_extra_params()
         if os.path.exists(cmd_with_params[0]):
             os.chmod(cmd_with_params[0], stat.S_IRWXU)
         else:
-            print b.fail + "ERROR: unable to chmod on non existent file '" + microservice_target_path + cmd_with_params[0] + "'" + b.endc
+            print b.fail + "ERROR: unable to chmod on non existent file '" + parent + cmd_with_params[0] + "'" + b.endc
 
         makedirs_if_not_exists("logs")
 
