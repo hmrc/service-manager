@@ -125,14 +125,14 @@
         }
     },
     "BROKEN_PLAY_PROJECT": {
-        "name": "A simple, but broken play application for testing",
+        "name": "A play application with a breaking healthcheck for testing",
         "type": "play",
-        "location": "/testapps/failingplayapp",
+        "location": "/testapps/basicplayapp",
         "hasServiceMappings": true,
         "defaultPort" : 8500,
         "hasMongo" : true,
         "healthcheck": {
-            "url": "http://localhost:${port}/ping/ping",
+            "url": "http://localhost:${port}/broken/ping",
             "response": ""
         },
         "sources": {
@@ -146,12 +146,12 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
-             "artifact": "failingplaytest",
+             "artifact": "playtest",
              "groupId":"foo/bar/foo/",
              "nexus": "/content/repositories/",
-             "destinationSubdir" : "failingplayapp",
+             "destinationSubdir" : "basicplayapp",
              "cmd": [
-                     "./failingplayapp/bin/failingplayapp",
+                    "./basicplayapp/bin/basicplayapp",
                      "-DProd.microservice.whitelist.useWhitelist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
