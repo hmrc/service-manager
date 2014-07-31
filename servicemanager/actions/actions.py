@@ -8,6 +8,14 @@ from servicemanager import subprocess
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.smprocess import SmProcess
 
+def _start_services(context, service_names, fatjar, release, wait, proxy):
+    for service_name in service_names:
+        start_one(context, service_name, fatjar, release, proxy)
+
+    if wait:
+        _wait_for_services(context, service_names, wait)
+>>>>>>> 34691f07c44dc4930e703b611376936e562d5a68
+
 def start_one(context, service_name, fatjar, release, proxy, port=None):
     if release:
         run_from = "RELEASE"
