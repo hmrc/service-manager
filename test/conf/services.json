@@ -65,8 +65,8 @@
         "defaultPort" : 8080,
         "defaultAdminPort" : 8081,
         "healthcheck": {
-            "url": "http://localhost:${port}/helloworld",
-            "response": ""
+            "url": "http://localhost:${port}/ping",
+            "response": "pong"
         },
         "sources": {
             "cmd": [
@@ -116,6 +116,42 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
+                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+                     "-J-Xmx256m",
+                     "-J-Xms256m",
+                     "-J-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    "BROKEN_PLAY_PROJECT": {
+        "name": "A play application with a breaking healthcheck for testing",
+        "type": "play",
+        "location": "/testapps/basicplayapp",
+        "hasServiceMappings": true,
+        "defaultPort" : 8500,
+        "hasMongo" : true,
+        "healthcheck": {
+            "url": "http://localhost:${port}/broken/ping",
+            "response": ""
+        },
+        "sources": {
+            "cmd": [
+                "play",
+                "start"
+            ],
+            "extra_params": [
+                 "-DFoo=false"
+            ],
+            "repo": "git@github.com:hmrc/service-manager.git"
+        },
+        "binary": {
+             "artifact": "playtest",
+             "groupId":"foo/bar/foo/",
+             "nexus": "/content/repositories/",
+             "destinationSubdir" : "basicplayapp",
+             "cmd": [
+                    "./basicplayapp/bin/basicplayapp",
                      "-DProd.microservice.whitelist.useWhitelist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
