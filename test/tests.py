@@ -144,10 +144,12 @@ class TestActions(unittest.TestCase):
         service_resolver = ServiceResolver(sm_application)
 
         context.kill_everything()
+        time.sleep(5)
 
         response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
         self.assertTrue(response1)
         self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
 
         try:
             servicetostart = ["BROKEN_PLAY_PROJECT"]

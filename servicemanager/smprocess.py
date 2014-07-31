@@ -43,6 +43,9 @@ def _is_system_or_smserver_or_test_process(pid):
     if _is_pycharm_test_process(pid):
         return True
 
+    if _is_pycharm_related_process(pid):
+        True
+
     return False
 
 
@@ -88,6 +91,15 @@ def _is_pycharm_test_process(pid):
 
 def _is_pycharm_process(pid):
     command = "ps -eo pid,args | grep %d | grep 'pydevd\.py' | awk '{print $1}'" % pid
+    ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    ps_output = ps_command.stdout.read()
+    ps_pid_str = ps_output.strip()
+    if ps_pid_str and int(ps_pid_str) == pid:
+        return True
+    return False
+
+def _is_pycharm_related_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'pycharm' | awk '{print $1}'" % pid
     ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     ps_output = ps_command.stdout.read()
     ps_pid_str = ps_output.strip()
