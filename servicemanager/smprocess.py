@@ -44,7 +44,7 @@ def _is_system_or_smserver_or_test_process(pid):
         return True
 
     if _is_pycharm_related_process(pid):
-        True
+        return True
 
     return False
 
