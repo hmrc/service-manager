@@ -5,7 +5,6 @@ import json
 
 from servicemanager import subprocess
 
-
 try:
     args = json.loads(sys.argv[1])
     print u"Executing: %s" % " ".join(args)
