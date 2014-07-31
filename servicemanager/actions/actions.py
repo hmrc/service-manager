@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os
-import sys
 import time
 import calendar
 import glob
@@ -30,6 +29,16 @@ def start_one(context, service_name, fatjar, release, proxy, port=None):
 
     return False
 
+def get_start_cmd(context, service_name, fatjar, release, proxy, port=None):
+    if release:
+        run_from = "RELEASE"
+    elif fatjar:
+        run_from = "SNAPSHOT"
+    else:
+        run_from = "SOURCE"
+
+    starter = context.get_service_starter(service_name, run_from, proxy, None, None, port)
+    return starter.get_start_command(run_from)
 
 def stop_profile(context, profile):
     for service_name in context.application.services_for_profile(profile):
@@ -126,7 +135,6 @@ def _get_git_rev(context, service_name):
         return details.get("Git-Head-Rev", "")
 
     return ""
-
 
 def display_info(context, service_name):
     arguments = _get_running_process_args(context, service_name)

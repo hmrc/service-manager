@@ -12,6 +12,7 @@ import time
 import shutil
 import unittest
 import smcontext
+from servicemanager.service.smplayservice import SmPlayServiceStarter
 
 from servicemanager.serviceresolver import ServiceResolver
 
@@ -143,10 +144,12 @@ class TestActions(unittest.TestCase):
         service_resolver = ServiceResolver(sm_application)
 
         context.kill_everything()
+        time.sleep(5)
 
         response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
         self.assertTrue(response1)
         self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
 
         try:
             servicetostart = ["BROKEN_PLAY_PROJECT"]
@@ -203,6 +206,93 @@ class TestActions(unittest.TestCase):
         time.sleep(5)
         self.assertEqual(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status(), [])
 
+class TestStartCommands(unittest.TestCase):
+
+    def setUp(self):
+        set_up_and_clean_workspace()
+
+    def test_play_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PLAY_NEXUS_END_TO_END_TEST", True, False, None, port=None)
+        #starter = SmPlayServiceStarter(context, "PLAY_NEXUS_END_TO_END_TEST", True, False, None, None, None, None)
+        expected = [ './basicplayapp/bin/basicplayapp',
+                                '-DProd.microservice.whitelist.useWhitelist=false',
+                                '-DProd.mongodb.uri=mongodb://localhost:27017/auth',
+                                '-J-Xmx256m',
+                                '-J-Xms256m',
+                                '-J-XX:MaxPermSize=128m',
+                                '-Dhttp.port=8500',
+                                '-Dservice.manager.serviceName=PLAY_NEXUS_END_TO_END_TEST',
+                                '-Dservice.manager.runFrom=True']
+        self.assertEqual(starter.get_start_command("BINARY"), expected)
+
+    def test_play_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PLAY_NEXUS_END_TO_END_TEST", True, False, None, port=None)
+        expected = [ 'play', 'start -Dhttp.port=8500 -Dservice.manager.serviceName=PLAY_NEXUS_END_TO_END_TEST -Dservice.manager.runFrom=True -DFoo=false']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+
+    def test_dropwizard_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("DROPWIZARD_NEXUS_END_TO_END_TEST", "foo", proxy=None)
+        expected = [
+            '/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/bin/java',
+            '-Dfile.encoding=UTF8',
+            '-Xmx64M',
+            '-XX:+CMSClassUnloadingEnabled',
+            '-XX:MaxPermSize=64m',
+            '-Ddw.http.port=8080',
+            '-Dservice.manager.serviceName=DROPWIZARD_NEXUS_END_TO_END_TEST',
+            '-Dservice.manager.serviceName=DROPWIZARD_NEXUS_END_TO_END_TEST',
+            '-Dservice.manager.runFrom=foo',
+            '-jar',
+            'dwtest-foo-shaded.jar',
+            'server',
+            'dev_config.yml']
+        cmd = starter.get_start_command("BINARY")
+        cmd[-1] = cmd[-1].split("/")[-1]
+        cmd[len(cmd) -3] = cmd[len(cmd) -3].split("/")[-1]
+        self.assertEqual(cmd, expected)
+
+    def test_dropwizard_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("DROPWIZARD_NEXUS_END_TO_END_TEST", "foo", proxy=None)
+        expected = ['./startappfromcode.sh']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+
+    def test_python_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
+        expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
+        cmd = starter.get_start_command("BINARY")
+        self.assertEqual(cmd, expected)
+
+    def test_python_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
+        expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+
+    def test_external_binary_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
+        expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
+        cmd = starter.get_start_command("BINARY")
+        self.assertEqual(cmd, expected)
+
+    def test_external_source_config(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
+        expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
 class TestServerFunctionality(unittest.TestCase):
     def setUp(self):

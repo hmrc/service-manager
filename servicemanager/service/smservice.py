@@ -66,6 +66,10 @@ class SmServiceStarter(SmServiceBase):
     def process_arguments(self):
         pass
 
+    @abstractmethod
+    def get_start_command(self, context = None):
+        return ["get_start_command() not implemented for this type of service - fork and make a pull request :)"]
+
 
 class SmMicroServiceStarter(SmServiceStarter):
 
