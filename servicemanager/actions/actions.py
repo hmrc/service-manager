@@ -57,6 +57,9 @@ def _wait_for_services(context, service_names, seconds_to_wait):
         if "healthcheck" in context.service_data(service_name):
             waiting_for_services += [context.get_service(service_name)]
 
+    if not seconds_to_wait:
+        seconds_to_wait = 0
+
     end_time = _now() + seconds_to_wait
 
     while waiting_for_services and _now() < end_time:
@@ -160,5 +163,7 @@ def start_and_wait(service_resolver, context, start, fatjar, release, proxy, por
         else:
             print "The requested service %s does not exist" % service_name
 
-    _wait_for_services(context, all_services, seconds_to_wait)
+    if seconds_to_wait:
+        _wait_for_services(context, all_services, seconds_to_wait)
+
     print "All services passed healthcheck"
