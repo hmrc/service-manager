@@ -28,7 +28,7 @@ def _process_command():
     parser.add_argument('--pullall', action='store_true', help='Pulls all repos that you currently have')
     parser.add_argument('--noprogress', action='store_true', help='Stops file download progress from being displayed')
     parser.add_argument('--cleanlogs', action='store_true', help='Deletes the log files for all services')
-    parser.add_argument('-w', '--wait', type=int, help='Waits for started services to pass healthchecks before returning')
+    parser.add_argument('-w', '--wait', type=int, help='Wait at most the given number of seconds for services to pass healthchecks before returning')
     parser.add_argument('-d', '--describe',  action='store_true', help='Gives an outline of available services and profiles')
     parser.add_argument('-i', '--info', action='store_true', help='Shows info for started services, including git revision (if available) and java options')
     parser.add_argument('--ports', action='store_true', help='Shows a list of used default ports and their services')
@@ -74,11 +74,7 @@ def _process_command():
                 actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.restart, args.port))
 
     if args.start:
-        for service_name in service_resolver.resolve_services_from_array(args.start):
-            if context.has_service(service_name):
-                actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.start, args.port))
-            else:
-                print "The requested service %s does not exist" % service_name
+        actions.start_and_wait(service_resolver, context, args.start, args.fatjar, args.release, args.proxy, args.port, args.wait)
 
     if args.cleanlogs:
         for service_name in context.application.services:
@@ -130,3 +126,4 @@ try:
     _process_command()
 except ServiceManagerException as e:
     print e.message
+    sys.exit(-1)

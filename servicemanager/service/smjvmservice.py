@@ -120,11 +120,11 @@ class SmJvmService(SmService):
             port = self.get_default_healthcheck_port()
 
         healthcheck_url = self.service_data["healthcheck"]["url"].replace("${port}", str(port))
-        healthcheck_response_regex = self.service_data["healthcheck"]["response"]
+        healthcheck_response_regex = self.service_data["healthcheck"]["response"] or ""
 
         try:
             ping_response = requests.get(healthcheck_url)
             response_text = ping_response.text
-            return re.search(healthcheck_response_regex, response_text) is not None
+            return re.search(healthcheck_response_regex, response_text) and ping_response.status_code == 200
         except requests.RequestException:
             return False
