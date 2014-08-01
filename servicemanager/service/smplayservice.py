@@ -141,7 +141,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         makedirs_if_not_exists("logs")
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            serialised_cmd = json.dumps(self.self.get_start_command("SOURCE"))
+            serialised_cmd = json.dumps(self.get_start_command("SOURCE"))
             Popen(["python", self.sbt_py_filename, serialised_cmd], env=env_copy, stdout=out, stderr=err)
 
         seconds_remaining = SmPlayServiceStarter.PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS
