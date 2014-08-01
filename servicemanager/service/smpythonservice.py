@@ -158,15 +158,13 @@ class SmPythonService(SmService):
             self.log("POSSIBLE PROBLEM: Found more than one process")
 
         def _status_for_process(process):
-            port = self.default_port
-            healthcheck = SmServiceStatus.HEALTHCHECK_PASS if self.run_healthcheck(port) else SmServiceStatus.HEALTHCHECK_BOOT
-            return SmServiceStatus.for_process(self.service_name, process, port, "", "", "", healthcheck)
+            healthcheck = SmServiceStatus.HEALTHCHECK_PASS if self.run_healthcheck(None) else SmServiceStatus.HEALTHCHECK_BOOT
+            return SmServiceStatus.for_process(self.service_name, process, self.default_port, "", "", "", healthcheck)
 
         return map(_status_for_process, processes)
 
-    def run_healthcheck(self, port=None):
-        if not port:
-            port = self.default_port
+    def run_healthcheck(self, process):
+        port = self.default_port
 
         healthcheck_url = self.service_data["healthcheck"]["url"].replace("${port}", str(port))
 
