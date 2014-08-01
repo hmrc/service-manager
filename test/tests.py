@@ -136,6 +136,26 @@ class TestActions(unittest.TestCase):
         context.kill(servicetostart)
         self.assertEqual(context.get_service(servicetostart).status(), [])
 
+    def test_successful_play_from_jar_without_waiting(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        sm_application = smcontext.SmApplication(config_dir_override)
+        context = smcontext.SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
+
+        context.kill_everything()
+        time.sleep(5)
+
+        response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
+        self.assertTrue(response1)
+        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
+
+        try:
+            servicetostart = ["PLAY_NEXUS_END_TO_END_TEST"]
+            actions.start_and_wait(service_resolver, context, servicetostart, fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=None)
+        finally:
+            context.kill_everything()
+
     def test_failing_play_from_jar(self):
 
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
