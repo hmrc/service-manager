@@ -259,7 +259,7 @@ class TestStartCommands(unittest.TestCase):
         context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("DROPWIZARD_NEXUS_END_TO_END_TEST", "foo", proxy=None)
         expected = [
-            '/Library/Java/JavaVirtualMachines/jdk1.7.0_45.jdk/Contents/Home/bin/java',
+            'java',
             '-Dfile.encoding=UTF8',
             '-Xmx64M',
             '-XX:+CMSClassUnloadingEnabled',
@@ -274,6 +274,7 @@ class TestStartCommands(unittest.TestCase):
             'dev_config.yml']
         cmd = starter.get_start_command("BINARY")
         cmd[-1] = cmd[-1].split("/")[-1]
+        cmd[0] = cmd[0].split("/")[-1]
         cmd[len(cmd) -3] = cmd[len(cmd) -3].split("/")[-1]
         self.assertEqual(cmd, expected)
 
