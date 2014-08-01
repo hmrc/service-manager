@@ -217,6 +217,33 @@ class TestActions(unittest.TestCase):
         self.assertEqual(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status(), [])
         self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
 
+    def test_wait_on_assets_server(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        sm_application = smcontext.SmApplication(config_dir_override)
+        context = smcontext.SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
+        context.kill_everything()
+
+        context.kill("FAKE_NEXUS")
+        self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
+        time.sleep(2)
+
+        # start fake nexus
+        self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
+        response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
+        self.assertTrue(response1)
+        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
+
+        actions.start_and_wait(service_resolver, context, ["PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND"], True, False, None, port=None, seconds_to_wait=5)
+        self.assertIsNotNone(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status())
+        context.kill("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND")
+        context.kill("FAKE_NEXUS")
+        time.sleep(15)
+
+        self.assertEqual(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status(), [])
+        self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
+
     def test_python_server_offline(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, True, False)
