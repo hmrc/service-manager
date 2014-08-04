@@ -5,7 +5,7 @@ from setuptools import setup
 #    required = f.read().splitlines()
 
 setup(name='servicemanager',
-      version='0.0.9',
+      version='0.0.10',
       description='A python tool to manage developing and testing with lots of microservices',
       url='https://github.com/hmrc/service-manager',
       author='vaughansharman',
