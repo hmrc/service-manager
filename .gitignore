@@ -41,3 +41,4 @@ results.xml
 build/
 dist/
 servicemanager.egg-info/
+venv

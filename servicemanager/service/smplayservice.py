@@ -15,6 +15,8 @@ from ..smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder
 from ..smnexus import SmNexus
 from ..actions.colours import BColors
 
+from servicemanager import subprocess
+
 
 b = BColors()
 
@@ -139,7 +141,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         makedirs_if_not_exists("logs")
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err)
+            Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err, stdin=subprocess.PIPE)
 
         seconds_remaining = SmPlayServiceStarter.PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS
 
