@@ -141,7 +141,8 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         makedirs_if_not_exists("logs")
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err, stdin=subprocess.PIPE)
+            process = Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err, stdin=subprocess.PIPE)
+            process.stdin.close()
 
         seconds_remaining = SmPlayServiceStarter.PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS
 
