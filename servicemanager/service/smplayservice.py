@@ -29,8 +29,6 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         if not self.port:
             self.port = self.service_data["defaultPort"]
 
-        self.sbt_py_filename = os.path.dirname(os.path.abspath(__file__)) + "/sbt-play-wrapper.py"
-
     def _build_extra_params(self):
         extra_params = ["-Dhttp.port=%d" % self.port]
         extra_params += self.process_arguments()
@@ -141,8 +139,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         makedirs_if_not_exists("logs")
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            serialised_cmd = json.dumps(self.get_start_command("SOURCE"))
-            Popen(["python", self.sbt_py_filename, serialised_cmd], env=env_copy, stdout=out, stderr=err)
+            Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err)
 
         seconds_remaining = SmPlayServiceStarter.PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS
 
