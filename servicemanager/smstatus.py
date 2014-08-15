@@ -5,6 +5,7 @@ from servicemanager.service.smservice import SmServiceStatus
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.actions.colours import BColors
 
+import os
 
 def _format_healthcheck_status(healthcheck):
     b = BColors()
@@ -33,7 +34,7 @@ def _service_status_to_row(status):
     ]
 
 
-def dostatus(context, services, show_down_services):
+def dostatus(context, services, show_down_services, clear_before_print=False):
     b = BColors()
     up_processes_table = PrettyTable()
     up_processes_table.field_names = ["name", "ppid", "pid", "uptime", "mem", "port", "test id", "run from", "features", "healthcheck"]
@@ -60,6 +61,11 @@ def dostatus(context, services, show_down_services):
                 up_processes_table.add_row(_service_status_to_row(response))
         elif show_down_services:
             down_processes_table.add_row([service_name, b.bold + b.fail + "DOWN" + b.endc])
+
+    # Perhaps there is a better way of doing this by clearing the buffer
+    # but this will do the trick for now
+    if clear_before_print:
+        os.system("clear") # Linux only I think, but thats all we currently support, so... I guess that's ok
 
     print "Running:"
     print up_processes_table

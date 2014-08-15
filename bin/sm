@@ -20,6 +20,7 @@ def _process_command():
     parser.add_argument('-f', '--fatjar', action='store_true', help='Used with start to run services using fatjars')
     parser.add_argument('-F', '--feature', action='append', help='Enable a given feature for all services started')
     parser.add_argument('-s', '--status', nargs='*', help='Get the status of a single service or a list of services')
+    parser.add_argument('--autorefresh', nargs='*', help='Get the status of a single service or a list of services and refreshes until killed')
     parser.add_argument('-n', '--shownotrunning', action='store_true', help='Used with status command to show services that are not running')
     parser.add_argument('--proxy', type=str, help='Use with start to start those items with a proxy, i.e. add at the end --proxy localhost:8888')
     parser.add_argument('-o', '--offline', action='store_true', help='Offline mode: uses existing binaries instead of looking for an updated version online')
@@ -60,6 +61,11 @@ def _process_command():
 
     if args.status is not None:
             dostatus(context, args.status, args.shownotrunning)
+
+    if args.autorefresh is not None:
+        while True:
+            dostatus(context, args.autorefresh, args.shownotrunning, clear_before_print=True)
+            time.sleep(3)
 
     if args.describe:
         context.application.describe()
