@@ -7,7 +7,8 @@ do
 
     if [ "$1" = "--test" ] 
     then
-        sm --status --config $WORKSPACE/service-manager-config > /tmp/smstatus.txt 2>&1
+        MY_PATH="`dirname \"$0\"`"
+        sm --status --config $MY_PATH/../test/conf > /tmp/smstatus.txt 2>&1
     else
         sm --status > /tmp/smstatus.txt 2>&1
     fi
