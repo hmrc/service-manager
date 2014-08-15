@@ -133,7 +133,6 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         service_data = self.context.service_data(self.service_name)
         microservice_path = self.context.application.workspace + service_data["location"]
         curr_dir = force_pushdir(microservice_path)
-        remove_if_exists("RUNNING_PID")
 
         env_copy = os.environ.copy()
         env_copy["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params) # TODO: not needed i think anymore...
@@ -143,26 +142,9 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
             process = Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err, stdin=subprocess.PIPE)
             process.stdin.close()
-
-        seconds_remaining = SmPlayServiceStarter.PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS
-
-        while seconds_remaining > 0 and not os.path.exists("RUNNING_PID"):
-            # seconds
-            time_between_checks = 1
-            time.sleep(time_between_checks)
-            seconds_remaining -= time_between_checks
-            if seconds_remaining < 10 or seconds_remaining % 5 == 0:
-                self.log("Waiting for Play service to start: %s second%s before timeout" % (
-                    seconds_remaining, "s" if seconds_remaining > 1 else ""))
-
-        if os.path.exists("RUNNING_PID"):
-            with open("RUNNING_PID") as f:
-                play_pid = int(f.readline())
-            os.chdir(curr_dir)
-            return play_pid
-        else:
-            raise self.context.exception(
-                "Unable to start Play service '%s' from source, process did not start (no RUNNING_PID file)" % self.service_name)
+            if process.returncode == 1:
+                print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
+            return process.pid # Note: This is the parent pid
 
 
 class SmPlayService(SmJvmService):
@@ -177,9 +159,7 @@ class SmPlayService(SmJvmService):
         self.healthcheck = self.required_data("healthcheck")
 
     def post_stop(self):
-        microservice_path = self.context.application.workspace + self.service_data["location"]
-        pid_file_path = microservice_path + "/RUNNING_PID"
-        remove_if_exists(pid_file_path)
+        pass
 
     def clean_up(self):
         unzip_path = SmPlayService.unzipped_dir_path(self.context, self.service_data["location"])

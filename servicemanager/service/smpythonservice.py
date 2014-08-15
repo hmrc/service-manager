@@ -136,9 +136,6 @@ class SmPythonService(SmService):
             os.kill(pid_int, signal.SIGINT)
             self.log("PID  %d killed" % pid_int)
 
-        microservice_path = self.context.application.workspace + self.service_data["location"]
-        pid_file_path = microservice_path + "/RUNNING_PID"
-        remove_if_exists(pid_file_path)
 
     def clean_up(self):
         unzip_path = SmPythonService.unzipped_dir_path(self.context, self.service_data["location"])
