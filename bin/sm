@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import time
-import argparse
+import argparse, argcomplete
 import json
 import sys
 from collections import OrderedDict
@@ -13,6 +13,12 @@ from servicemanager.smrepo import pull_rebase_repo
 from servicemanager.actions import actions
 from servicemanager import smrepo
 
+def ServiceCompleter(prefix, **kwargs):
+    parsed_args = kwargs["parsed_args"]
+    application = SmApplication(configuration_dir_parameter=parsed_args.config, features=parsed_args.feature)
+    service_resolver = ServiceResolver(application)
+    return service_resolver.resolve_services(prefix + "*")
+
 def _process_command():
 
     parser = argparse.ArgumentParser(description='Service Manager - Start, Stop and View services')
@@ -23,9 +29,9 @@ def _process_command():
     parser.add_argument('-n', '--shownotrunning', action='store_true', help='Used with status command to show services that are not running')
     parser.add_argument('--proxy', type=str, help='Use with start to start those items with a proxy, i.e. add at the end --proxy localhost:8888')
     parser.add_argument('-o', '--offline', action='store_true', help='Offline mode: uses existing binaries instead of looking for an updated version online')
-    parser.add_argument('--start', type=str, nargs='*', help='Starts a single service/profile, or a list of services/profiles')
-    parser.add_argument('--restart', type=str, nargs='*', help='Restarts a single service/profile or a list of services/profiles')
-    parser.add_argument('--stop', type=str, nargs='*', help='Stops a single service by id')
+    parser.add_argument('--start', type=str, nargs='*', help='Starts a single service/profile, or a list of services/profiles').completer = ServiceCompleter
+    parser.add_argument('--restart', type=str, nargs='*', help='Restarts a single service/profile or a list of services/profiles').completer = ServiceCompleter
+    parser.add_argument('--stop', type=str, nargs='*', help='Stops a single service by id').completer = ServiceCompleter
     parser.add_argument('--pullall', action='store_true', help='Pulls all repos that you currently have')
     parser.add_argument('--noprogress', action='store_true', help='Stops file download progress from being displayed')
     parser.add_argument('--cleanlogs', action='store_true', help='Deletes the log files for all services')
@@ -39,6 +45,8 @@ def _process_command():
     parser.add_argument('-c', '--config', type=str, help='Sets the configuration directory location, defaults to $WORKSPACE/service-manager-config')
     parser.add_argument('--getdascode', action='store_true', help='Checkout all of the code if you haven\'t already')
     parser.add_argument('--showcmdfor', type=str, nargs='*', help='Shows how sm will try start the service')
+
+    argcomplete.autocomplete(parser)
 
     args = parser.parse_args()
 
