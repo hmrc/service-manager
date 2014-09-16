@@ -5,6 +5,7 @@ import argparse, argcomplete
 import json
 import sys
 from collections import OrderedDict
+import os
 
 from servicemanager.serviceresolver import ServiceResolver
 from servicemanager.smstatus import dostatus
@@ -46,6 +47,7 @@ def _process_command():
     parser.add_argument('-c', '--config', type=str, help='Sets the configuration directory location, defaults to $WORKSPACE/service-manager-config')
     parser.add_argument('--getdascode', action='store_true', help='Checkout all of the code if you haven\'t already')
     parser.add_argument('--showcmdfor', type=str, nargs='*', help='Shows how sm will try start the service')
+    parser.add_argument('-l', '--logs', type=str, help='View the logs associated with the service').completer = ServiceCompleter
 
     argcomplete.autocomplete(parser)
 
@@ -148,6 +150,21 @@ def _process_command():
             else:
                 print "The requested service %s does not exist" % service_name
 
+    if args.logs:
+        if context.has_service(args.logs):
+            logfile = actions.get_log_file(context, args.logs)
+            pager = os.environ.get("PAGER")
+            if pager:
+                args = pager.split()[1:]
+                pager = pager.split()[0]
+            else:
+                pager = "less"
+                args = ["+G","-R"] # Start at the end of the file, and display binary characters properly.
+            args.insert(0, pager)
+            args.append(logfile)
+            os.execvp(pager, args)
+        else:
+            print "The requested service %s does not exist" % args.logs
 
 try:
     _process_command()
