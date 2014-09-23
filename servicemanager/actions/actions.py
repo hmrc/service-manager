@@ -167,3 +167,23 @@ def start_and_wait(service_resolver, context, start, fatjar, release, proxy, por
         _wait_for_services(context, all_services, seconds_to_wait)
 
     print "All services passed healthcheck"
+
+
+def get_log_file(context, service_name):
+
+    def mtime(path):
+        try:
+            return os.path.getmtime(path)
+        except os.error:
+            return 0
+
+    data = context.service_data(service_name)
+    if "location" in data:
+        logs = [context.application.workspace + data["location"] + "/logs/stdout.txt",
+                context.application.workspace + data["location"] + "/target/logs/stdout.txt"]
+        if not any([os.path.exists(log) for log in logs]):
+            raise ServiceManagerException("Cannot find log files for %s" % service_name)
+        else:
+            return sorted(logs, key=mtime, reverse=True)[0]
+
+
