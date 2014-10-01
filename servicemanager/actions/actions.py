@@ -7,6 +7,7 @@ import glob
 from servicemanager import subprocess
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.smprocess import SmProcess
+from servicemanager.service.smplayservice import SmPlayService
 
 def start_one(context, service_name, fatjar, release, proxy, port=None):
     if release:
@@ -180,10 +181,12 @@ def get_log_file(context, service_name):
     data = context.service_data(service_name)
     if "location" in data:
         logs = [context.application.workspace + data["location"] + "/logs/stdout.txt",
-                context.application.workspace + data["location"] + "/target/logs/stdout.txt"]
+                context.application.workspace + data["location"] + "/target/logs/stdout.txt",
+                SmPlayService.unzipped_dir_path(context, data["location"]) + "/logs/stdout.txt"]
         if not any([os.path.exists(log) for log in logs]):
             raise ServiceManagerException("Cannot find log files for %s" % service_name)
         else:
             return sorted(logs, key=mtime, reverse=True)[0]
-
+    else:
+        raise ServiceManagerException("Cannot find a location for %s" % service_name)
 
