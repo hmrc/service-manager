@@ -46,6 +46,7 @@ def _process_command():
     parser.add_argument('--printconfig', type=str, nargs='*', help='Print the config for a given list of services, if empty, show all')
     parser.add_argument('-c', '--config', type=str, help='Sets the configuration directory location, defaults to $WORKSPACE/service-manager-config')
     parser.add_argument('--getdascode', action='store_true', help='Checkout all of the code if you haven\'t already')
+    parser.add_argument('--checkoutcode', type=str, nargs='*', help='Checkout code for a particular project or profile if you haven\'t already')
     parser.add_argument('--showcmdfor', type=str, nargs='*', help='Shows how sm will try start the service')
     parser.add_argument('-l', '--logs', type=str, help='View the logs associated with the service').completer = ServiceCompleter
 
@@ -135,6 +136,13 @@ def _process_command():
 
     if args.getdascode:
         for service_name in context.application.services:
+            service_data = context.application.services[service_name]
+            if "sources" in service_data and "location" in service_data and "repo" in service_data["sources"]:
+                path = context.application.workspace + service_data["location"]
+                smrepo.clone_repo_if_required_raw(service_name, service_data["sources"]["repo"], path, context)
+
+    if args.checkoutcode:
+        for service_name in service_resolver.resolve_services_from_array(args.checkoutcode):
             service_data = context.application.services[service_name]
             if "sources" in service_data and "location" in service_data and "repo" in service_data["sources"]:
                 path = context.application.workspace + service_data["location"]
