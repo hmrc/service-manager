@@ -45,7 +45,7 @@ def _process_command():
     parser.add_argument('--checkports', action='store_true', help='Validates default ports for duplicates - returns code 1 if duplicates exist')
     parser.add_argument('--printconfig', type=str, nargs='*', help='Print the config for a given list of services, if empty, show all')
     parser.add_argument('-c', '--config', type=str, help='Sets the configuration directory location, defaults to $WORKSPACE/service-manager-config')
-    parser.add_argument('--getdascode', action='store_true', help='Checkout all of the code if you haven\'t already')
+    parser.add_argument('--getdascode', nargs='*', help='With no arguements, checks out all services if you haven\'t already. Else checks out just the specified service or profile.')
     parser.add_argument('--showcmdfor', type=str, nargs='*', help='Shows how sm will try start the service')
     parser.add_argument('-l', '--logs', type=str, help='View the logs associated with the service').completer = ServiceCompleter
 
@@ -133,8 +133,11 @@ def _process_command():
                                                   " in services: " + service_name + " and " + ports_used[service["defaultAdminPort"]])
                     ports_used[service["defaultAdminPort"]] = service_name
 
-    if args.getdascode:
-        for service_name in context.application.services:
+    if args.getdascode is not None:
+        services = context.application.services
+        if len(args.getdascode) > 0:
+            services = service_resolver.resolve_services_from_array(args.getdascode)
+        for service_name in services:
             service_data = context.application.services[service_name]
             if "sources" in service_data and "location" in service_data and "repo" in service_data["sources"]:
                 path = context.application.workspace + service_data["location"]
