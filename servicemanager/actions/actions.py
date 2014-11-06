@@ -17,13 +17,17 @@ def start_one(context, service_name, fatjar, release, proxy, port=None):
     else:
         run_from = "SOURCE"
 
+    version = release
+    if version == "LATEST":
+        version = None
+
     existing_service_status = context.get_service(service_name).status()
 
     if len(existing_service_status) > 0:
         print "There is already: '" + str(len(existing_service_status)) + "' instance(s) of the service: '" + service_name + "' running"
         return False
 
-    if context.start_service(service_name, run_from, proxy, None, None, port):
+    if context.start_service(service_name, run_from, proxy, port=port, version=version):
         if context.get_service(service_name).is_started_on_default_port():
             print "Started: " + service_name
             return True
@@ -38,7 +42,11 @@ def get_start_cmd(context, service_name, fatjar, release, proxy, port=None):
     else:
         run_from = "SOURCE"
 
-    starter = context.get_service_starter(service_name, run_from, proxy, None, None, port)
+    version = release
+    if version == "LATEST":
+        version = None
+
+    starter = context.get_service_starter(service_name, run_from, proxy, port=port, version=version)
     return starter.get_start_command(run_from)
 
 def stop_profile(context, profile):
