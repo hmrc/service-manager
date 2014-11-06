@@ -103,7 +103,12 @@ class SmNexus():
         response.close()
         return dom
 
-    def _find_latest_version(self, repository, artifact):
+    def find_latest_version(self, run_from, artifact):
+        if run_from == "RELEASE":
+            repository = "Release"
+        else:
+            repository = "Snapshot"
+
         version_env_var = None
         if "versionEnv" in self.context.service_data(self.service_name):
             version_env_var = self.context.service_data(self.service_name)["versionEnv"]
@@ -145,14 +150,12 @@ class SmNexus():
         microservice_target_path = self.context.get_microservice_target_path(self.service_name)
         repo_mappings = self.context.config_value("nexus")["repoMappings"]
         if run_from == "RELEASE":
-            type_repository = "Release"
             url_type_repository = repo_mappings["RELEASE"]
         else:
-            type_repository = "Snapshot"
             url_type_repository = repo_mappings["SNAPSHOT"]
 
         if not version:
-            version = self._find_latest_version(type_repository, artifact)
+            version = self.find_latest_version(run_from, artifact)
 
         if version:
             nexus_extension = self._create_nexus_extension()
