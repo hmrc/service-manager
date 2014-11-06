@@ -23,7 +23,7 @@ def ServiceCompleter(prefix, **kwargs):
 def _process_command():
 
     parser = argparse.ArgumentParser(description='Service Manager - Start, Stop and View services')
-    parser.add_argument('-r', '--release', action='store_true', help='Used with start to run services using release versions')
+    parser.add_argument('-r', '--release', type=str, nargs="?", const="LATEST", help='Used with start to run services using the specified release version, or the latest if unspecified')
     parser.add_argument('-f', '--fatjar', action='store_true', help='Used with start to run services using fatjars')
     parser.add_argument('-F', '--feature', action='append', help='Enable a given feature for all services started')
     parser.add_argument('-s', '--status', nargs='*', help='Get the status of a single service or a list of services')

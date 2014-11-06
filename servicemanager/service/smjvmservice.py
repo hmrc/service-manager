@@ -29,8 +29,11 @@ class SmJvmServiceStarter(SmMicroServiceStarter):
             return self.start_from_binary()
 
     def process_arguments(self):
+        run_from = self.run_from
+        if self.run_from=="RELEASE":
+            run_from = (self.version or "UNKNOWN") + "-" + run_from
         jvm_args = ["-Dservice.manager.serviceName=%s" % self.service_name]
-        jvm_args += ["-Dservice.manager.runFrom=%s" % self.run_from]
+        jvm_args += ["-Dservice.manager.runFrom=%s" % run_from]
         if self.context.is_test:
             jvm_args += ["-Dservice.manager.testId=%s" % self.context.test_id]
             jvm_args += ["-Dservice.manager.startTime=%s" % time.time()]
