@@ -79,6 +79,8 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         if not self.context.offline:
             nexus = SmNexus(self.context, self.service_name)
+            if not self.version:
+                self.version = nexus.find_latest_version(self.run_from, self.service_data["binary"]["artifact"])
             nexus.download_jar_if_necessary(self.run_from, self.version)
 
         unzip_dir = self._unzip_play_application()
