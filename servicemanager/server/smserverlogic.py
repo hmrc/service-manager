@@ -193,12 +193,13 @@ class SmStartRequest(SmRequest):
             run_from = orchestration_services[service_name]["runFrom"]
             classifier = orchestration_services[service_name]["classifier"]
             version = orchestration_services[service_name]["version"]
+            append_args = orchestration_services[service_name]["appendArgs"] # Allows for dynamic config overriding
 
             # Allow for deprecated run_from values
             if run_from in deprecated_release_params:
                 run_from = deprecated_release_params[run_from]
 
-            self.context.start_service(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version)
+            self.context.start_service(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, append_args)
 
     def _await_service_startup(self, service_name, port, admin_port):
         seconds_remaining = SERVICE_START_TIMEOUT_SECONDS
@@ -268,6 +269,10 @@ class SmStartRequest(SmRequest):
         if "version" in service_start_request and service_start_request["version"]:
             version = service_start_request["version"]
 
+        append_args = []
+        if "appendArgs" in service_start_request:
+            append_args = service_start_request["appendArgs"]
+
         if need_classifier:
 
             valid_classifiers = "[" + (",".join(str(x) for x in mapping.keys())) + "]"
@@ -290,7 +295,7 @@ class SmStartRequest(SmRequest):
             service_name = mapping
             classifier = None
 
-        return service_mapping_name, service_name, classifier, version
+        return service_mapping_name, service_name, classifier, version, append_args
 
     def _validate_start_request_and_assign_ports(self, services_to_start, dontrunfromsource):
 
@@ -299,7 +304,7 @@ class SmStartRequest(SmRequest):
 
         for service_start_request in services_to_start:
 
-            service_mapping_name, service_name, classifier, version = self._service_mapping_for(service_start_request)
+            service_mapping_name, service_name, classifier, version, append_args = self._service_mapping_for(service_start_request)
 
             if service_mapping_name in service_mapping_ports:
                 raise self._bad_request_exception("Duplicate entry for service '%s' in start request" % service_mapping_name)
@@ -334,7 +339,8 @@ class SmStartRequest(SmRequest):
                     "adminPort": admin_port,
                     "runFrom": run_from,
                     "classifier": classifier,
-                    "version": version
+                    "version": version,
+                    "appendArgs": append_args
                 }
 
         return orchestration_services, service_mapping_ports

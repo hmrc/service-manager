@@ -7,6 +7,8 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../serviceman
 from servicemanager.actions import actions
 from servicemanager.server import smserverlogic
 from servicemanager.smcontext import ServiceManagerException
+from servicemanager.smprocess import SmProcess
+from servicemanager.service.smplayservice import SmPlayService
 
 import time
 import shutil
@@ -331,16 +333,16 @@ class TestStartCommands(unittest.TestCase):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
-        expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
-        cmd = starter.get_start_command("BINARY")
+        expected = [ 'python', 'fakenexus.py']
+        cmd = starter.get_start_command("BINARY") #context will be ignored
         self.assertEqual(cmd, expected)
 
     def test_external_source_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
-        expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
-        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+        expected = [ 'python', 'fakenexus.py']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected) #context will be ignored
 
 class TestServerFunctionality(unittest.TestCase):
     def setUp(self):
@@ -360,6 +362,68 @@ class TestServerFunctionality(unittest.TestCase):
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
         # stop does not currently work for extern
         # smserverlogic.SmStopRequest(SERVER, request).process_request()
+        context.kill_everything()
+        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+
+    def test_play_with_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+
+        # Start up fake nexus first
+        response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
+        self.assertTrue(response1)
+        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
+
+        server = smserverlogic.SmServer(smcontext.SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT", "appendArgs": ["-Dfoo=bar"]}]
+        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        time.sleep(5)
+        self.assertEqual(len(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status()), 1)
+        service = SmPlayService(context, "PLAY_NEXUS_END_TO_END_TEST")
+        processes = SmProcess.processes_matching(service.pattern)
+        self.assertEqual(len(processes), 1)
+        self.assertTrue("-Dfoo=bar" in processes[0].args)
+        context.kill_everything()
+        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+
+    def test_external_with_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+        server = smserverlogic.SmServer(smcontext.SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": [";echo foo"]}]
+        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        self.assertIsNotNone(context.get_service("TEST_ONE").status())
+        pattern = context.application.services["TEST_ONE"]["pattern"]
+        processes = SmProcess.processes_matching(pattern)
+        # stop does not currently work for extern
+        # smserverlogic.SmStopRequest(SERVER, request).process_request()
+        self.assertEqual(len(processes), 2) #we expect two proecesses to be spawned because of the appended command
+        self.assertTrue(";echo" in processes[0].args or ";echo" in processes[1].args)
+        context.kill_everything()
+        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+
+    def test_external_with_invalid_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+        server = smserverlogic.SmServer(smcontext.SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": ";echo foo"}]
+        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        self.assertIsNotNone(context.get_service("TEST_ONE").status())
+        pattern = context.application.services["TEST_ONE"]["pattern"]
+        processes = SmProcess.processes_matching(pattern)
+        # stop does not currently work for extern
+        # smserverlogic.SmStopRequest(SERVER, request).process_request()
+        self.assertEqual(len(processes), 0) #nothing will be started because the config throws an error
         context.kill_everything()
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
 

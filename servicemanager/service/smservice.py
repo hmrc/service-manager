@@ -2,7 +2,6 @@
 
 from abc import abstractmethod
 
-
 class SmServiceBase():
     def __init__(self, context, service_name, expected_service_type):
         self.context = context
@@ -55,8 +54,9 @@ class SmService(SmServiceBase):
 
 class SmServiceStarter(SmServiceBase):
 
-    def __init__(self, context, service_name, expected_service_type):
+    def __init__(self, context, service_name, expected_service_type, append_args):
         SmServiceBase.__init__(self, context, service_name, expected_service_type)
+        self.append_args = append_args
 
     @abstractmethod
     def start(self):
@@ -73,8 +73,8 @@ class SmServiceStarter(SmServiceBase):
 
 class SmMicroServiceStarter(SmServiceStarter):
 
-    def __init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy):
-        SmServiceStarter.__init__(self, context, service_name, expected_service_type)
+    def __init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+        SmServiceStarter.__init__(self, context, service_name, expected_service_type, append_args)
 
         self.run_from = run_from
         self.version = version
@@ -89,7 +89,7 @@ class SmMicroServiceStarter(SmServiceStarter):
         self.sources = self.service_data["sources"]
 
     @abstractmethod
-    def start(self):
+    def start(self, appendArgs=None):
         pass
 
     @abstractmethod

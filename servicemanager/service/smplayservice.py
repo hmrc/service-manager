@@ -25,8 +25,8 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
     PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS = 120
 
-    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy):
-        SmMicroServiceStarter.__init__(self, context, service_name, "play", run_from, port, classifier, service_mapping_ports, version, proxy)
+    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+        SmMicroServiceStarter.__init__(self, context, service_name, "play", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
 
         if not self.port:
             self.port = self.service_data["defaultPort"]
@@ -62,6 +62,9 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 "-Dhttp.proxyHost=" + proxy_config[0],
                 "-Dhttp.proxyPort=" + proxy_config[1]
             ]
+
+        if self.append_args:
+            extra_params += self.append_args
 
         return extra_params
 
