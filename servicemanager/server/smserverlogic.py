@@ -6,6 +6,7 @@ import requests
 import sys
 import traceback
 import re
+import types
 
 from abc import abstractmethod
 from bottle import request, response
@@ -305,6 +306,9 @@ class SmStartRequest(SmRequest):
         for service_start_request in services_to_start:
 
             service_mapping_name, service_name, classifier, version, append_args = self._service_mapping_for(service_start_request)
+
+            if append_args and not isinstance(append_args, types.ListType):
+                raise self._bad_request_exception("WARNING: I was passed a non list for append args of '" + str(append_args) + "' I dont know what to do with this")
 
             if service_mapping_name in service_mapping_ports:
                 raise self._bad_request_exception("Duplicate entry for service '%s' in start request" % service_mapping_name)

@@ -7,6 +7,7 @@ import stat
 import time
 import json
 import copy
+import types
 
 from servicemanager.subprocess import Popen
 from ..service.smservice import SmMicroServiceStarter
@@ -64,7 +65,10 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             ]
 
         if self.append_args:
-            extra_params += self.append_args
+            if not isinstance(self.append_args, types.ListType):
+                self.log("WARNING: I was passed a non list for append args of '" + str(self.append_args) + "' I dont know what to do with this")
+            else:
+                extra_params += self.append_args
 
         return extra_params
 

@@ -3,7 +3,6 @@ import os
 import re
 
 import requests
-
 import types
 
 from servicemanager.service.smservice import SmServiceStarter, SmService, SmServiceStatus
@@ -23,10 +22,11 @@ class SmExternalServiceStarter(SmServiceStarter):
         self.cmd = self.service_data["cmd"]
 
     def get_start_command(self, context=None):
-        if self.append_args is not None:
+        if self.append_args:
             if isinstance(self.append_args, types.ListType):
                 return self.cmd + self.append_args
             else:
+                return self.cmd
                 self.log("WARNING: I was passed a non list for append args of '" + str(self.append_args) + "' I dont know what to do with this")
         else:
             return self.cmd
