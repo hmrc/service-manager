@@ -9,7 +9,9 @@ from servicemanager.server import smserverlogic
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.smprocess import SmProcess
 from servicemanager.service.smplayservice import SmPlayService
+from servicemanager.server.smserverlogic import BadRequestException
 
+import pytest
 import time
 import shutil
 import unittest
@@ -390,6 +392,17 @@ class TestServerFunctionality(unittest.TestCase):
         context.kill_everything()
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
 
+    def test_play_with_invalid_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+        server = smserverlogic.SmServer(smcontext.SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT", "appendArgs": "-Dfoo=bar"}]
+        with pytest.raises(BadRequestException):
+            smserverlogic.SmStartRequest(server, request, True, False).process_request()
+
     def test_external_with_append_args(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
@@ -417,15 +430,8 @@ class TestServerFunctionality(unittest.TestCase):
         request = dict()
         request["testId"] = "foo"
         request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": ";echo foo"}]
-        smserverlogic.SmStartRequest(server, request, True, False).process_request()
-        self.assertIsNotNone(context.get_service("TEST_ONE").status())
-        pattern = context.application.services["TEST_ONE"]["pattern"]
-        processes = SmProcess.processes_matching(pattern)
-        # stop does not currently work for extern
-        # smserverlogic.SmStopRequest(SERVER, request).process_request()
-        self.assertEqual(len(processes), 0) #nothing will be started because the config throws an error
-        context.kill_everything()
-        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        with pytest.raises(BadRequestException):
+            smserverlogic.SmStartRequest(server, request, True, False).process_request()
 
     def test_offline(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
