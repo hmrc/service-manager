@@ -16,8 +16,8 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
 
     DEV_NULL = open(os.devnull, 'w')
 
-    def __init__(self, context, service_name, run_from, port, admin_port, classifier, service_mapping_ports, version, proxy):
-        SmMicroServiceStarter.__init__(self, context, service_name, "dropwizard", run_from, port, classifier, service_mapping_ports, version, proxy)
+    def __init__(self, context, service_name, run_from, port, admin_port, classifier, service_mapping_ports, version, proxy, append_args=None):
+        SmMicroServiceStarter.__init__(self, context, service_name, "dropwizard", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
 
         self.admin_port = admin_port
 

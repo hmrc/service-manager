@@ -20,8 +20,8 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
 
     PROCESS_STARTUP_TIMEOUT_SECONDS = 90
 
-    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy):
-        SmMicroServiceStarter.__init__(self, context, service_name, "assets", run_from, port, classifier, service_mapping_ports, version, None)
+    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy=None, append_args=None):
+        SmMicroServiceStarter.__init__(self, context, service_name, "assets", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
 
         if not self.port:
             self.port = self.service_data["defaultPort"]

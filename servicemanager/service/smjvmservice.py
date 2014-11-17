@@ -15,10 +15,10 @@ class SmJvmServiceStarter(SmMicroServiceStarter):
 
     test_id_param = "service.manager.testId"
 
-    def __init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy):
-        SmMicroServiceStarter.__init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy)
+    def __init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+        SmMicroServiceStarter.__init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
 
-    def start(self):
+    def start(self, appendArgs=None):
         if self.run_from == "SOURCE":
             if not clone_repo_if_requred(self):
                 # TODO - should this just return None? or throw an exception?  Should clone_repo_if_required throw an exception?
