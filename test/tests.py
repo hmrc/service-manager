@@ -6,13 +6,15 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/' + '../serviceman
 # dont do this in production code, this is bad practice it would seem, only for tests
 from servicemanager.actions import actions
 from servicemanager.server import smserverlogic
-from servicemanager.smcontext import ServiceManagerException
+from servicemanager.smcontext import SmApplication, SmContext, ServiceManagerException
+from servicemanager.smprocess import SmProcess
+from servicemanager.service.smplayservice import SmPlayService
+from servicemanager.server.smserverlogic import BadRequestException
 
+import pytest
 import time
 import shutil
 import unittest
-import smcontext
-from servicemanager.service.smplayservice import SmPlayServiceStarter
 
 from servicemanager.serviceresolver import ServiceResolver
 
@@ -40,7 +42,7 @@ class TestFileServer(unittest.TestCase):
     def test_file_server(self):
         name = "FAKE_NEXUS"
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
 
         context.kill("FAKE_NEXUS")
         self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
@@ -63,12 +65,12 @@ class TestNexus(unittest.TestCase):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
 
         # start fake nexus
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
         self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
         time.sleep(5)
 
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         servicetostart = "PLAY_NEXUS_END_TO_END_TEST"
         actions.start_one(context, servicetostart, True, False, None, port=None)
         self.assertIsNotNone(context.get_service(servicetostart).status())
@@ -86,7 +88,7 @@ class TestActions(unittest.TestCase):
 
     def test_start_and_stop_one(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         actions.start_one(context, "TEST_ONE", True, False, None, port=None)
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
         context.kill("TEST_ONE")
@@ -94,8 +96,8 @@ class TestActions(unittest.TestCase):
 
     def test_dropwizard_from_source(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        sm_application = smcontext.SmApplication(config_dir_override)
-        context = smcontext.SmContext(sm_application, None, False, False)
+        sm_application = SmApplication(config_dir_override)
+        context = SmContext(sm_application, None, False, False)
         service_resolver = ServiceResolver(sm_application)
 
         servicetostart = "DROPWIZARD_NEXUS_END_TO_END_TEST"
@@ -106,8 +108,8 @@ class TestActions(unittest.TestCase):
 
     def test_dropwizard_from_jar(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        sm_application = smcontext.SmApplication(config_dir_override)
-        context = smcontext.SmContext(sm_application, None, False, False)
+        sm_application = SmApplication(config_dir_override)
+        context = SmContext(sm_application, None, False, False)
         service_resolver = ServiceResolver(sm_application)
 
         # start fake nexus
@@ -126,8 +128,8 @@ class TestActions(unittest.TestCase):
 
     def test_play_from_source(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        sm_application = smcontext.SmApplication(config_dir_override)
-        context = smcontext.SmContext(sm_application, None, False, False)
+        sm_application = SmApplication(config_dir_override)
+        context = SmContext(sm_application, None, False, False)
         service_resolver = ServiceResolver(sm_application)
 
         servicetostart = "PLAY_NEXUS_END_TO_END_TEST"
@@ -138,8 +140,8 @@ class TestActions(unittest.TestCase):
 
     def test_successful_play_from_jar_without_waiting(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        sm_application = smcontext.SmApplication(config_dir_override)
-        context = smcontext.SmContext(sm_application, None, False, False)
+        sm_application = SmApplication(config_dir_override)
+        context = SmContext(sm_application, None, False, False)
         service_resolver = ServiceResolver(sm_application)
 
         context.kill_everything()
@@ -159,8 +161,8 @@ class TestActions(unittest.TestCase):
     def test_failing_play_from_jar(self):
 
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        sm_application = smcontext.SmApplication(config_dir_override)
-        context = smcontext.SmContext(sm_application, None, False, False)
+        sm_application = SmApplication(config_dir_override)
+        context = SmContext(sm_application, None, False, False)
         service_resolver = ServiceResolver(sm_application)
 
         context.kill_everything()
@@ -183,7 +185,7 @@ class TestActions(unittest.TestCase):
 
     def test_start_and_stop_one_duplicate(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         response1 = actions.start_one(context, "TEST_ONE", True, False, None, port=None)
         self.assertTrue(response1)
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
@@ -194,7 +196,7 @@ class TestActions(unittest.TestCase):
 
     def test_assets_server(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         context.kill_everything()
 
         context.kill("FAKE_NEXUS")
@@ -219,8 +221,8 @@ class TestActions(unittest.TestCase):
 
     def test_wait_on_assets_server(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        sm_application = smcontext.SmApplication(config_dir_override)
-        context = smcontext.SmContext(sm_application, None, False, False)
+        sm_application = SmApplication(config_dir_override)
+        context = SmContext(sm_application, None, False, False)
         service_resolver = ServiceResolver(sm_application)
         context.kill_everything()
 
@@ -246,7 +248,7 @@ class TestActions(unittest.TestCase):
 
     def test_python_server_offline(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, True, False)
+        context = SmContext(SmApplication(config_dir_override), None, True, False)
         actions.start_one(context, "PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", True, False, None, port=None)
         self.assertIsNotNone(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status())
         context.kill("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND")
@@ -260,7 +262,7 @@ class TestStartCommands(unittest.TestCase):
 
     def test_play_binary_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("PLAY_NEXUS_END_TO_END_TEST", True, False, None, port=None)
         #starter = SmPlayServiceStarter(context, "PLAY_NEXUS_END_TO_END_TEST", True, False, None, None, None, None)
         expected = [ './basicplayapp/bin/basicplayapp',
@@ -276,14 +278,14 @@ class TestStartCommands(unittest.TestCase):
 
     def test_play_source_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("PLAY_NEXUS_END_TO_END_TEST", True, False, None, port=None)
         expected = [ 'play', 'start -Dhttp.port=8500 -Dservice.manager.serviceName=PLAY_NEXUS_END_TO_END_TEST -Dservice.manager.runFrom=True -DFoo=false']
         self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
     def test_dropwizard_binary_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("DROPWIZARD_NEXUS_END_TO_END_TEST", "foo", proxy=None)
         expected = [
             'java',
@@ -307,14 +309,14 @@ class TestStartCommands(unittest.TestCase):
 
     def test_dropwizard_source_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("DROPWIZARD_NEXUS_END_TO_END_TEST", "foo", proxy=None)
         expected = ['./startappfromcode.sh']
         self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
     def test_python_binary_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
         expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
         cmd = starter.get_start_command("BINARY")
@@ -322,25 +324,25 @@ class TestStartCommands(unittest.TestCase):
 
     def test_python_source_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
         expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
         self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
     def test_external_binary_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
-        expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
-        cmd = starter.get_start_command("BINARY")
+        expected = [ 'python', 'fakenexus.py']
+        cmd = starter.get_start_command("BINARY") #context will be ignored
         self.assertEqual(cmd, expected)
 
     def test_external_source_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
-        expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
-        self.assertEqual(starter.get_start_command("SOURCE"), expected)
+        expected = [ 'python', 'fakenexus.py']
+        self.assertEqual(starter.get_start_command("SOURCE"), expected) #context will be ignored
 
 class TestServerFunctionality(unittest.TestCase):
     def setUp(self):
@@ -348,9 +350,9 @@ class TestServerFunctionality(unittest.TestCase):
 
     def test_simple(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         context.kill_everything()
-        server = smserverlogic.SmServer(smcontext.SmApplication(config_dir_override, None))
+        server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
         request = dict()
         request["testId"] = "foo"
         request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT"},
@@ -363,11 +365,77 @@ class TestServerFunctionality(unittest.TestCase):
         context.kill_everything()
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
 
+    def test_play_with_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+
+        # Start up fake nexus first
+        response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
+        self.assertTrue(response1)
+        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
+
+        server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT", "appendArgs": ["-Dfoo=bar"]}]
+        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        time.sleep(5)
+        self.assertEqual(len(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status()), 1)
+        service = SmPlayService(context, "PLAY_NEXUS_END_TO_END_TEST")
+        processes = SmProcess.processes_matching(service.pattern)
+        self.assertEqual(len(processes), 1)
+        self.assertTrue("-Dfoo=bar" in processes[0].args)
+        context.kill_everything()
+        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+
+    def test_play_with_invalid_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+        server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT", "appendArgs": "-Dfoo=bar"}]
+        with pytest.raises(BadRequestException):
+            smserverlogic.SmStartRequest(server, request, True, False).process_request()
+
+    def test_external_with_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+        server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": [";echo foo"]}]
+        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        self.assertIsNotNone(context.get_service("TEST_ONE").status())
+        pattern = context.application.services["TEST_ONE"]["pattern"]
+        processes = SmProcess.processes_matching(pattern)
+        # stop does not currently work for extern
+        # smserverlogic.SmStopRequest(SERVER, request).process_request()
+        self.assertEqual(len(processes), 2) #we expect two proecesses to be spawned because of the appended command
+        self.assertTrue(";echo" in processes[0].args or ";echo" in processes[1].args)
+        context.kill_everything()
+        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+
+    def test_external_with_invalid_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        context.kill_everything()
+        server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
+        request = dict()
+        request["testId"] = "foo"
+        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": ";echo foo"}]
+        with pytest.raises(BadRequestException):
+            smserverlogic.SmStartRequest(server, request, True, False).process_request()
+
     def test_offline(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         context.kill_everything()
-        server = smserverlogic.SmServer(smcontext.SmApplication(config_dir_override, None))
+        server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
         request = dict()
         request["testId"] = "foo"
         request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT"},
@@ -389,9 +457,9 @@ class TestServerFunctionality(unittest.TestCase):
 
     def test_ensure_multiple_instances_of_a_service_can_be_started_from_server(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         context.kill_everything()
-        server = smserverlogic.SmServer(smcontext.SmApplication(config_dir_override, None))
+        server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
 
         # start fake nexus
         self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
@@ -437,7 +505,7 @@ class TestConfiguration(unittest.TestCase):
 
     def test_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        application = smcontext.SmApplication(config_dir_override, None)
+        application = SmApplication(config_dir_override, None)
         self.assertEqual(len(application.services), 9)
         self.assertEqual(application.services["TEST_TEMPLATE"]["type"], "external")
         self.assertEqual(application.services["TEST_TEMPLATE"]["pattern"], "some.namespace=TEST_TEMPLATE")
@@ -455,7 +523,7 @@ class TestServiceResolver(unittest.TestCase):
 
     def test_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        application = smcontext.SmApplication(config_dir_override, None)
+        application = SmApplication(config_dir_override, None)
         service_resolver = ServiceResolver(application)
         nexus_wildcard = service_resolver.resolve_services("PLAY_NEXU*TEST")
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in nexus_wildcard)
@@ -503,7 +571,7 @@ class TestServiceResolver(unittest.TestCase):
 class TestConfig(unittest.TestCase):
     def test_runfrom_override(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         python_server = context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND")
         run_from = context.get_run_from_service_override_value_or_use_default(python_server, "SHOULD_BE_OVERWRITTEN")
         self.assertEqual(run_from, "RELEASE")
@@ -517,7 +585,7 @@ class TestCredentialsResolver(unittest.TestCase):
         os.environ.clear()
         os.environ.update(self.defaultEnv)
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         creds = EnvNexusCredentials(context)
         resolver = CredentialsResolver(context)
 
@@ -532,7 +600,7 @@ class TestCredentialsResolver(unittest.TestCase):
         os.environ.clear()
         os.environ.update(self.defaultEnv)
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         context.application.config["nexusPasswordEnvironmentVar"] = "A_FREAKIN_PASS_ENV_VAR"
         context.application.config["nexusUserEnvironmentVar"] = "A_FREAKIN_USER_ENV_VAR"
         creds = EnvNexusCredentials(context)
@@ -548,7 +616,7 @@ class TestCredentialsResolver(unittest.TestCase):
         os.environ.clear()
         os.environ.update(self.defaultEnv)
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
-        context = smcontext.SmContext(smcontext.SmApplication(config_dir_override), None, False, False)
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
         context.application.config["sbtCredentialsFile"] = os.path.dirname(__file__) + "/.sbt/.credentials"
 
         creds = SbtNexusCredentials(context)

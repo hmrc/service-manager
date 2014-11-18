@@ -4,9 +4,8 @@ import os
 import shutil
 import zipfile
 import stat
-import time
-import json
 import copy
+import types
 
 from servicemanager.subprocess import Popen
 from ..service.smservice import SmMicroServiceStarter
@@ -25,8 +24,8 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
     PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS = 120
 
-    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy):
-        SmMicroServiceStarter.__init__(self, context, service_name, "play", run_from, port, classifier, service_mapping_ports, version, proxy)
+    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+        SmMicroServiceStarter.__init__(self, context, service_name, "play", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
 
         if not self.port:
             self.port = self.service_data["defaultPort"]
@@ -63,7 +62,16 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 "-Dhttp.proxyPort=" + proxy_config[1]
             ]
 
+        if self.append_args:
+            if not isinstance(self.append_args, types.ListType):
+                self.log("WARNING: I was passed a non list for append args of '" + str(self.append_args) + "' I dont know what to do with this")
+            else:
+                extra_params += self.append_args
+
         return extra_params
+
+    def supports_append_args(self):
+        return True
 
     def get_start_command(self, run_from):
         if run_from == "SOURCE":

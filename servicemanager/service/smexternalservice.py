@@ -3,6 +3,7 @@ import os
 import re
 
 import requests
+import types
 
 from servicemanager.service.smservice import SmServiceStarter, SmService, SmServiceStatus
 from servicemanager.smprocess import SmProcess, kill_pid
@@ -14,13 +15,24 @@ class SmExternalServiceStarter(SmServiceStarter):
     def process_arguments(self):
         pass
 
-    def __init__(self, context, service_name):
-        SmServiceStarter.__init__(self, context, service_name, "external")
-
+    def __init__(self, context, service_name, append_args):
+        SmServiceStarter.__init__(self, context, service_name, "external", append_args)
         if not "cmd" in self.service_data:
             context.log("Could not start 'external' service '" + service_name + "', 'cmd' is missing from services.json")
-
         self.cmd = self.service_data["cmd"]
+
+    def get_start_command(self, context=None):
+        if self.append_args:
+            if isinstance(self.append_args, types.ListType):
+                return self.cmd + self.append_args
+            else:
+                return self.cmd
+                self.log("WARNING: I was passed a non list for append args of '" + str(self.append_args) + "' I dont know what to do with this")
+        else:
+            return self.cmd
+
+    def supports_append_args(self):
+        return True
 
     def start(self):
         try:
@@ -29,7 +41,7 @@ class SmExternalServiceStarter(SmServiceStarter):
                 location = self.service_data["location"]
             microservice_path = os.path.join(self.context.application.workspace, location)
             os.chdir(microservice_path)
-            return subprocess.Popen(self.cmd, cwd=microservice_path, env=os.environ.copy()).pid
+            return subprocess.Popen(" ".join(self.get_start_command()), cwd=microservice_path, env=os.environ.copy(), shell=True).pid
         except Exception, e:
             self.log("Could not start service due to exception: " + str(e))
 
