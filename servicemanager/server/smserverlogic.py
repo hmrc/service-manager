@@ -270,9 +270,7 @@ class SmStartRequest(SmRequest):
         if "version" in service_start_request and service_start_request["version"]:
             version = service_start_request["version"]
 
-        append_args = []
-        if "appendArgs" in service_start_request:
-            append_args = service_start_request["appendArgs"]
+        append_args = service_start_request.get("appendArgs", [])
 
         if need_classifier:
 
@@ -321,6 +319,9 @@ class SmStartRequest(SmRequest):
             if dontrunfromsource:
                 if run_from == "SOURCE":
                     raise self._bad_request_exception("runFrom parameter has value '%s', however --nosource was specified when smserver started" % run_from)
+
+            if append_args and not self.context.get_service_starter(service_name, run_from, None).supports_append_args():
+                raise BadRequestException("The service type for '" + service_name + "' does not support append args")
 
             if service_name in orchestration_services:
                 existing_entry = orchestration_services[service_name]

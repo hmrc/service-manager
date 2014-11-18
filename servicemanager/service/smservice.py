@@ -67,6 +67,10 @@ class SmServiceStarter(SmServiceBase):
         pass
 
     @abstractmethod
+    def supports_append_args(self):
+        return False
+
+    @abstractmethod
     def get_start_command(self, context = None):
         return ["get_start_command() not implemented for this type of service - fork and make a pull request :)"]
 

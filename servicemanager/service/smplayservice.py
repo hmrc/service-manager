@@ -70,6 +70,9 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         return extra_params
 
+    def supports_append_args(self):
+        return True
+
     def get_start_command(self, run_from):
         if run_from == "SOURCE":
             source_cmd = copy.copy(self.service_data["sources"]["cmd"])

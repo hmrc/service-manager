@@ -31,6 +31,9 @@ class SmExternalServiceStarter(SmServiceStarter):
         else:
             return self.cmd
 
+    def supports_append_args(self):
+        return True
+
     def start(self):
         try:
             location = "."
