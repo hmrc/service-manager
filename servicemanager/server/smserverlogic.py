@@ -306,7 +306,7 @@ class SmStartRequest(SmRequest):
             service_mapping_name, service_name, classifier, version, append_args = self._service_mapping_for(service_start_request)
 
             if append_args and not isinstance(append_args, types.ListType):
-                raise self._bad_request_exception("WARNING: I was passed a non list for append args of '" + str(append_args) + "' I dont know what to do with this")
+                raise self._bad_request_exception("ERROR: I was passed a non list for append args of '" + str(append_args) + "' I dont know what to do with this")
 
             if service_mapping_name in service_mapping_ports:
                 raise self._bad_request_exception("Duplicate entry for service '%s' in start request" % service_mapping_name)
