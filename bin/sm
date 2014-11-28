@@ -89,10 +89,10 @@ def _process_command():
         time.sleep(5)
         for service_name in service_resolver.resolve_services_from_array(args.restart):
             if context.has_service(service_name):
-                actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.restart, args.port))
+                actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.restart, args.port), args.appendArgs)
 
     if args.start:
-        actions.start_and_wait(service_resolver, context, args.start, args.fatjar, args.release, args.proxy, args.port, args.wait)
+        actions.start_and_wait(service_resolver, context, args.start, args.fatjar, args.release, args.proxy, args.port, args.wait, args.appendArgs)
 
     if args.cleanlogs:
         for service_name in context.application.services:
@@ -147,7 +147,7 @@ def _process_command():
         print "The parameters you provided would start the following services using the following commands:"
         for service_name in service_resolver.resolve_services_from_array(args.showcmdfor):
             if context.has_service(service_name):
-                cmd = actions.get_start_cmd(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.showcmdfor, args.port))
+                cmd = actions.get_start_cmd(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.showcmdfor, args.port), args.appendArgs)
                 print service_name
                 print " ".join(cmd)
             else:
