@@ -30,6 +30,7 @@ def _process_command():
     parser.add_argument('--autorefresh', nargs='*', help='Get the status of a single service or a list of services and refreshes until killed')
     parser.add_argument('-n', '--shownotrunning', action='store_true', help='Used with status command to show services that are not running')
     parser.add_argument('--proxy', type=str, help='Use with start to start those items with a proxy, i.e. add at the end --proxy localhost:8888')
+    parser.add_argument('--appendArgs', type=json.loads, help='A map of args to append for services you are starting. i.e. \'{"SERVICE_NAME":["-DFoo=Bar","SOMETHING"],"SERVICE_TWO":["APPEND_THIS"]}\'')
     parser.add_argument('-o', '--offline', action='store_true', help='Offline mode: uses existing binaries instead of looking for an updated version online')
     parser.add_argument('--start', type=str, nargs='*', help='Starts a single service/profile, or a list of services/profiles').completer = ServiceCompleter
     parser.add_argument('--restart', type=str, nargs='*', help='Restarts a single service/profile or a list of services/profiles').completer = ServiceCompleter
