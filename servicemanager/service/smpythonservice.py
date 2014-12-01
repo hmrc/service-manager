@@ -40,7 +40,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
 
         if not self.context.offline:
             nexus = SmNexus(self.context, self.service_name)
-            versions = nexus.get_all_versions(self.version, self.run_from)
+            versions = nexus.get_all_versions(self.run_from)
             for version in versions:
                 nexus.download_jar_if_necessary(self.run_from, version)
             self._unzip_assets(versions)

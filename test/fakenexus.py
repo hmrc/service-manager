@@ -1,12 +1,36 @@
 #!/usr/bin/python
 
-from bottle import route, run
+from bottle import route, run, request
 from bottle import static_file
 
 DUMMY_RESPONSE = """<DOCMAP>
     <artifact Target="ALL">
         <latestSnapshotRepositoryId>foo-snapshots</latestSnapshotRepositoryId>
         <latestSnapshot>999</latestSnapshot>
+    </artifact>
+    <Topic Target="ALL">
+        <Title>Overview</Title>
+        <Topic Target="ALL">
+            <Title>Basic Features</Title>
+        </Topic>
+        <Topic Target="ALL">
+            <Title>About This Software</Title>
+            <Topic Target="ALL">
+                <Title>Platforms Supported</Title>
+            </Topic>
+        </Topic>
+    </Topic>
+</DOCMAP>"""
+
+
+DUMMY_RESPONSE_ASSETS = """<DOCMAP>
+    <artifact Target="ALL">
+        <latestReleaseRepositoryId>foo-releases</latestReleaseRepositoryId>
+        <version>0.14.0</version>
+    </artifact>
+    <artifact Target="ALL">
+        <latestReleaseRepositoryId>foo-releases</latestReleaseRepositoryId>
+        <version>0.17.0</version>
     </artifact>
     <Topic Target="ALL">
         <Title>Overview</Title>
@@ -37,7 +61,10 @@ def ping():
 
 @route('/service/local/lucene/search')
 def xml():
-    return DUMMY_RESPONSE
+    if request.query.a and "assets-frontend" == request.query.a:
+        return DUMMY_RESPONSE_ASSETS
+    else:
+        return DUMMY_RESPONSE
 
 @route("/service/local/repositories/foo-releases/content/foo/bar/foo/assets-frontend/")
 def search_xml():
