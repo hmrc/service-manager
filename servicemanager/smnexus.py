@@ -87,14 +87,28 @@ class SmNexus():
         self._is_valid_repository(repository, data)
         return data.getElementsByTagName(latest)[0].firstChild.nodeValue
 
+    def _find_all_versions_in_dom(self, repository, dom):
+        try:
+            data = dom.getElementsByTagName("artifact")
+        except:
+            self.context.log("Unable to get artifacts from nexus")
+            return None
+
+        versions = []
+        for element in data:
+            self._is_valid_repository(repository, element)
+            version = element.getElementsByTagName("version")[0].firstChild.nodeValue
+            versions.append(version)
+        return versions
+
     def _get_protocol(self):
         protocol = "https"
         if "protocol" in self.context.config_value("nexus"):
             protocol = self.context.config_value("nexus")["protocol"]
         return protocol
 
-    def _get_version_info_from_nexus(self, artifact):
-        lucene_nexus = self._get_protocol() + "://" + self.context.config_value("nexus")["host"] + "/service/local/lucene/search?a=" + artifact
+    def _get_version_info_from_nexus(self, artifact, repository_id):
+        lucene_nexus = self._get_protocol() + "://" + self.context.config_value("nexus")["host"] + "/service/local/lucene/search?a=" + artifact + "&repositoryId=" + repository_id
         request = urllib2.Request(lucene_nexus)
         base64string = base64.encodestring(self._header_credentials()).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
@@ -116,30 +130,20 @@ class SmNexus():
         try:
             version = os.environ[version_env_var]
         except Exception:
-            dom = self._get_version_info_from_nexus(artifact)
+            repo_mappings = self.context.config_value("nexus")["repoMappings"]
+            dom = self._get_version_info_from_nexus(artifact, repo_mappings[run_from])
             version = self._find_version_in_dom(repository, dom)
         return version
 
-    def get_all_versions(self, version, run_from):
+    def get_all_versions(self, run_from):
         binary = self.context.service_data(self.service_name)["binary"]
-        repo_mappings = self.context.config_value("nexus")["repoMappings"]
         if run_from == "RELEASE":
-            url_type_repository = repo_mappings["RELEASE"]
+            repository = "Release"
         else:
-            url_type_repository = repo_mappings["SNAPSHOT"]
-        versions = []
-        nexus_url = self.context.application.nexus_repo_host + binary["nexus-api"] + url_type_repository + "/content/" + binary["groupId"] + binary["artifact"] + "/"
-        print nexus_url
-        url = self._get_protocol() + "://" + self._url_credentials() + "@" + nexus_url
-        headers = {'Accept': 'application/json'}
-        response = requests.get(url, headers=headers)
-        json_object = response.json()
-        for release in json_object["data"]:
-            #don't want to download any maven metadata
-            caste = str(release["text"])
-            if not "maven-metadata" in caste:
-                print release["text"]
-                versions.append(release["text"])
+            repository = "Snapshot"
+        repo_mappings = self.context.config_value("nexus")["repoMappings"]
+        dom = self._get_version_info_from_nexus(binary["artifact"], repo_mappings[run_from])
+        versions = self._find_all_versions_in_dom(repository, dom)
         return versions
 
     def download_jar_if_necessary(self, run_from, version):
