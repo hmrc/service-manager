@@ -30,6 +30,7 @@ def _process_command():
     parser.add_argument('--autorefresh', nargs='*', help='Get the status of a single service or a list of services and refreshes until killed')
     parser.add_argument('-n', '--shownotrunning', action='store_true', help='Used with status command to show services that are not running')
     parser.add_argument('--proxy', type=str, help='Use with start to start those items with a proxy, i.e. add at the end --proxy localhost:8888')
+    parser.add_argument('--appendArgs', type=json.loads, help='A map of args to append for services you are starting. i.e. \'{"SERVICE_NAME":["-DFoo=Bar","SOMETHING"],"SERVICE_TWO":["APPEND_THIS"]}\'')
     parser.add_argument('-o', '--offline', action='store_true', help='Offline mode: uses existing binaries instead of looking for an updated version online')
     parser.add_argument('--start', type=str, nargs='*', help='Starts a single service/profile, or a list of services/profiles').completer = ServiceCompleter
     parser.add_argument('--restart', type=str, nargs='*', help='Restarts a single service/profile or a list of services/profiles').completer = ServiceCompleter
@@ -89,10 +90,10 @@ def _process_command():
         time.sleep(5)
         for service_name in service_resolver.resolve_services_from_array(args.restart):
             if context.has_service(service_name):
-                actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.restart, args.port))
+                actions.start_one(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.restart, args.port), args.appendArgs)
 
     if args.start:
-        actions.start_and_wait(service_resolver, context, args.start, args.fatjar, args.release, args.proxy, args.port, args.wait)
+        actions.start_and_wait(service_resolver, context, args.start, args.fatjar, args.release, args.proxy, args.port, args.wait, args.appendArgs)
 
     if args.cleanlogs:
         for service_name in context.application.services:
@@ -147,7 +148,7 @@ def _process_command():
         print "The parameters you provided would start the following services using the following commands:"
         for service_name in service_resolver.resolve_services_from_array(args.showcmdfor):
             if context.has_service(service_name):
-                cmd = actions.get_start_cmd(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.showcmdfor, args.port))
+                cmd = actions.get_start_cmd(context, service_name, args.fatjar, args.release, args.proxy, actions.overridden_port(args.showcmdfor, args.port), args.appendArgs)
                 print service_name
                 print " ".join(cmd)
             else:
