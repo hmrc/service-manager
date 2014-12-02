@@ -90,7 +90,15 @@ class TestActions(unittest.TestCase):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = SmContext(SmApplication(config_dir_override), None, False, False)
         actions.start_one(context, "TEST_ONE", True, False, None, port=None)
-        self.assertIsNotNone(context.get_service("TEST_ONE").status())
+        self.assertEquals(len(context.get_service("TEST_ONE").status()), 1)
+        context.kill("TEST_ONE")
+        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+
+    def test_start_and_stop_one_with_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        actions.start_one(context, "TEST_ONE", True, False, None, None, ["; echo 'Fin du sleep!!'"])
+        self.assertEquals(len(context.get_service("TEST_ONE").status()), 2) # it is two in this case because the append creates a forked process
         context.kill("TEST_ONE")
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
 
@@ -101,7 +109,7 @@ class TestActions(unittest.TestCase):
         service_resolver = ServiceResolver(sm_application)
 
         servicetostart = "DROPWIZARD_NEXUS_END_TO_END_TEST"
-        actions.start_and_wait(service_resolver, context, [servicetostart], False, False, None, port=None, seconds_to_wait=90)
+        actions.start_and_wait(service_resolver, context, [servicetostart], False, False, None, port=None, seconds_to_wait=90, append_args=None)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart)
         self.assertEqual(context.get_service(servicetostart).status(), [])
@@ -118,7 +126,7 @@ class TestActions(unittest.TestCase):
         time.sleep(5)
 
         servicetostart = "DROPWIZARD_NEXUS_END_TO_END_TEST"
-        actions.start_and_wait(service_resolver, context, [servicetostart], True, False, None, port=None, seconds_to_wait=90)
+        actions.start_and_wait(service_resolver, context, [servicetostart], True, False, None, port=None, seconds_to_wait=90, append_args=None)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart)
         context.kill("FAKE_NEXUS")
@@ -133,7 +141,10 @@ class TestActions(unittest.TestCase):
         service_resolver = ServiceResolver(sm_application)
 
         servicetostart = "PLAY_NEXUS_END_TO_END_TEST"
-        actions.start_and_wait(service_resolver, context, [servicetostart], False, False, None, port=None, seconds_to_wait=90)
+        port = None
+        secondsToWait = 90
+        append_args = None
+        actions.start_and_wait(service_resolver, context, [servicetostart], False, False, None, port, secondsToWait, append_args)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart)
         self.assertEqual(context.get_service(servicetostart).status(), [])
@@ -152,9 +163,48 @@ class TestActions(unittest.TestCase):
         self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
         time.sleep(5)
 
+        fatJar = True
+        release = False
+        proxy = None
+        port = None
+        seconds_to_wait = None
+        append_args = None
+
         try:
             servicetostart = ["PLAY_NEXUS_END_TO_END_TEST"]
-            actions.start_and_wait(service_resolver, context, servicetostart, fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=None)
+            actions.start_and_wait(service_resolver, context, servicetostart, fatJar, release, proxy, port, seconds_to_wait, append_args)
+        finally:
+            context.kill_everything()
+
+    def test_successful_play_from_jar_without_waiting_with_append_args(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+        sm_application = SmApplication(config_dir_override)
+        context = SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
+
+        context.kill_everything()
+        time.sleep(5)
+
+        response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, None, None)
+        self.assertTrue(response1)
+        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
+
+        servicetostart = ["PLAY_NEXUS_END_TO_END_TEST"]
+        appendArgs = {"PLAY_NEXUS_END_TO_END_TEST": ["-DFoo=Bar"]}
+        fatJar = True
+        release = False
+        proxy = None
+        port = None
+        seconds_to_wait = None
+
+        try:
+            actions.start_and_wait(service_resolver, context, servicetostart, fatJar, release, proxy, port, seconds_to_wait, appendArgs)
+            time.sleep(5)
+            service = SmPlayService(context, "PLAY_NEXUS_END_TO_END_TEST")
+            processes = SmProcess.processes_matching(service.pattern)
+            self.assertEqual(len(processes), 1)
+            self.assertTrue("-DFoo=Bar" in processes[0].args)
         finally:
             context.kill_everything()
 
@@ -175,7 +225,7 @@ class TestActions(unittest.TestCase):
 
         try:
             servicetostart = ["BROKEN_PLAY_PROJECT"]
-            actions.start_and_wait(service_resolver, context, servicetostart, fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=2)
+            actions.start_and_wait(service_resolver, context, servicetostart, fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=2, append_args=None)
             self.fail("Did not expect the project to startup.")
         except ServiceManagerException as sme:
             self.assertEqual("Timed out starting service(s): BROKEN_PLAY_PROJECT", sme.message)
@@ -237,7 +287,10 @@ class TestActions(unittest.TestCase):
         self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
         time.sleep(5)
 
-        actions.start_and_wait(service_resolver, context, ["PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND"], True, False, None, port=None, seconds_to_wait=5)
+        port = None
+        seconds_to_wait = 5
+        append_args = None
+        actions.start_and_wait(service_resolver, context, ["PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND"], True, False, None, port, seconds_to_wait, append_args)
         self.assertIsNotNone(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status())
         context.kill("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND")
         context.kill("FAKE_NEXUS")
@@ -249,7 +302,9 @@ class TestActions(unittest.TestCase):
     def test_python_server_offline(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = SmContext(SmApplication(config_dir_override), None, True, False)
-        actions.start_one(context, "PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", True, False, None, port=None)
+        port = None
+        append_args = None
+        actions.start_one(context, "PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", True, False, None, port, append_args)
         self.assertIsNotNone(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status())
         context.kill("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND")
         time.sleep(5)

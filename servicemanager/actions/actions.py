@@ -9,7 +9,7 @@ from servicemanager.smcontext import ServiceManagerException
 from servicemanager.smprocess import SmProcess
 from servicemanager.service.smplayservice import SmPlayService
 
-def start_one(context, service_name, fatjar, release, proxy, port=None):
+def start_one(context, service_name, fatjar, release, proxy, port=None, appendArgs=None):
     if release:
         run_from = "RELEASE"
     elif fatjar:
@@ -27,14 +27,14 @@ def start_one(context, service_name, fatjar, release, proxy, port=None):
         print "There is already: '" + str(len(existing_service_status)) + "' instance(s) of the service: '" + service_name + "' running"
         return False
 
-    if context.start_service(service_name, run_from, proxy, port=port, version=version):
+    if context.start_service(service_name, run_from, proxy, port=port, version=version, appendArgs=appendArgs):
         if context.get_service(service_name).is_started_on_default_port():
             print "Started: " + service_name
             return True
 
     return False
 
-def get_start_cmd(context, service_name, fatjar, release, proxy, port=None):
+def get_start_cmd(context, service_name, fatjar, release, proxy, port=None, appendArgs=None):
     if release:
         run_from = "RELEASE"
     elif fatjar:
@@ -46,7 +46,7 @@ def get_start_cmd(context, service_name, fatjar, release, proxy, port=None):
     if version == "LATEST":
         version = None
 
-    starter = context.get_service_starter(service_name, run_from, proxy, port=port, version=version)
+    starter = context.get_service_starter(service_name, run_from, proxy, port=port, version=version, appendArgs=appendArgs)
     return starter.get_start_command(run_from)
 
 def stop_profile(context, profile):
@@ -163,12 +163,15 @@ def display_info(context, service_name):
     print "| " + comments
 
 
-def start_and_wait(service_resolver, context, start, fatjar, release, proxy, port, seconds_to_wait):
+def start_and_wait(service_resolver, context, start, fatjar, release, proxy, port, seconds_to_wait, append_args):
 
     all_services = service_resolver.resolve_services_from_array(start)
     for service_name in all_services:
         if context.has_service(service_name):
-            start_one(context, service_name, fatjar, release, proxy, overridden_port(start, port))
+            append_args_for_this_service = None
+            if append_args is not None:
+                append_args_for_this_service = append_args.get(service_name, None)
+            start_one(context, service_name, fatjar, release, proxy, overridden_port(start, port), append_args_for_this_service)
         else:
             print "The requested service %s does not exist" % service_name
 

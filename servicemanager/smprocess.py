@@ -103,8 +103,10 @@ def _is_pycharm_related_process(pid):
     ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     ps_output = ps_command.stdout.read()
     ps_pid_str = ps_output.strip()
-    if ps_pid_str and int(ps_pid_str) == pid:
-        return True
+    for process in ps_pid_str.split("\n"):
+        if process and int(process) == pid:
+            return True
+
     return False
 
 
