@@ -59,7 +59,7 @@ def _is_pid_in_list(pid, command):
     return False
 
 def _is_init_process(pid):
-    command = "ps -eo ppid,pid,etime,rss,args | grep 'init --user' | grep -v 'grep init --user' | awk '{print $2 }'"
+    command = "ps -eo ppid,pid,etime,rss,args | grep 'init --user' | grep -v 'grep init --user' | grep -v indicator | awk '{print $2 }'"
     return _is_pid_in_list(pid, command)
 
 
