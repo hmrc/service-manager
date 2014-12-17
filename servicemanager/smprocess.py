@@ -49,65 +49,43 @@ def _is_system_or_smserver_or_test_process(pid):
     return False
 
 
-def _is_init_process(pid):
-    command = "ps -eo ppid,pid,etime,rss,args | grep 'init --user' | grep -v 'grep init --user' | awk '{print $2 }'"
-    ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    ps_output = ps_command.stdout.read()
-    ps_pid_str = ps_output.strip()
-    if ps_pid_str and int(ps_pid_str) == pid:
-        return True
-    return False
-
-
-def _is_smserver_process(pid):
-    command = "ps -eo pid,args | grep %d | grep 'smserver\.py' | awk '{print $1}'" % pid
-    ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    ps_output = ps_command.stdout.read()
-    ps_pid_str = ps_output.strip()
-    if ps_pid_str and int(ps_pid_str) == pid:
-        return True
-    return False
-
-
-def _is_pytest_process(pid):
-    command = "ps -eo pid,args | grep %d | grep 'py\.test' | awk '{print $1}'" % pid
-    ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    ps_output = ps_command.stdout.read()
-    ps_pid_str = ps_output.strip()
-    if ps_pid_str and int(ps_pid_str) == pid:
-        return True
-    return False
-
-
-def _is_pycharm_test_process(pid):
-    command = "ps -eo pid,args | grep %d | grep 'pytestrunner\.py' | awk '{print $1}'" % pid
-    ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    ps_output = ps_command.stdout.read()
-    ps_pid_str = ps_output.strip()
-    if ps_pid_str and int(ps_pid_str) == pid:
-        return True
-    return False
-
-
-def _is_pycharm_process(pid):
-    command = "ps -eo pid,args | grep %d | grep 'pydevd\.py' | awk '{print $1}'" % pid
-    ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    ps_output = ps_command.stdout.read()
-    ps_pid_str = ps_output.strip()
-    if ps_pid_str and int(ps_pid_str) == pid:
-        return True
-    return False
-
-def _is_pycharm_related_process(pid):
-    command = "ps -eo pid,args | grep %d | grep 'pycharm' | awk '{print $1}'" % pid
+def _is_pid_in_list(pid, command):
     ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     ps_output = ps_command.stdout.read()
     ps_pid_str = ps_output.strip()
     for process in ps_pid_str.split("\n"):
         if process and int(process) == pid:
             return True
-
     return False
+
+def _is_init_process(pid):
+    command = "ps -eo ppid,pid,etime,rss,args | grep 'init --user' | grep -v 'grep init --user' | grep -v indicator | awk '{print $2 }'"
+    return _is_pid_in_list(pid, command)
+
+
+def _is_smserver_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'smserver\.py' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
+
+
+def _is_pytest_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'py\.test' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
+
+
+def _is_pycharm_test_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'pytestrunner\.py' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
+
+
+def _is_pycharm_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'pydevd\.py' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
+
+
+def _is_pycharm_related_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'pycharm' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
 
 
 def kill_by_test_id(context, force):
