@@ -145,8 +145,8 @@ class SmPythonService(SmService):
         # TODO: implement git revision stuff for python or remove the feature
         return None
 
-    def status(self):
-        processes = SmProcess.processes_matching(SmPythonService.get_pattern(self))
+    def status(self, all_processes):
+        processes = SmProcess.processes_matching(SmPythonService.get_pattern(self), all_processes)
 
         if len(processes) == 0:
             return []
