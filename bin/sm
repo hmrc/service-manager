@@ -71,11 +71,14 @@ def _process_command():
                 print "The requested service %s does not exist" % service_name
 
     if args.status is not None:
-            dostatus(context, args.status, args.shownotrunning)
+            for status_line in dostatus(context, args.shownotrunning):
+                print status_line
 
     if args.autorefresh is not None:
         while True:
-            dostatus(context, args.autorefresh, args.shownotrunning, clear_before_print=True)
+            os.system("clear")
+            for status_line in dostatus(context, args.shownotrunning):
+                print status_line
             time.sleep(3)
 
     if args.describe:

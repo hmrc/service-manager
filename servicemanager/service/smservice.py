@@ -40,7 +40,7 @@ class SmService(SmServiceBase):
         pass
 
     @abstractmethod
-    def status(self):
+    def status(self, all_processes):
         pass
 
     @abstractmethod

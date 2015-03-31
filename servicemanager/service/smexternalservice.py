@@ -86,9 +86,9 @@ class SmExternalService(SmService):
         else:
             return None
 
-    def status(self):
+    def status(self, all_processes):
 
-        processes = SmProcess.processes_matching(self.pattern)
+        processes = SmProcess.processes_matching(self.pattern, all_processes)
 
         if len(processes) == 0:
             return []
