@@ -18,7 +18,6 @@ from service.smpythonservice import SmPythonServiceStarter, SmPythonService
 from smutil import pretty_print_list, if_not, unify_lists
 from actions.colours import BColors
 
-
 b = BColors()
 
 
@@ -177,7 +176,6 @@ class SmContext():
     MAX_TIME_TO_DIE_SECONDS = 3
 
     def __init__(self, application, test_id, offline=False, show_progress=True, request_specific_features=None):
-
         self.application = application
         self.test_id = test_id
         self.instance_id = if_not(self.test_id, "LOCAL")
@@ -203,6 +201,9 @@ class SmContext():
             print "[%s] %s" % (self.test_id, message)
         else:
             print message
+
+    def services(self):
+        return (self.get_service(service_name) for service_name in self.application.services)
 
     def get_service(self, service_name):
         service_type = self.service_type(service_name)
