@@ -7,11 +7,3 @@ class BColors:
         self.warning = '\033[93m'
         self.fail = '\033[91m'
         self.endc = '\033[0m'
-
-    def disable(self):
-        self.bold = ''
-        self.okblue = ''
-        self.okgreen = ''
-        self.warning = ''
-        self.fail = ''
-        self.endc = ''
