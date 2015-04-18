@@ -5,6 +5,10 @@ from servicemanager.service.smservice import SmServiceStatus
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.actions.colours import BColors
 
+from concurrent import futures
+
+import datetime
+
 import os
 
 def _format_healthcheck_status(healthcheck):
@@ -54,13 +58,29 @@ def dostatus(context, services, show_down_services, clear_before_print=False):
     if len(services) == 0:
         services = context.application.services
 
-    for service_name in services:
+    def async_status(service_name):
+        up_processes = []
+        down_processes = []
         responses = context.get_service(service_name).status()
         if responses:
             for response in responses:
-                up_processes_table.add_row(_service_status_to_row(response))
+                up_processes.append(_service_status_to_row(response))
         elif show_down_services:
-            down_processes_table.add_row([service_name, b.bold + b.fail + "DOWN" + b.endc])
+            down_processes.append([service_name, b.bold + b.fail + "DOWN" + b.endc])
+        return up_processes, down_processes
+
+    with futures.ThreadPoolExecutor(max_workers=10) as executor:
+        start = datetime.datetime.now()
+        status_results = executor.map(async_status, services.keys())
+        count = 0
+        for running_and_not_running in list(status_results):
+            if len(running_and_not_running[0]) > 0:
+                for running in running_and_not_running[0]:
+                    up_processes_table.add_row(running)
+                    count += 1
+            if len(running_and_not_running[1]) > 0:
+                down_processes_table.add_row(running_and_not_running[1])
+        context.log("Found: " + str(count) + " procesess in elapsed: " + str(datetime.datetime.now() - start))
 
     # Perhaps there is a better way of doing this by clearing the buffer
     # but this will do the trick for now
