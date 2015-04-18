@@ -10,7 +10,7 @@ import copy
 from pymongo import Connection
 
 from smcredentials import CredentialsResolver
-from smprocess import kill_by_test_id, test_has_running_processes
+from smprocess import kill_by_test_id, test_has_running_processes, SmProcess
 from servicemanager.service.smplayservice import SmPlayService, SmPlayServiceStarter
 from service.smdropwizardservice import SmDropwizardService, SmDropwizardServiceStarter
 from service.smexternalservice import SmExternalService, SmExternalServiceStarter
@@ -50,7 +50,7 @@ class ServiceManagerException(Exception):
 class SmApplication():
     # Application context object - loads, validates and stores global configuration
 
-    def __init__(self, configuration_dir_parameter=None, features=None):
+    def __init__(self, configuration_dir_parameter=None, features=None, process_manager=SmProcess):
 
         self.workspace = SmApplication._required_environment_directory("WORKSPACE", "your workspace root dir")
         self.java_home = SmApplication._required_environment_directory("JAVA_HOME", "path/to/jdk")
@@ -68,6 +68,8 @@ class SmApplication():
         self.play_extraction_dir = SmApplication._read_json_config(self, "config.json")["playExtractionDir"]
         self.service_mappings = SmApplication._read_json_config(self, "service_mappings.json")
         self.features = features
+
+        self.process_manager = process_manager
 
         for profile in self.profiles:
             if profile in self.services:
@@ -185,6 +187,7 @@ class SmContext():
         self.is_test = test_id is not None
         self.features = unify_lists(request_specific_features, self.application.features)
         self.credentials = CredentialsResolver(self)
+        self.process_manager = application.process_manager
 
     def config_value(self, key, default=None):
         if key in self.application.config:
