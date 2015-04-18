@@ -76,7 +76,7 @@ class SmJvmService(SmService):
     def get_pattern(self):
         return self.pattern
 
-    def status(self, all_processes=SmProcess.all_processes()):
+    def status(self, all_processes=None):
         processes = SmProcess.processes_matching(self.pattern, all_processes)
 
         def _status_for_process(process):
