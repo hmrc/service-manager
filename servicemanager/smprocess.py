@@ -163,7 +163,7 @@ class SmProcess:
     def from_psutil_process(cls, process):
         uptime = str(datetime.timedelta(seconds=int(time.time() - process.create_time())))
         mem = process.memory_info()[0]  # (rss, vms)
-        return SmProcess(process.ppid(), process.pid, uptime, mem, process.cmdline())
+        return SmProcess(process.ppid(), process.pid, uptime, mem, [arg for cmd in process.cmdline() for arg in cmd.split(" ")])
 
     def __init__(self, ppid, pid, uptime, mem, args):
         self.ppid = ppid
@@ -176,7 +176,7 @@ class SmProcess:
     def processes_matching(regex, processes=None):
         processes = processes or SmProcess.all_processes()
         r = re.compile(regex)
-        return [SmProcess.from_psutil_process(p) for p in processes if p.is_running() and SmProcess.find_in_command_line(p, r)]
+        return [SmProcess.from_psutil_process(p) for p in processes if SmProcess.find_in_command_line(p, r)]
 
     def has_argument(self, argument):
         return argument in self.args

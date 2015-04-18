@@ -44,8 +44,8 @@ class TestFileServer(unittest.TestCase):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = SmContext(SmApplication(config_dir_override), None, False, False)
 
-        context.kill("FAKE_NEXUS")
-        self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
+        context.kill(name)
+        self.assertEqual(context.get_service(name).status(), [])
         time.sleep(2)
 
         response1 = actions.start_one(context, name, True, False, None, port=None)
