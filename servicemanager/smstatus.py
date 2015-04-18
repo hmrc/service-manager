@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from servicemanager.smprocess import SmProcess
 
 from servicemanager.thirdparty.prettytable import PrettyTable
 from servicemanager.service.smservice import SmServiceStatus
@@ -50,8 +49,10 @@ def dostatus(context, show_down_services):
     down_processes_table.align["name"] = "l"
     down_processes_table.sortby = "name"
 
+
+    all_processes = context.process_manager.all_processes()
     for service in context.services():
-        responses = service.status(SmProcess.all_processes())
+        responses = service.status(all_processes)
         if responses:
             for response in responses:
                 up_processes_table.add_row(_service_status_to_row(response))

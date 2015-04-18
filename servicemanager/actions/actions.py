@@ -21,7 +21,7 @@ def start_one(context, service_name, fatjar, release, proxy, port=None, appendAr
     if version == "LATEST":
         version = None
 
-    existing_service_status = context.get_service(service_name).status(SmProcess.all_processes())
+    existing_service_status = context.get_service(service_name).status()
 
     if len(existing_service_status) > 0:
         print "There is already: '" + str(len(existing_service_status)) + "' instance(s) of the service: '" + service_name + "' running"
