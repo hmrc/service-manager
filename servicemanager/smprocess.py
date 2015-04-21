@@ -3,10 +3,7 @@ from signal import SIGINT, SIGKILL
 import os
 import re
 
-from psutil import get_process_list, AccessDenied, NoSuchProcess
 from servicemanager import subprocess
-import time
-import datetime
 
 
 def kill_pid(context, pid, force=False):
@@ -146,24 +143,23 @@ class SmProcess:
 
     @classmethod
     def all_processes(cls):
-        return get_process_list()
+        command = "ps -eo ppid,pid,etime,rss,args"
+        ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        stdout, stderr = ps_command.communicate()
+        ps_output = stdout.split("\n")[:-1]
+
+        def process_line_to_object(process_line):
+            values = process_line.strip().split()
+            return SmProcess(int(values[0]), int(values[1]), values[2], values[3], values[4:])
+
+        return map(process_line_to_object, ps_output[1:])
 
     @staticmethod
     def find_in_command_line(process, r):
-        try:
-            for arg in process.cmdline():
-                if r.search(arg):
-                    return True
-        except (AccessDenied, NoSuchProcess):
-            return False
+        for arg in process.args:
+            if r.search(arg):
+                return True
         return False
-
-
-    @classmethod
-    def from_psutil_process(cls, process):
-        uptime = str(datetime.timedelta(seconds=int(time.time() - process.create_time())))
-        mem = process.memory_info()[0]  # (rss, vms)
-        return SmProcess(process.ppid(), process.pid, uptime, mem, [arg for cmd in process.cmdline() for arg in cmd.split(" ")])
 
     def __init__(self, ppid, pid, uptime, mem, args):
         self.ppid = ppid
@@ -176,7 +172,7 @@ class SmProcess:
     def processes_matching(regex, processes=None):
         processes = processes or SmProcess.all_processes()
         r = re.compile(regex)
-        return [SmProcess.from_psutil_process(p) for p in processes if SmProcess.find_in_command_line(p, r)]
+        return [p for p in processes if SmProcess.find_in_command_line(p, r)]
 
     def has_argument(self, argument):
         return argument in self.args

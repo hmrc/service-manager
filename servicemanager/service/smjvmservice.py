@@ -3,7 +3,6 @@ import json
 import time
 import re
 from abc import abstractmethod
-from psutil import get_process_list
 
 import requests
 
@@ -53,7 +52,7 @@ class SmJvmService(SmService):
 
     def __init__(self, context, service_name, expected_service_type):
         SmService.__init__(self, context, service_name, expected_service_type)
-        self.pattern = "service.manager.serviceName=%s" % self.service_name
+        self.pattern = "service.manager.serviceName=%s$" % self.service_name
         self.default_port = self.required_data("defaultPort")
         self.healthcheck = self.required_data("healthcheck")
 
