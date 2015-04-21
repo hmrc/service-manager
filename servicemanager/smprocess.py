@@ -3,7 +3,7 @@ from signal import SIGINT, SIGKILL
 import os
 import re
 
-from psutil import get_process_list, AccessDenied, NoSuchProcess
+from psutil import process_iter, AccessDenied, NoSuchProcess
 from servicemanager import subprocess
 import time
 import datetime
@@ -146,14 +146,15 @@ class SmProcess:
 
     @classmethod
     def all_processes(cls):
-        return get_process_list()
+        return list(process_iter())
 
     @staticmethod
     def find_in_command_line(process, r):
         try:
-            for arg in process.cmdline():
-                if r.search(arg):
-                    return True
+            for cmdLine in process.cmdline():
+                for arg in cmdLine.split():
+                    if r.search(arg):
+                        return True
         except (AccessDenied, NoSuchProcess):
             return False
         return False
