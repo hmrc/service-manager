@@ -3,7 +3,6 @@ import json
 import time
 import re
 from abc import abstractmethod
-from psutil import get_process_list
 
 import requests
 
