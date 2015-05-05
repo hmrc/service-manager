@@ -188,6 +188,7 @@ class SmContext():
         self.features = unify_lists(request_specific_features, self.application.features)
         self.credentials = CredentialsResolver(self)
         self.process_manager = application.process_manager
+        self.assets_versions = []
 
     def config_value(self, key, default=None):
         if key in self.application.config:
@@ -256,6 +257,9 @@ class SmContext():
         artifact = binary["artifact"]
         extension = self._create_extension(service_name, run_from)
         return artifact + extension
+
+    def assets_versions_to_start(self, version):
+        self.assets_versions = self.assets_versions + version
 
     def kill(self, service_name=None):
         if service_name:

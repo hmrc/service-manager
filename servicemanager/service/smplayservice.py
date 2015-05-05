@@ -1,11 +1,14 @@
 #!/usr/bin/env python
+import glob
 
 import os
+import re
 import shutil
 import zipfile
 import stat
 import copy
 import types
+from pyhocon import ConfigFactory
 
 from servicemanager.subprocess import Popen
 from ..service.smservice import SmMicroServiceStarter
@@ -23,12 +26,6 @@ b = BColors()
 class SmPlayServiceStarter(SmJvmServiceStarter):
 
     PLAY_PROCESS_STARTUP_TIMEOUT_SECONDS = 120
-
-    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
-        SmMicroServiceStarter.__init__(self, context, service_name, "play", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
-
-        if not self.port:
-            self.port = self.service_data["defaultPort"]
 
     def _build_extra_params(self):
         extra_params = ["-Dhttp.port=%d" % self.port]
@@ -70,6 +67,12 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         return extra_params
 
+    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+        SmMicroServiceStarter.__init__(self, context, service_name, "play", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
+
+        if not self.port:
+            self.port = self.service_data["defaultPort"]
+
     def supports_append_args(self):
         return True
 
@@ -94,6 +97,10 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         unzip_dir = self._unzip_play_application()
         parent, _ = os.path.split(unzip_dir)
         force_pushdir(parent)
+
+        if "frontend" in self.service_data and self.service_data["frontend"]:
+           assets_versions = self._get_assets_version(unzip_dir)
+           self.context.assets_versions_to_start(assets_versions)
 
         cmd_with_params = self.get_start_command("BINARY")
         if os.path.exists(cmd_with_params[0]):
@@ -156,6 +163,15 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
             return process.pid # Note: This is the parent pid
 
+    def _get_assets_version(self, unzip_dir):
+        assets_versions = []
+        for conf_file in glob.glob(unzip_dir + "/conf/*.conf"):
+            with file(conf_file) as conf:
+                conf = conf.read()
+                conf_string = "".join(conf.split())
+                pattern = re.compile(ur'Prod{.*assets{.*version="([0-9.]*)"')
+                assets_versions = re.findall(pattern, conf_string)
+        return assets_versions
 
 class SmPlayService(SmJvmService):
 
