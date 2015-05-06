@@ -100,6 +100,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         if "frontend" in self.service_data and self.service_data["frontend"]:
            assets_versions = self._get_assets_version(unzip_dir)
+           print ">>> ", assets_versions
            self.context.assets_versions_to_start(assets_versions)
 
         cmd_with_params = self.get_start_command("BINARY")
@@ -170,7 +171,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 conf = conf.read()
                 conf_string = "".join(conf.split())
                 pattern = re.compile(ur'Prod.*assets.*version="([0-9.]*)"')
-                assets_versions = re.findall(pattern, conf_string)
+                assets_versions = assets_versions + re.findall(pattern, conf_string)
         return assets_versions
 
 class SmPlayService(SmJvmService):
