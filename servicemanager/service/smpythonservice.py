@@ -43,6 +43,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
 
             if self.context.assets_versions:
                 versions = self.context.assets_versions
+                self.log("Starting assets versions: %s" % (", ".join(versions)))
             else:
                 versions = nexus.get_all_versions(self.run_from)
 
