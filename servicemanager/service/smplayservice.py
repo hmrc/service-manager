@@ -169,7 +169,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             with file(conf_file) as conf:
                 conf = conf.read()
                 conf_string = "".join(conf.split())
-                pattern = re.compile(ur'Prod{.*assets{.*version="([0-9.]*)"')
+                pattern = re.compile(ur'Prod.*assets.*version="([0-9.]*)"')
                 assets_versions = re.findall(pattern, conf_string)
         return assets_versions
 
