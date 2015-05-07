@@ -8,7 +8,6 @@ import zipfile
 import stat
 import copy
 import types
-from pyhocon import ConfigFactory
 
 from servicemanager.subprocess import Popen
 from ..service.smservice import SmMicroServiceStarter
