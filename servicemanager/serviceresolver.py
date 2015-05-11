@@ -12,6 +12,7 @@ class ServiceResolver():
     def resolve_services_from_array(self, services):
         services_to_start = []
         services_to_not_start = []
+
         for service_name in services:
             if service_name.startswith('-'):
                 services_to_not_start += self.resolve_services(service_name[1:])
@@ -28,9 +29,19 @@ class ServiceResolver():
                 services_to_start.remove(not_start)
         return services_to_start
 
+    def _find_assets_service_name(self, service_name):
+        assets_service_name = ''
+        for service_name in self.application.services:
+            if self.application.services[service_name]['type'] == 'assets':
+                assets_service_name = service_name
+        return assets_service_name
+
     def _get_all_in_profile(self, profile_name):
         services = []
         services_to_not_start = []
+
+        assets_service_name = self._find_assets_service_name(profile_name)
+
         for service_name in self.application.services_for_profile(profile_name):
             if service_name.startswith('-'):
                 services_to_not_start += self._all_matching(service_name[1:])
@@ -43,6 +54,9 @@ class ServiceResolver():
         for not_start in services_to_not_start:
             if not_start in services:
                 services.remove(not_start)
+        if assets_service_name in services:
+            services.remove(assets_service_name)
+            services.append(assets_service_name)
         return services
 
     def _all_matching(self, wildcard):
