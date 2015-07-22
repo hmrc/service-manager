@@ -112,7 +112,6 @@ class SmJvmService(SmService):
 
     def stop(self):
         for process in SmProcess.processes_matching(self.pattern):
-            kill_pid(self.context, process.ppid)
             kill_pid(self.context, process.pid)
             print "name: %s\tppid: %s\tpid: %s\tuptime: %s" % (self.service_name, process.ppid, process.pid, process.uptime)
         self.post_stop()
