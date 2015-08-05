@@ -13,6 +13,20 @@
         },
         "pattern": ".*fakenexus.*"
     },
+    "FAKE_BINTRAY": {
+        "name": "Simple bintray mock server",
+        "type": "external",
+        "location": "../",
+        "cmd": [
+            "python",
+            "fakebintray.py"
+        ],
+        "healthcheck": {
+            "url": "http://localhost:8061/ping",
+            "response": "pong"
+        },
+        "pattern": ".*fakebintray.*"
+    },
     "TEST_ONE": {
         "name": "Test service one",
         "type": "external",
@@ -113,6 +127,40 @@
              "artifact": "playtest",
              "groupId":"foo/bar/foo/",
              "nexus": "/content/repositories/",
+             "destinationSubdir" : "basicplayapp",
+             "cmd": [
+                     "./basicplayapp/bin/basicplayapp",
+                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+                     "-J-Xmx256m",
+                     "-J-Xms256m",
+                     "-J-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    "PLAY_BINTRAY_END_TO_END_TEST": {
+        "name": "A simple play application for testing on Bintray",
+        "type": "play",
+        "location": "/testapps/basicplayapp",
+        "hasServiceMappings": true,
+        "defaultPort" : 8500,
+        "hasMongo" : true,
+        "healthcheck": {
+            "url": "http://localhost:${port}",
+            "response": ""
+        },
+        "sources": {
+            "cmd": [
+                "play",
+                "start"
+            ],
+            "extra_params": [
+                 "-DFoo=false"
+            ],
+            "repo": "git@github.com:hmrc/service-manager.git"
+        },
+        "binary": {
+             "artifact": "playtest",
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",

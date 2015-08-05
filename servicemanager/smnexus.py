@@ -172,12 +172,12 @@ class SmNexus():
             if self.service_type == "assets":
                 if self._md5_if_exists(microservice_target_path + nexus_filename) != open(microservice_target_path + md5_filename, 'r').read():
                     remove_if_exists(microservice_target_path + filename)
-                    self.context.log("Downloading binary for '" + self.service_name + "': " + nexus_filename)
+                    self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
                     self._download_from_nexus(nexus_url + nexus_filename, nexus_filename, self.context.show_progress)
             else:
                 if self._md5_if_exists(microservice_target_path + filename) != open(microservice_target_path + md5_filename, 'r').read():
                     remove_if_exists(microservice_target_path + filename)
-                    self.context.log("Downloading binary for '" + self.service_name + "': " + nexus_filename)
+                    self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
                     self._download_from_nexus(nexus_url + nexus_filename, filename, self.context.show_progress)
             os.remove(microservice_target_path + md5_filename)
         else:
