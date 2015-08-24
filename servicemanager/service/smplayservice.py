@@ -92,7 +92,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             binaryConfig = self.service_data["binary"]
             artifactRepo = SmArtifactRepoFactory.get_repository(self.context, self.service_name, binaryConfig)
             if not self.version:
-                self.version = artifactRepo.find_latest_version(self.run_from, binaryConfig["artifact"])
+                self.version = artifactRepo.find_latest_version(self.run_from, binaryConfig["artifact"], binaryConfig["groupId"])
             artifactRepo.download_jar_if_necessary(self.run_from, self.version)
 
         unzip_dir = self._unpack_play_application(SmArtifactRepoFactory.get_play_app_extension(binaryConfig))
