@@ -7,5 +7,13 @@
                 "SNAPSHOT" : "foo-snapshots"
              }
 	},
+	"bintray" : {
+		"protocol": "http",
+		"host" : "localhost:8061",
+        "repoMappings" : {
+            "RELEASE" : "hmrc/releases",
+            "SNAPSHOT" : "hmrc/release-candidates"
+        }
+	},
 	"playExtractionDir" : "/var/tmp"
 }
