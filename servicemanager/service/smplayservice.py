@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import zipfile
+import tarfile
 import stat
 import copy
 import types
@@ -13,7 +14,7 @@ from servicemanager.subprocess import Popen
 from ..service.smservice import SmMicroServiceStarter
 from smjvmservice import SmJvmService, SmJvmServiceStarter
 from ..smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
-from ..smnexus import SmNexus
+from ..smartifactrepofactory import SmArtifactRepoFactory
 from ..actions.colours import BColors
 
 from servicemanager import subprocess
@@ -88,12 +89,13 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         force_chdir(microservice_target_path)
 
         if not self.context.offline:
-            nexus = SmNexus(self.context, self.service_name)
+            binaryConfig = self.service_data["binary"]
+            artifactRepo = SmArtifactRepoFactory.get_repository(self.context, self.service_name, binaryConfig)
             if not self.version:
-                self.version = nexus.find_latest_version(self.run_from, self.service_data["binary"]["artifact"])
-            nexus.download_jar_if_necessary(self.run_from, self.version)
+                self.version = artifactRepo.find_latest_version(self.run_from, binaryConfig["artifact"], binaryConfig["groupId"])
+            artifactRepo.download_jar_if_necessary(self.run_from, self.version)
 
-        unzip_dir = self._unzip_play_application()
+        unzip_dir = self._unpack_play_application(SmArtifactRepoFactory.get_play_app_extension(binaryConfig))
         parent, _ = os.path.split(unzip_dir)
         force_pushdir(parent)
 
@@ -117,23 +119,37 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
             return popen_output.pid
 
-    def _unzip_play_application(self):
+    def _unpack_play_application(self, extension):
         service_data = self.service_data
         microservice_zip_path = self.context.application.workspace + service_data["location"] + "/target/"
         force_pushdir(microservice_zip_path)
-        zip_filename = service_data["binary"]["artifact"] + ".zip"
+        zip_filename = service_data["binary"]["artifact"] + extension
 
         unzipped_dir = SmPlayService.unzipped_dir_path(self.context, service_data["location"])
         remove_folder_if_exists(unzipped_dir)
 
         os.makedirs(unzipped_dir)
-        zipfile.ZipFile(zip_filename, 'r').extractall(unzipped_dir)
 
-        folder = os.listdir(unzipped_dir)[0]
+        if extension == ".zip":
+            self._unzip_play_application(zip_filename, unzipped_dir)
+        elif extension == ".tgz":
+            self._untar_play_application(zip_filename, unzipped_dir)
+        else:
+            print "ERROR: unsupported atrifact extension: " + extension         
+
+        
+        folder = [ name for name in os.listdir(unzipped_dir) if os.path.isdir(os.path.join(unzipped_dir, name)) ][0]
         target_dir = unzipped_dir + "/" + service_data["binary"]["destinationSubdir"]
         shutil.move(unzipped_dir + "/" + folder, target_dir)
 
         return target_dir
+
+    def _unzip_play_application(self, zip_filename, unzipped_dir):
+        zipfile.ZipFile(zip_filename, 'r').extractall(unzipped_dir)
+
+    def _untar_play_application(self, tgz_filename, unzipped_dir):
+        tfile = tarfile.open(tgz_filename, 'r:gz')
+        tfile.extractall(unzipped_dir) 
 
     def sbt_extra_params(self):
         sbt_extra_params = self._build_extra_params()

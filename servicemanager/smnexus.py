@@ -117,7 +117,7 @@ class SmNexus():
         response.close()
         return dom
 
-    def find_latest_version(self, run_from, artifact):
+    def find_latest_version(self, run_from, artifact, groupId):
         if run_from == "RELEASE":
             repository = "Release"
         else:
@@ -150,6 +150,7 @@ class SmNexus():
         binary = self.context.service_data(self.service_name)["binary"]
         nexus_host = self.context.application.nexus_repo_host
         artifact = binary["artifact"]
+        group_id = binary["groupId"]
         filename = self.context.get_jar_filename(self.service_name, run_from)
         microservice_target_path = self.context.get_microservice_target_path(self.service_name)
         repo_mappings = self.context.config_value("nexus")["repoMappings"]
@@ -159,25 +160,24 @@ class SmNexus():
             url_type_repository = repo_mappings["SNAPSHOT"]
 
         if not version:
-            version = self.find_latest_version(run_from, artifact)
+            version = self.find_latest_version(run_from, artifact, group_id)
 
         if version:
             nexus_extension = self._create_nexus_extension()
             nexus_filename = artifact + "-" + version + nexus_extension
             md5_filename = nexus_filename + ".md5"
-            group_id = binary["groupId"]
             nexus_url = nexus_host + binary["nexus"] + url_type_repository + "/" + group_id + artifact + "/" + version + "/"
             #first download the md5 file in order to determine if new artifact download is required
             self._download_from_nexus(nexus_url + md5_filename, microservice_target_path + md5_filename, False)
             if self.service_type == "assets":
                 if self._md5_if_exists(microservice_target_path + nexus_filename) != open(microservice_target_path + md5_filename, 'r').read():
                     remove_if_exists(microservice_target_path + filename)
-                    self.context.log("Downloading binary for '" + self.service_name + "': " + nexus_filename)
+                    self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
                     self._download_from_nexus(nexus_url + nexus_filename, nexus_filename, self.context.show_progress)
             else:
                 if self._md5_if_exists(microservice_target_path + filename) != open(microservice_target_path + md5_filename, 'r').read():
                     remove_if_exists(microservice_target_path + filename)
-                    self.context.log("Downloading binary for '" + self.service_name + "': " + nexus_filename)
+                    self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
                     self._download_from_nexus(nexus_url + nexus_filename, filename, self.context.show_progress)
             os.remove(microservice_target_path + md5_filename)
         else:
