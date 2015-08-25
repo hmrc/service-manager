@@ -82,6 +82,31 @@ class TestNexus(unittest.TestCase):
         self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
 
 
+class TestBintray(unittest.TestCase):
+    def setUp(self):
+        set_up_and_clean_workspace()
+
+    def test_bintray(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+
+        # start fake bintray
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        response1 = actions.start_one(context, "FAKE_BINTRAY", True, False, None, port=None)
+        self.assertIsNotNone(context.get_service("FAKE_BINTRAY").status())
+        time.sleep(5)
+
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        servicetostart = "PLAY_BINTRAY_END_TO_END_TEST"
+        actions.start_one(context, servicetostart, True, False, None, port=None)
+        self.assertIsNotNone(context.get_service(servicetostart).status())
+        context.kill(servicetostart)
+
+        context.kill("FAKE_BINTRAY")
+
+        self.assertEqual(context.get_service(servicetostart).status(), [])
+        self.assertEqual(context.get_service("FAKE_BINTRAY").status(), [])
+
+
 class TestActions(unittest.TestCase):
     def setUp(self):
         set_up_and_clean_workspace()
@@ -561,7 +586,7 @@ class TestConfiguration(unittest.TestCase):
     def test_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         application = SmApplication(config_dir_override, None)
-        self.assertEqual(len(application.services), 9)
+        self.assertEqual(len(application.services), 11)
         self.assertEqual(application.services["TEST_TEMPLATE"]["type"], "external")
         self.assertEqual(application.services["TEST_TEMPLATE"]["pattern"], "some.namespace=TEST_TEMPLATE")
         self.assertEqual(application.services["TEST_TEMPLATE"]["includeInStartAndStopAll"], False)
@@ -592,7 +617,7 @@ class TestServiceResolver(unittest.TestCase):
         self.assertTrue("DROPWIZARD_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND" in all_services)
-        self.assertEqual(9, len(all_services))
+        self.assertEqual(11, len(all_services))
 
         test_profile = service_resolver.resolve_services("TEST")
         self.assertTrue("TEST_ONE" in test_profile)
