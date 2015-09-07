@@ -68,8 +68,7 @@ class SmBintray():
         if not version:
             version = self.find_latest_version(run_from, artifact, groupId)
 
-        if version:   
-
+        if version:
             localFilename = artifact + ".tgz"
             bintrayFilename = artifact + "-" + str(version) + ".tgz"
             bintrayFilePath = groupId + artifact + "/" + str(version) + "/" + bintrayFilename
@@ -78,7 +77,7 @@ class SmBintray():
             downloaded_artifact_path = microservice_target_path + localFilename
             downloaded_md5_path = microservice_target_path + localFilename + ".md5"
 
-             #first download the md5 file in order to determine if new artifact download is required
+             # first download the md5 file in order to determine if new artifact download is required
             self._download_from_bintray(bintrayMD5FilePath, downloaded_md5_path, repositoryId, False)
 
             bintray_md5 = open(downloaded_md5_path, 'r').read()
