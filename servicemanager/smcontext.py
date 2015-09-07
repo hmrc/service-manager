@@ -247,7 +247,8 @@ class SmContext():
 
     def _create_extension(self, service_name, run_from):
         if self.service_type(service_name) == "play" or self.service_type(service_name) == "assets":
-            return ".zip"
+            ext = self.service_data(service_name)["binary"].get('ext', 'tgz')
+            return "." + ext
         else:
             return "-%s-shaded.jar" % run_from
 

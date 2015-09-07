@@ -15,10 +15,8 @@ class SmArtifactRepoFactory():
 
     @staticmethod
     def get_play_app_extension(service_binary_config):
-        if SmArtifactRepoFactory._is_nexus(service_binary_config):
-            return ".zip"
-        else:
-            return ".tgz"
+        ext = service_binary_config.get("ext", "tgz")
+        return "." + ext
 
     @staticmethod
     def _is_nexus(service_binary_config):
