@@ -121,26 +121,26 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
     def _unpack_play_application(self, extension):
         service_data = self.service_data
-        microservice_zip_path = self.context.application.workspace + service_data["location"] + "/target/"
-        force_pushdir(microservice_zip_path)
-        zip_filename = service_data["binary"]["artifact"] + extension
+        microservice_path = self.context.application.workspace + service_data["location"] + "/target/"
+        force_pushdir(microservice_path)
+        microservice_filename = service_data["binary"]["artifact"] + extension
 
-        unzipped_dir = SmPlayService.unzipped_dir_path(self.context, service_data["location"])
-        remove_folder_if_exists(unzipped_dir)
+        unpacked_dir = SmPlayService.unzipped_dir_path(self.context, service_data["location"])
+        remove_folder_if_exists(unpacked_dir)
 
-        os.makedirs(unzipped_dir)
+        os.makedirs(unpacked_dir)
 
         if extension == ".zip":
-            self._unzip_play_application(zip_filename, unzipped_dir)
+            self._unzip_play_application(microservice_filename, unpacked_dir)
         elif extension == ".tgz":
-            self._untar_play_application(zip_filename, unzipped_dir)
+            self._untar_play_application(microservice_filename, unpacked_dir)
         else:
             print "ERROR: unsupported atrifact extension: " + extension         
 
         
-        folder = [ name for name in os.listdir(unzipped_dir) if os.path.isdir(os.path.join(unzipped_dir, name)) ][0]
-        target_dir = unzipped_dir + "/" + service_data["binary"]["destinationSubdir"]
-        shutil.move(unzipped_dir + "/" + folder, target_dir)
+        folder = [ name for name in os.listdir(unpacked_dir) if os.path.isdir(os.path.join(unpacked_dir, name)) ][0]
+        target_dir = unpacked_dir + "/" + service_data["binary"]["destinationSubdir"]
+        shutil.move(unpacked_dir + "/" + folder, target_dir)
 
         return target_dir
 

@@ -61,7 +61,7 @@ class TestNexus(unittest.TestCase):
     def setUp(self):
         set_up_and_clean_workspace()
 
-    def test_nexus(self):
+    def test_nexus_zip(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
 
         # start fake nexus
@@ -72,6 +72,26 @@ class TestNexus(unittest.TestCase):
 
         context = SmContext(SmApplication(config_dir_override), None, False, False)
         servicetostart = "PLAY_NEXUS_END_TO_END_TEST"
+        actions.start_one(context, servicetostart, True, False, None, port=None)
+        self.assertIsNotNone(context.get_service(servicetostart).status())
+        context.kill(servicetostart)
+
+        context.kill("FAKE_NEXUS")
+
+        self.assertEqual(context.get_service(servicetostart).status(), [])
+        self.assertEqual(context.get_service("FAKE_NEXUS").status(), [])
+
+    def test_nexus_tgz(self):
+        config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
+
+        # start fake nexus
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        response1 = actions.start_one(context, "FAKE_NEXUS", True, False, None, port=None)
+        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        time.sleep(5)
+
+        context = SmContext(SmApplication(config_dir_override), None, False, False)
+        servicetostart = "PLAY_NEXUS_TGZ_TEST"
         actions.start_one(context, servicetostart, True, False, None, port=None)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart)
@@ -586,7 +606,7 @@ class TestConfiguration(unittest.TestCase):
     def test_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         application = SmApplication(config_dir_override, None)
-        self.assertEqual(len(application.services), 11)
+        self.assertEqual(len(application.services), 13)
         self.assertEqual(application.services["TEST_TEMPLATE"]["type"], "external")
         self.assertEqual(application.services["TEST_TEMPLATE"]["pattern"], "some.namespace=TEST_TEMPLATE")
         self.assertEqual(application.services["TEST_TEMPLATE"]["includeInStartAndStopAll"], False)
@@ -607,7 +627,7 @@ class TestServiceResolver(unittest.TestCase):
         service_resolver = ServiceResolver(application)
         nexus_wildcard = service_resolver.resolve_services("PLAY_NEXU*TEST")
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in nexus_wildcard)
-        self.assertEqual(1, len(nexus_wildcard))
+        self.assertEqual(3, len(nexus_wildcard))
 
         all_services = service_resolver.resolve_services("*")
         self.assertTrue("TEST_ONE" in all_services)
@@ -617,7 +637,7 @@ class TestServiceResolver(unittest.TestCase):
         self.assertTrue("DROPWIZARD_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND" in all_services)
-        self.assertEqual(11, len(all_services))
+        self.assertEqual(13, len(all_services))
 
         test_profile = service_resolver.resolve_services("TEST")
         self.assertTrue("TEST_ONE" in test_profile)
