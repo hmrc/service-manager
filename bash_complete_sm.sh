@@ -1,4 +1,4 @@
-# Servicce manager bash completion
+# Service manager bash completion
 #
 # See https://github.com/hmrc/service-manager
 #
