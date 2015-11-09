@@ -46,6 +46,9 @@ def _is_system_or_smserver_or_test_process(pid):
     if _is_pycharm_related_process(pid):
         return True
 
+    if _is_upstart_process(pid):
+        return True
+
     return False
 
 
@@ -85,6 +88,10 @@ def _is_pycharm_process(pid):
 
 def _is_pycharm_related_process(pid):
     command = "ps -eo pid,args | grep %d | grep 'pycharm' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
+
+def _is_upstart_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'upstart' | awk '{print $1}'" % pid
     return _is_pid_in_list(pid, command)
 
 
@@ -206,3 +213,4 @@ class SmProcess:
             return int(arg)
 
         return default_if_none
+
