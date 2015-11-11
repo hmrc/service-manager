@@ -87,9 +87,10 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
     def start_from_binary(self):
         microservice_target_path = self.context.get_microservice_target_path(self.service_name)
         force_chdir(microservice_target_path)
+        
+        binaryConfig = self.service_data["binary"]
 
         if not self.context.offline:
-            binaryConfig = self.service_data["binary"]
             artifactRepo = SmArtifactRepoFactory.get_repository(self.context, self.service_name, binaryConfig)
             if not self.version:
                 self.version = artifactRepo.find_latest_version(self.run_from, binaryConfig["artifact"], binaryConfig["groupId"])
