@@ -349,9 +349,9 @@ class SmContext():
         return starter
 
     def start_service(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, appendArgs=None):
-        service_starter = self.get_service_starter(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, appendArgs)
         feature_string = pretty_print_list(" with feature$s $list enabled", self.features)
         self.log("Starting '%s' from %s%s..." % (service_name, run_from, feature_string))
+        service_starter = self.get_service_starter(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, appendArgs)
         service_process_id = service_starter.start()
 
         if service_process_id:
