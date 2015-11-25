@@ -1,11 +1,19 @@
+sudo: false
 language: python
 python:
   - "2.7"
 jdk:
   - oraclejdk8
 install:
-  - "pip install -r requirements.txt"
-script: ./jenkins.sh
+  - pip install -r requirements.txt
+env:
+  global:
+    - JAVA_HOME=${JAVA_HOME:=$(/usr/libexec/java_home)}
+    - WORKSPACE=${WORKSPACE:=.}
+    - NEXUS_PASS=${NEXUS_PASS:=sbt_creds}
+    - NEXUS_USER=${NEXUS_USER:=sbt}
+script:
+  - py.test -v --junitxml results.xml test/tests.py
+  - py.test -v --junitxml results.xml test/unit
 services:
   - mongodb
-sudo: false
