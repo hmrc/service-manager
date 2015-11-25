@@ -689,8 +689,8 @@ class TestCredentialsResolver(unittest.TestCase):
         creds = EnvNexusCredentials(context)
         resolver = CredentialsResolver(context)
 
-        os.environ.setdefault("NEXUS_PASS", "lame")
-        os.environ.setdefault("NEXUS_USER", "lame_user")
+        os.environ["NEXUS_PASS"] = "lame"
+        os.environ["NEXUS_USER"] = "lame_user"
 
         self.assertEqual(creds.load_creds(), ("lame_user", "lame"))
         self.assertEqual(resolver.resolve_nexus_credentials(), {"user": "lame_user", "password": "lame"})
