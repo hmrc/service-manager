@@ -7,7 +7,7 @@ import sys
 import collections
 import copy
 
-from pymongo import Connection
+from pymongo import MongoClient
 
 from smcredentials import CredentialsResolver
 from smprocess import kill_by_test_id, test_has_running_processes, SmProcess
@@ -230,7 +230,7 @@ class SmContext():
         self._drop_database(self.database_name_prefix)
 
     def _drop_database(self, database_name):
-        c = Connection()
+        c = MongoClient()
         try:
             if database_name in c.database_names():
                 self.log("Dropping database: %s" % database_name)
