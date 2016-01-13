@@ -186,7 +186,14 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 conf = conf.read()
                 conf_string = "".join(conf.split())
                 pattern = re.compile(ur'Prod.*assets.*version="([0-9.]*)"')
-                assets_versions = assets_versions + re.findall(pattern, conf_string)
+                new_assets_versions = re.findall(pattern, conf_string)
+                
+                # Frontends in the open do not have a Prod section in their application.conf
+                if not new_assets_versions:
+                  pattern = re.compile(ur'assets.*version="([0-9.]*)"')
+                  new_assets_versions = re.findall(pattern, conf_string)
+                  
+                assets_versions = assets_versions + new_assets_versions
         return assets_versions
 
 class SmPlayService(SmJvmService):
