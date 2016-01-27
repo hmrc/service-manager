@@ -11,11 +11,11 @@ import copy
 import types
 
 from servicemanager.subprocess import Popen
-from ..service.smservice import SmMicroServiceStarter
-from smjvmservice import SmJvmService, SmJvmServiceStarter
-from ..smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
-from ..smartifactrepofactory import SmArtifactRepoFactory
-from ..actions.colours import BColors
+from servicemanager.service.smservice import SmMicroServiceStarter
+from servicemanager.service.smjvmservice import SmJvmService, SmJvmServiceStarter
+from servicemanager.smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
+from servicemanager.smartifactrepofactory import SmArtifactRepoFactory
+from servicemanager.actions.colours import BColors
 
 from servicemanager import subprocess
 
@@ -186,7 +186,14 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 conf = conf.read()
                 conf_string = "".join(conf.split())
                 pattern = re.compile(ur'Prod.*assets.*version="([0-9.]*)"')
-                assets_versions = assets_versions + re.findall(pattern, conf_string)
+                new_assets_versions = re.findall(pattern, conf_string)
+                
+                # Frontends in the open do not have a Prod section in their application.conf
+                if not new_assets_versions:
+                  pattern = re.compile(ur'assets.*version="([0-9.]*)"')
+                  new_assets_versions = re.findall(pattern, conf_string)
+                  
+                assets_versions = assets_versions + new_assets_versions
         return assets_versions
 
 class SmPlayService(SmJvmService):
