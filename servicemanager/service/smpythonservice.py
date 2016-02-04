@@ -44,7 +44,9 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         if not self.context.offline:
             nexus = SmNexus(self.context, self.service_name)
 
-            if self.context.assets_versions:
+            if self.version:
+                versions = [ self.version ]
+            elif self.context.assets_versions:
                 versions = self.context.assets_versions
                 self.log("Starting assets versions: %s" % (", ".join(versions)))
             else:
