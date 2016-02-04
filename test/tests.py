@@ -418,7 +418,7 @@ class TestStartCommands(unittest.TestCase):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
-        expected = [ 'get_start_command() not implemented for this type of service - fork and make a pull request :)' ]
+        expected = ['python -m SimpleHTTPServer 9032']
         cmd = starter.get_start_command("BINARY")
         self.assertEqual(cmd, expected)
 
@@ -426,7 +426,7 @@ class TestStartCommands(unittest.TestCase):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = SmContext(SmApplication(config_dir_override), None, False, False)
         starter = context.get_service_starter("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", "foo", proxy=None)
-        expected = ['get_start_command() not implemented for this type of service - fork and make a pull request :)']
+        expected = ['python -m SimpleHTTPServer 9032']
         self.assertEqual(starter.get_start_command("SOURCE"), expected)
 
     def test_external_binary_config(self):

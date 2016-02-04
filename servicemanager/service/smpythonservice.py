@@ -29,6 +29,9 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
     def process_arguments(self):
         pass
 
+    def get_start_command(self, run_from):
+        return self.service_data["binary"]["cmd"]
+
     def _start_from_binary(self):
         assets_target_path = self.context.get_microservice_target_path(self.service_name)
         assets_path = self.context.application.workspace + self.service_data["location"]
