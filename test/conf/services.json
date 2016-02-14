@@ -33,9 +33,9 @@
         "location": ".",
         "cmd": [
             "sleep",
-            "99087347347346734673872"
+            "990873470001"
         ],
-        "pattern": ".*99087347347346734673872.*"
+        "pattern": ".*990873470001.*"
     },
     "TEST_TWO": {
         "name": "Test Service two",
@@ -43,9 +43,9 @@
         "location": ".",
         "cmd": [
             "sleep",
-            "ljrgkjerkjewrfjkergjklerglkerg"
+            "990873470002"
         ],
-        "pattern": ".*ljrgkjerkjewrfjkergjklerglkerg.*"
+        "pattern": ".*990873470002.*"
     },
     "TEST_THREE": {
         "name": "Test Service Three",
@@ -53,16 +53,16 @@
         "location": ".",
         "cmd": [
             "sleep",
-            "ergkhuerg8erg8oergjnerg8erg"
+            "990873470003"
         ],
-        "pattern": ".*ergkhuerg8erg8oergjnerg8erg.*"
+        "pattern": ".*990873470003.*"
     },
     "TEST_TEMPLATE": {
         "template" : "EXTERNAL_EXAMPLE_TEMPLATE",
         "name": "Test Service Three",
         "cmd": [
             "sleep",
-            "ergkhuerg8erg8oergjnerg8erg"
+            "990873470004"
         ],
         "some_parameter" : "value we expect",
         "anestedvalue" : {
