@@ -464,6 +464,8 @@ class TestServerFunctionality(unittest.TestCase):
         # smserverlogic.SmStopRequest(SERVER, request).process_request()
         context.kill_everything()
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        self.assertEqual(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status(), [])
+        self.assertEqual(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status(), [])
 
     def test_play_with_append_args(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
@@ -488,7 +490,7 @@ class TestServerFunctionality(unittest.TestCase):
         self.assertEqual(len(processes), 1)
         self.assertTrue("-Dfoo=bar" in processes[0].args)
         context.kill_everything()
-        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        self.assertEqual(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status(), [])
 
     def test_play_with_invalid_append_args(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
@@ -554,6 +556,8 @@ class TestServerFunctionality(unittest.TestCase):
         #smserverlogic.SmStopRequest(SERVER, request).process_request()
         context.kill_everything()
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        self.assertEqual(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status(), [])
+        self.assertEqual(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status(), [])
 
     def test_ensure_multiple_instances_of_a_service_can_be_started_from_server(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
@@ -573,9 +577,7 @@ class TestServerFunctionality(unittest.TestCase):
         first_request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT"},
                                      {"serviceName": "DROPWIZARD_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT"},
                                      {"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT"}]
-        request = smserverlogic.SmStartRequest(server, first_request, True, False)
-        request.process_request()
-
+        smserverlogic.SmStartRequest(server, first_request, True, False).process_request()
         time.sleep(5)
         self.assertEqual(len(context.get_service("TEST_ONE").status()), 1)
         self.assertEqual(len(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status()), 1)
@@ -596,6 +598,8 @@ class TestServerFunctionality(unittest.TestCase):
         # smserverlogic.SmStopRequest(SERVER, request).process_request()
         context.kill_everything()
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        self.assertEqual(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status(), [])
+        self.assertEqual(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status(), [])
         context.kill("FAKE_NEXUS")
 
 
