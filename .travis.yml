@@ -13,7 +13,6 @@ env:
     - NEXUS_PASS=${NEXUS_PASS:=sbt_creds}
     - NEXUS_USER=${NEXUS_USER:=sbt}
 script:
-  - py.test -v --junitxml results.xml test/tests.py
-  - py.test -v --junitxml results.xml test/unit
+  - py.test -v --junitxml results.xml test/
 services:
   - mongodb
