@@ -93,7 +93,7 @@
             "artifact": "dwtest",
             "groupId":"foo/bar/foo/",
             "nexus" : "/content/repositories/",
-            "configurationFile": "../../../../../../../../../testapps/basicdropwizardapp/config/dev_config.yml",
+            "configurationFile": "../../../../../../../../../../testapps/basicdropwizardapp/config/dev_config.yml",
             "cmd" : [
                 "java",
                 "-jar",

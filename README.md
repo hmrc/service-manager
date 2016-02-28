@@ -46,3 +46,6 @@ run smserver and it will run a service that can fire up services on demand
 ## License ##
  
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
+
+## Running the tests ##
+```pip install -e .```

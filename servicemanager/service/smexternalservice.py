@@ -6,7 +6,7 @@ import requests
 import types
 
 from servicemanager.service.smservice import SmServiceStarter, SmService, SmServiceStatus
-from servicemanager.smprocess import SmProcess, kill_pid
+from servicemanager.smprocess import SmProcess, kill_processes_matching
 from servicemanager import subprocess
 
 
@@ -55,13 +55,8 @@ class SmExternalService(SmService):
     def get_pattern(self):
         return self.pattern
 
-    def stop(self):
-        processes = SmProcess.processes_matching(self.pattern)
-
-        for process in processes:
-            kill_pid(self.context, process.ppid)
-            kill_pid(self.context, process.pid)
-            print "name: %s\tppid: %s\tpid: %s\tuptime: %s" % (self.service_name, process.ppid, process.pid, process.uptime)
+    def stop(self, wait=False):
+        kill_processes_matching(self.pattern, self.context, wait == True, wait)
 
     def clean_up(self):
         pass

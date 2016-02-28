@@ -6,6 +6,7 @@ jdk:
   - oraclejdk8
 install:
   - pip install -r requirements.txt
+  - pip install -e .
 env:
   global:
     - JAVA_HOME=${JAVA_HOME:=$(/usr/libexec/java_home)}
