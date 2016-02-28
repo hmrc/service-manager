@@ -14,8 +14,9 @@ class TestActions(TestBase):
 
     def test_start_and_stop_one(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
-        actions.start_one(context, "TEST_ONE", True, False, None, port=None)
-        time.sleep(2)
+        result = actions.start_one(context, "TEST_ONE", True, False, None, port=None)
+        self.assertTrue(result)
+        time.sleep(5)
         self.assertEquals(len(context.get_service("TEST_ONE").status()), 1)
         context.kill("TEST_ONE", True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
@@ -23,7 +24,7 @@ class TestActions(TestBase):
     def test_start_and_stop_one_with_append_args(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
         actions.start_one(context, "TEST_ONE", True, False, None, None, ["; echo 'Fin du sleep!!'"])
-        time.sleep(2)
+        time.sleep(5)
         self.assertEquals(len(context.get_service("TEST_ONE").status()), 2) # it is two in this case because the append creates a forked process
         context.kill("TEST_ONE", True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
@@ -136,12 +137,15 @@ class TestActions(TestBase):
 
 
     def test_start_and_stop_one_duplicate(self):
-        context = SmContext(SmApplication(self.config_dir_override), None, False, False)
-        response1 = actions.start_one(context, "TEST_ONE", True, False, None, port=None)
-        self.assertTrue(response1)
+        sm_application = SmApplication(self.config_dir_override)
+        context = SmContext(sm_application, None, False, False)
+        service_resolver = ServiceResolver(sm_application)
+
+        actions.start_and_wait(service_resolver, context, ["TEST_ONE"], False, False, None, port=None, seconds_to_wait=90, append_args=None)
+
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
-        response2 = actions.start_one(context, "TEST_ONE", True, False, None, port=None)
-        self.assertFalse(response2)
+        result = actions.start_one(context, "TEST_ONE", True, False, None, port=None)
+        self.assertFalse(result)
         context.kill("TEST_ONE", True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
 
