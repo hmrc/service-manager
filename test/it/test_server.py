@@ -123,24 +123,27 @@ class TestServerFunctionality(TestBase):
         first_request["testId"] = "multiple-instance-unit-test-1"
         first_request["services"] = test_services
         smserverlogic.SmStartRequest(server, first_request, True, False).process_request()
-        time.sleep(5)
 
-        self.assertEqual(len(context.get_service("TEST_ONE").status()), 1)
-        self.assertEqual(len(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status()), 1)
-        self.assertEqual(len(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status()), 1)
+        def single_service_started_successfully():
+            if len(context.get_service("TEST_ONE").status()) != 1: return False
+            if len(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status()) != 1: return False
+            if len(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status()) != 1: return False
+            return True
+
+        self.waitForCondition(single_service_started_successfully, True)
 
         second_request = dict()
         second_request["testId"] = "multiple-instance-unit-test-2"
         second_request["services"] = test_services
         smserverlogic.SmStartRequest(server, second_request, True, False).process_request()
 
-        def services_started_successfully():
+        def multiple_services_started_successfully():
             if len(context.get_service("TEST_ONE").status()) != 2: return False
             if len(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status()) != 2: return False
             if len(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status()) != 2: return False
             return True
 
-        self.waitForCondition(services_started_successfully, True)
+        self.waitForCondition(multiple_services_started_successfully, True)
 
         # stop does not currently work for extern
         # smserverlogic.SmStopRequest(SERVER, request).process_request()

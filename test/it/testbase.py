@@ -78,4 +78,4 @@ class TestBase(unittest.TestCase):
             if f() == expected: return
             time.sleep(0.1)
 
-        self.assertFail()
+        self.assertTrue(False)
