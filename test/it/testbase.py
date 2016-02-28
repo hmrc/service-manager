@@ -46,19 +46,19 @@ class TestBase(unittest.TestCase):
 
     def createContext(self): return SmContext(SmApplication(self.config_dir_override), None, False, False)
 
-    def startService(self, context, servicetostart):
+    def start_service_and_wait(self, context, servicetostart):
         sm_application = SmApplication(self.config_dir_override)
         service_resolver = ServiceResolver(sm_application)
         actions.start_and_wait(service_resolver, context, [servicetostart], fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=5, append_args=None)
 
     def startFakeBintray(self):
         self.bintrayContext = self.createContext()
-        self.startService(self.bintrayContext, "FAKE_BINTRAY")
+        self.start_service_and_wait(self.bintrayContext, "FAKE_BINTRAY")
         self.assertIsNotNone(self.bintrayContext.get_service("FAKE_BINTRAY").status())
 
     def startFakeNexus(self):
         self.nexusContext = self.createContext()
-        self.startService(self.nexusContext, "FAKE_NEXUS")
+        self.start_service_and_wait(self.nexusContext, "FAKE_NEXUS")
         self.assertIsNotNone(self.nexusContext.get_service("FAKE_NEXUS").status())
 
     def stopFakeNexus(self):

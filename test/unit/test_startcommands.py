@@ -68,12 +68,12 @@ class TestStartCommands(TestBase):
     def test_external_binary_config(self):
         context = self.createContext()
         starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
-        expected = [ 'python', 'fakenexus.py']
+        expected = [ 'python', './fakenexus.py']
         cmd = starter.get_start_command("BINARY") #context will be ignored
         self.assertEqual(cmd, expected)
 
     def test_external_source_config(self):
         context = self.createContext()
         starter = context.get_service_starter("FAKE_NEXUS", "foo", proxy=None)
-        expected = [ 'python', 'fakenexus.py']
+        expected = [ 'python', './fakenexus.py']
         self.assertEqual(starter.get_start_command("SOURCE"), expected) #context will be ignored

@@ -105,14 +105,13 @@ class TestActions(TestBase):
         port = None
         seconds_to_wait = None
 
-        try:
-            actions.start_and_wait(service_resolver, context, servicetostart, fatJar, release, proxy, port, seconds_to_wait, appendArgs)
-            service = SmPlayService(context, "PLAY_NEXUS_END_TO_END_TEST")
-            processes = SmProcess.processes_matching(service.pattern)
-            self.assertEqual(len(processes), 1)
-            self.assertTrue("-DFoo=Bar" in processes[0].args)
-        finally:
-            context.kill_everything(True)
+        actions.start_and_wait(service_resolver, context, servicetostart, fatJar, release, proxy, port, seconds_to_wait, appendArgs)
+        service = SmPlayService(context, "PLAY_NEXUS_END_TO_END_TEST")
+        # sleeping is acceptable here as the start_and_wait is being tested with no seconds to wait
+        time.sleep(0.5)
+        processes = SmProcess.processes_matching(service.pattern)
+        self.assertEqual(len(processes), 1)
+        self.assertTrue("-DFoo=Bar" in processes[0].args)
 
     def test_failing_play_from_jar(self):
 

@@ -7,8 +7,8 @@ class TestBintray(TestBase):
 
         context = self.createContext()
         servicetostart = "PLAY_BINTRAY_END_TO_END_TEST"
-        self.startService(context, servicetostart)
+        self.start_service_and_wait(context, servicetostart)
         self.assertIsNotNone(context.get_service(servicetostart).status())
-        context.kill(servicetostart)
+        context.kill(servicetostart, True)
 
         self.assertEqual(context.get_service(servicetostart).status(), [])

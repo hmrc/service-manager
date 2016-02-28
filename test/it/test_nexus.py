@@ -6,7 +6,7 @@ class TestNexus(TestBase):
         self.startFakeNexus()
         context = self.createContext()
         servicetostart = "PLAY_NEXUS_END_TO_END_TEST"
-        self.startService(context, servicetostart)
+        self.start_service_and_wait(context, servicetostart)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart, True)
 
@@ -16,7 +16,7 @@ class TestNexus(TestBase):
         self.startFakeNexus()
         context = self.createContext()
         servicetostart = "PLAY_NEXUS_TGZ_TEST"
-        self.startService(context, servicetostart)
+        self.start_service_and_wait(context, servicetostart)
         self.assertIsNotNone(context.get_service(servicetostart).status())
         context.kill(servicetostart, True)
 
