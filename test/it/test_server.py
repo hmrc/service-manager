@@ -69,6 +69,7 @@ class TestServerFunctionality(TestBase):
         smserverlogic.SmStartRequest(server, request, True, False).process_request()
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
         pattern = context.application.services["TEST_ONE"]["pattern"]
+        time.sleep(2)
         processes = SmProcess.processes_matching(pattern)
         # stop does not currently work for extern
         # smserverlogic.SmStopRequest(SERVER, request).process_request()

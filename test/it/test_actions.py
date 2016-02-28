@@ -15,6 +15,7 @@ class TestActions(TestBase):
     def test_start_and_stop_one(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
         actions.start_one(context, "TEST_ONE", True, False, None, port=None)
+        time.sleep(2)
         self.assertEquals(len(context.get_service("TEST_ONE").status()), 1)
         context.kill("TEST_ONE", True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
@@ -22,6 +23,7 @@ class TestActions(TestBase):
     def test_start_and_stop_one_with_append_args(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
         actions.start_one(context, "TEST_ONE", True, False, None, None, ["; echo 'Fin du sleep!!'"])
+        time.sleep(2)
         self.assertEquals(len(context.get_service("TEST_ONE").status()), 2) # it is two in this case because the append creates a forked process
         context.kill("TEST_ONE", True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
