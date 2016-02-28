@@ -46,7 +46,10 @@ class TestBase(unittest.TestCase):
 
     def createContext(self): return SmContext(SmApplication(self.config_dir_override), None, False, False)
 
-    def startService(self, context, servicetostart): actions.start_one(context, servicetostart, True, False, None, port=None)
+    def startService(self, context, servicetostart):
+        sm_application = SmApplication(self.config_dir_override)
+        service_resolver = ServiceResolver(sm_application)
+        actions.start_and_wait(service_resolver, context, [servicetostart], fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=5, append_args=None)
 
     def startFakeBintray(self):
         self.bintrayContext = self.createContext()

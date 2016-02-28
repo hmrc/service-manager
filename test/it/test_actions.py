@@ -107,7 +107,6 @@ class TestActions(TestBase):
 
         try:
             actions.start_and_wait(service_resolver, context, servicetostart, fatJar, release, proxy, port, seconds_to_wait, appendArgs)
-            time.sleep(5)
             service = SmPlayService(context, "PLAY_NEXUS_END_TO_END_TEST")
             processes = SmProcess.processes_matching(service.pattern)
             self.assertEqual(len(processes), 1)
