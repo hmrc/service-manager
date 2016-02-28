@@ -11,6 +11,7 @@ from servicemanager.smcontext import SmApplication, SmContext
 import time
 import shutil
 import unittest
+from servicemanager import subprocess
 
 class TestBase(unittest.TestCase):
 
@@ -70,4 +71,9 @@ class TestBase(unittest.TestCase):
             if value == expected: return
             time.sleep(0.1)
 
+        command = "ps -eo ppid,pid,etime,rss,args"
+        ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        stdout, stderr = ps_command.communicate()
+        print(stdout)
+        
         self.assertEquals(value, expected)
