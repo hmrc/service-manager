@@ -41,7 +41,10 @@ class SmExternalServiceStarter(SmServiceStarter):
                 location = self.service_data["location"]
             microservice_path = os.path.join(self.context.application.workspace, location)
             os.chdir(microservice_path)
-            return subprocess.Popen(" ".join(self.get_start_command()), cwd=microservice_path, env=os.environ.copy(), shell=True).pid
+            cmd = " ".join(self.get_start_command())
+            print("microservice path: " + microservice_path + " cmd: " + cmd)
+
+            return subprocess.Popen(cmd, cwd=microservice_path, env=os.environ.copy(), shell=True).pid
         except Exception, e:
             self.log("Could not start service due to exception: " + str(e))
 
