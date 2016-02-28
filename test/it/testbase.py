@@ -74,8 +74,10 @@ class TestBase(unittest.TestCase):
 
     def waitForCondition(self, f, expected, time_out_secs = default_time_out):
         dead_line = time.time() + time_out_secs
+        value = None
         while (time.time() < dead_line):
-            if f() == expected: return
+            value = f()
+            if value == expected: return
             time.sleep(0.1)
 
-        self.assertTrue(False)
+        self.assertEquals(value, expected)
