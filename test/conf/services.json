@@ -5,7 +5,7 @@
         "location": "../",
         "cmd": [
             "python",
-            "fakenexus.py"
+            "./fakenexus.py"
         ],
         "healthcheck": {
             "url": "http://localhost:8060/ping",
@@ -19,7 +19,7 @@
         "location": "../",
         "cmd": [
             "python",
-            "fakebintray.py"
+            "./fakebintray.py"
         ],
         "healthcheck": {
             "url": "http://localhost:8061/ping",
