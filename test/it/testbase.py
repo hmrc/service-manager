@@ -73,8 +73,8 @@ class TestBase(unittest.TestCase):
             self.assertEqual(self.bintrayContext.get_service("FAKE_BINTRAY").status(), [])
 
     def waitForCondition(self, f, expected, time_out_secs = default_time_out):
-        dead_line = time.clock() + time_out_secs
-        while (time.clock() < dead_line):
+        dead_line = time.time() + time_out_secs
+        while (time.time() < dead_line):
             if f() == expected: return
             time.sleep(0.1)
 
