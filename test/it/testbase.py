@@ -25,6 +25,7 @@ import unittest
 class TestBase(unittest.TestCase):
 
     config_dir_override = os.path.join(os.path.dirname(__file__), "../conf")
+    default_time_out = 10
 
     def setUp(self):
         self.set_up_and_clean_workspace()
@@ -70,3 +71,11 @@ class TestBase(unittest.TestCase):
         if self.bintrayContext is not None:
             self.bintrayContext.kill("FAKE_BINTRAY", True)
             self.assertEqual(self.bintrayContext.get_service("FAKE_BINTRAY").status(), [])
+
+    def waitForCondition(self, f, expected, time_out_secs = default_time_out):
+        dead_line = time.clock() + time_out_secs
+        while (time.clock() < dead_line):
+            if f() == expected: return
+            time.sleep(0.1)
+
+        self.assertFail()

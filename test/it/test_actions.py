@@ -16,16 +16,16 @@ class TestActions(TestBase):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
         result = actions.start_one(context, "TEST_ONE", True, False, None, port=None)
         self.assertTrue(result)
-        time.sleep(5)
-        self.assertEquals(len(context.get_service("TEST_ONE").status()), 1)
+
+        self.waitForCondition((lambda : len(context.get_service("TEST_ONE").status())), 1)
         context.kill("TEST_ONE", True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
 
     def test_start_and_stop_one_with_append_args(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
         actions.start_one(context, "TEST_ONE", True, False, None, None, ["; echo 'Fin du sleep!!'"])
-        time.sleep(5)
-        self.assertEquals(len(context.get_service("TEST_ONE").status()), 2) # it is two in this case because the append creates a forked process
+        # Expect two in this case because the append creates a forked process
+        self.waitForCondition((lambda : len(context.get_service("TEST_ONE").status())), 2)
         context.kill("TEST_ONE", True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
 
@@ -110,10 +110,8 @@ class TestActions(TestBase):
 
         actions.start_and_wait(service_resolver, context, servicetostart, fatJar, release, proxy, port, seconds_to_wait, appendArgs)
         service = SmPlayService(context, "PLAY_NEXUS_END_TO_END_TEST")
-        # sleeping is acceptable here as the start_and_wait is being tested with no seconds to wait
-        time.sleep(0.5)
+        self.waitForCondition(lambda : len(SmProcess.processes_matching(service.pattern)), 1)
         processes = SmProcess.processes_matching(service.pattern)
-        self.assertEqual(len(processes), 1)
         self.assertTrue("-DFoo=Bar" in processes[0].args)
 
     def test_failing_play_from_jar(self):
