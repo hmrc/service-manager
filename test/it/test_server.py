@@ -4,7 +4,6 @@ from servicemanager.service.smplayservice import SmPlayService
 from servicemanager.smcontext import SmApplication
 from servicemanager.smprocess import SmProcess
 
-import time
 import pytest
 
 from testbase import TestBase
@@ -66,7 +65,7 @@ class TestServerFunctionality(TestBase):
         server = smserverlogic.SmServer(SmApplication(self.config_dir_override, None))
         request = dict()
         request["testId"] = "foo"
-        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": [";echo foo"]}]
+        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": ["; echo foo"]}]
         smserverlogic.SmStartRequest(server, request, True, False).process_request()
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
         pattern = context.application.services["TEST_ONE"]["pattern"]
@@ -82,7 +81,7 @@ class TestServerFunctionality(TestBase):
         server = smserverlogic.SmServer(SmApplication(self.config_dir_override, None))
         request = dict()
         request["testId"] = "foo"
-        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": ";echo foo"}]
+        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": "; echo foo"}]
         with pytest.raises(BadRequestException):
             smserverlogic.SmStartRequest(server, request, True, False).process_request()
 
