@@ -5,21 +5,11 @@ import sys
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../../servicemanager'))
 
 from servicemanager.actions import actions
-from servicemanager.server import smserverlogic
-from servicemanager.smcontext import SmApplication, SmContext, ServiceManagerException
-from servicemanager.smprocess import SmProcess
-from servicemanager.service.smplayservice import SmPlayService
-from servicemanager.server.smserverlogic import BadRequestException
+from servicemanager.serviceresolver import ServiceResolver
+from servicemanager.smcontext import SmApplication, SmContext
 
-import pytest
 import time
 import shutil
-import unittest
-
-from servicemanager.serviceresolver import ServiceResolver
-
-from servicemanager.smcredentials import EnvNexusCredentials, CredentialsResolver, SbtNexusCredentials
-
 import unittest
 
 class TestBase(unittest.TestCase):

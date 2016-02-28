@@ -1,12 +1,10 @@
 from servicemanager.actions import actions
-from servicemanager.server import smserverlogic
 from servicemanager.smcontext import SmApplication, SmContext, ServiceManagerException
 from servicemanager.smprocess import SmProcess
 from servicemanager.service.smplayservice import SmPlayService
 from servicemanager.serviceresolver import ServiceResolver
 
 import pytest
-import time
 
 from testbase import TestBase
 
