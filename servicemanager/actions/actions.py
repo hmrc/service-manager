@@ -46,7 +46,7 @@ def get_start_cmd(context, service_name, fatjar, release, proxy, port=None, appe
     if version == "LATEST":
         version = None
 
-    starter = context.get_service_starter(service_name, run_from, proxy, port=port, version=version, appendArgs=appendArgs)
+    starter = context.get_service_starter(service_name, run_from, proxy, port=port, version=version, append_args=appendArgs)
     return starter.get_start_command(run_from)
 
 def stop_profile(context, profile):
