@@ -1204,6 +1204,7 @@ class Popen(object):
             if executable is None:
                 executable = args[0]
 
+            print(args)
             def _close_in_parent(fd):
                 os.close(fd)
                 to_close.remove(fd)

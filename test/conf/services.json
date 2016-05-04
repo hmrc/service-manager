@@ -32,8 +32,9 @@
         "type": "external",
         "location": ".",
         "cmd": [
-            "sleep",
-            "990873470001"
+            "/bin/sh",
+            "-c",
+            "\"sleep 990873470001\""
         ],
         "pattern": ".*990873470001.*"
     },
@@ -42,8 +43,9 @@
         "type": "external",
         "location": ".",
         "cmd": [
-            "sleep",
-            "990873470002"
+            "/bin/sh",
+            "-c",
+            "\"sleep 990873470002\""
         ],
         "pattern": ".*990873470002.*"
     },
@@ -52,8 +54,9 @@
         "type": "external",
         "location": ".",
         "cmd": [
-            "sleep",
-            "990873470003"
+            "/bin/sh",
+            "-c",
+            "\"sleep 990873470003\""
         ],
         "pattern": ".*990873470003.*"
     },
@@ -61,8 +64,9 @@
         "template" : "EXTERNAL_EXAMPLE_TEMPLATE",
         "name": "Test Service Three",
         "cmd": [
-            "sleep",
-            "990873470004"
+            "/bin/sh",
+            "-c",
+            "\"sleep 990873470004\""
         ],
         "some_parameter" : "value we expect",
         "anestedvalue" : {
