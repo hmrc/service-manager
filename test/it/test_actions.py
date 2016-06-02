@@ -21,7 +21,7 @@ class TestActions(TestBase):
 
     def test_start_and_stop_one_with_append_args(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
-        actions.start_one(context, "TEST_ONE", True, False, None, None, ["; echo 'Fin du sleep!!'"])
+        actions.start_one(context, "TEST_ONE", True, False, None, None, [";echo", "'Fin du sleep!!'"])
         # Expect two in this case because the append creates a forked process
         self.waitForCondition((lambda : len(context.get_service("TEST_ONE").status())), 2)
         context.kill("TEST_ONE", True)

@@ -32,41 +32,37 @@
         "type": "external",
         "location": ".",
         "cmd": [
-            "/bin/sh",
-            "-c",
-            "\"sleep 990873470001\""
+            "sleep",
+            "990873470001"
         ],
-        "pattern": ".*990873470001.*"
+        "pattern": ".*990873470001"
     },
     "TEST_TWO": {
         "name": "Test Service two",
         "type": "external",
         "location": ".",
         "cmd": [
-            "/bin/sh",
-            "-c",
-            "\"sleep 990873470002\""
+            "sleep",
+            "990873470002"
         ],
-        "pattern": ".*990873470002.*"
+        "pattern": ".*990873470002"
     },
     "TEST_THREE": {
         "name": "Test Service Three",
         "type": "external",
         "location": ".",
         "cmd": [
-            "/bin/sh",
-            "-c",
-            "\"sleep 990873470003\""
+            "sleep",
+            "990873470003"
         ],
-        "pattern": ".*990873470003.*"
+        "pattern": ".*990873470003"
     },
     "TEST_TEMPLATE": {
         "template" : "EXTERNAL_EXAMPLE_TEMPLATE",
         "name": "Test Service Three",
         "cmd": [
-            "/bin/sh",
-            "-c",
-            "\"sleep 990873470004\""
+            "sleep",
+            "990873470004"
         ],
         "some_parameter" : "value we expect",
         "anestedvalue" : {
