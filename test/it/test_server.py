@@ -65,23 +65,21 @@ class TestServerFunctionality(TestBase):
         server = smserverlogic.SmServer(SmApplication(self.config_dir_override, None))
         request = dict()
         request["testId"] = "foo"
-        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": ["; echo foo"]}]
+        request["services"] = [{"serviceName": "TEST_FOUR", "runFrom": "SNAPSHOT", "appendArgs": ["2"]}]
         smserverlogic.SmStartRequest(server, request, True, False).process_request()
-        self.assertIsNotNone(context.get_service("TEST_ONE").status())
-        pattern = context.application.services["TEST_ONE"]["pattern"]
+        self.assertIsNotNone(context.get_service("TEST_FOUR").status())
+        pattern = context.application.services["TEST_FOUR"]["pattern"]
 
-        self.waitForCondition(lambda : len(SmProcess.processes_matching(pattern)), 2)
-        processes = SmProcess.processes_matching(pattern)
-        self.assertTrue(";echo" in processes[0].args or ";echo" in processes[1].args)
+        self.waitForCondition(lambda : len(SmProcess.processes_matching(pattern)), 1)
 
         context.kill_everything(True)
-        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        self.assertEqual(context.get_service("TEST_FOUR").status(), [])
 
     def test_external_with_invalid_append_args(self):
         server = smserverlogic.SmServer(SmApplication(self.config_dir_override, None))
         request = dict()
         request["testId"] = "foo"
-        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": "; echo foo"}]
+        request["services"] = [{"serviceName": "TEST_FOUR", "runFrom": "SNAPSHOT", "appendArgs": "2"}]
         with pytest.raises(BadRequestException):
             smserverlogic.SmStartRequest(server, request, True, False).process_request()
 

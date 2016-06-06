@@ -21,11 +21,10 @@ class TestActions(TestBase):
 
     def test_start_and_stop_one_with_append_args(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
-        actions.start_one(context, "TEST_ONE", True, False, None, None, [";echo", "'Fin du sleep!!'"])
-        # Expect two in this case because the append creates a forked process
-        self.waitForCondition((lambda : len(context.get_service("TEST_ONE").status())), 2)
-        context.kill("TEST_ONE", True)
-        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        actions.start_one(context, "TEST_FOUR", True, False, None, None, ["2"])
+        self.waitForCondition((lambda : len(context.get_service("TEST_FOUR").status())), 1)
+        context.kill("TEST_FOUR", True)
+        self.assertEqual(context.get_service("TEST_FOUR").status(), [])
 
     @pytest.mark.online
     def test_dropwizard_from_source(self):

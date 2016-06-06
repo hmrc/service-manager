@@ -6,7 +6,7 @@ class TestConfiguration(TestBase):
 
     def test_config(self):
         application = SmApplication(self.config_dir_override, None)
-        self.assertEqual(len(application.services), 13)
+        self.assertEqual(len(application.services), 14)
         self.assertEqual(application.services["TEST_TEMPLATE"]["type"], "external")
         self.assertEqual(application.services["TEST_TEMPLATE"]["pattern"], "some.namespace=TEST_TEMPLATE")
         self.assertEqual(application.services["TEST_TEMPLATE"]["includeInStartAndStopAll"], False)
@@ -14,7 +14,7 @@ class TestConfiguration(TestBase):
         self.assertEqual(application.services["TEST_TEMPLATE"]["anestedvalue"]["anotherunique"], "value")
         self.assertEqual(application.services["TEST_TEMPLATE"]["anestedvalue"]["new"], "and this value")
         self.assertEqual(application.services["TEST_TEMPLATE"]["anestedvalue"]["override"], "will have this value")
-        self.assertEqual(len(application.services["TEST_TEMPLATE"]), 8)
+        self.assertEqual(len(application.services["TEST_TEMPLATE"]), 9)
 
     def test_runfrom_override(self):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)

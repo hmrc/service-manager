@@ -30,7 +30,7 @@
     "TEST_ONE": {
         "name": "Test service one",
         "type": "external",
-        "location": ".",
+        "location": "../",
         "cmd": [
             "sleep",
             "990873470001"
@@ -38,9 +38,9 @@
         "pattern": ".*990873470001"
     },
     "TEST_TWO": {
-        "name": "Test Service two",
+        "name": "Test Service Two",
         "type": "external",
-        "location": ".",
+        "location": "../",
         "cmd": [
             "sleep",
             "990873470002"
@@ -50,18 +50,29 @@
     "TEST_THREE": {
         "name": "Test Service Three",
         "type": "external",
-        "location": ".",
+        "location": "../",
         "cmd": [
             "sleep",
             "990873470003"
         ],
         "pattern": ".*990873470003"
     },
+    "TEST_FOUR": {
+        "name": "Test Service Four",
+        "type": "external",
+        "location": "../",
+        "cmd": [
+            "./snooze.sh",
+            "111111111111"
+        ],
+        "pattern": ".*222222222222"
+    },
     "TEST_TEMPLATE": {
         "template" : "EXTERNAL_EXAMPLE_TEMPLATE",
         "name": "Test Service Three",
+        "location": "../",
         "cmd": [
-            "sleep",
+            "./snooze.sh",
             "990873470004"
         ],
         "some_parameter" : "value we expect",
