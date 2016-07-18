@@ -142,10 +142,11 @@ class TestActions(unittest.TestCase):
     def test_start_and_stop_one_with_append_args(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         context = SmContext(SmApplication(config_dir_override), None, False, False)
-        actions.start_one(context, "TEST_ONE", True, False, None, None, ["; echo 'Fin du sleep!!'"])
-        self.assertEquals(len(context.get_service("TEST_ONE").status()), 2) # it is two in this case because the append creates a forked process
-        context.kill("TEST_ONE")
-        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        actions.start_one(context, "TEST_FOUR", True, False, None, None, ["2"])
+        time.sleep(5)
+        self.assertEquals(len(context.get_service("TEST_FOUR").status()), 2) # it is two in this case because the append creates a forked process
+        context.kill("TEST_FOUR")
+        self.assertEqual(context.get_service("TEST_FOUR").status(), [])
 
     def test_dropwizard_from_source(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
@@ -510,17 +511,16 @@ class TestServerFunctionality(unittest.TestCase):
         server = smserverlogic.SmServer(SmApplication(config_dir_override, None))
         request = dict()
         request["testId"] = "foo"
-        request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT", "appendArgs": [";echo foo"]}]
+        request["services"] = [{"serviceName": "TEST_FOUR", "runFrom": "SNAPSHOT", "appendArgs": ["2"]}]
         smserverlogic.SmStartRequest(server, request, True, False).process_request()
-        self.assertIsNotNone(context.get_service("TEST_ONE").status())
-        pattern = context.application.services["TEST_ONE"]["pattern"]
+        self.assertIsNotNone(context.get_service("TEST_FOUR").status())
+        pattern = context.application.services["TEST_FOUR"]["pattern"]
         processes = SmProcess.processes_matching(pattern)
         # stop does not currently work for extern
         # smserverlogic.SmStopRequest(SERVER, request).process_request()
         self.assertEqual(len(processes), 2) #we expect two proecesses to be spawned because of the appended command
-        self.assertTrue(";echo" in processes[0].args or ";echo" in processes[1].args)
         context.kill_everything()
-        self.assertEqual(context.get_service("TEST_ONE").status(), [])
+        self.assertEqual(context.get_service("TEST_FOUR").status(), [])
 
     def test_external_with_invalid_append_args(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
@@ -610,7 +610,7 @@ class TestConfiguration(unittest.TestCase):
     def test_config(self):
         config_dir_override = os.path.join(os.path.dirname(__file__), "conf")
         application = SmApplication(config_dir_override, None)
-        self.assertEqual(len(application.services), 13)
+        self.assertEqual(len(application.services), 14)
         self.assertEqual(application.services["TEST_TEMPLATE"]["type"], "external")
         self.assertEqual(application.services["TEST_TEMPLATE"]["pattern"], "some.namespace=TEST_TEMPLATE")
         self.assertEqual(application.services["TEST_TEMPLATE"]["includeInStartAndStopAll"], False)
@@ -637,11 +637,12 @@ class TestServiceResolver(unittest.TestCase):
         self.assertTrue("TEST_ONE" in all_services)
         self.assertTrue("TEST_TWO" in all_services)
         self.assertTrue("TEST_THREE" in all_services)
+        self.assertTrue("TEST_FOUR" in all_services)
         self.assertTrue("TEST_TEMPLATE" in all_services)
         self.assertTrue("DROPWIZARD_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND" in all_services)
-        self.assertEqual(13, len(all_services))
+        self.assertEqual(14, len(all_services))
 
         test_profile = service_resolver.resolve_services("TEST")
         self.assertTrue("TEST_ONE" in test_profile)

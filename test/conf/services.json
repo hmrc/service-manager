@@ -57,6 +57,16 @@
         ],
         "pattern": ".*990873470003.*"
     },
+   "TEST_FOUR": {
+       "name": "Test Service Four",
+       "type": "external",
+       "location": "../",
+       "cmd": [
+           "./snooze.sh",
+           "111111111111"
+       ],
+       "pattern": ".*222222222222"
+   },
     "TEST_TEMPLATE": {
         "template" : "EXTERNAL_EXAMPLE_TEMPLATE",
         "name": "Test Service Three",
