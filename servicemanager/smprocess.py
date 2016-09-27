@@ -1,19 +1,29 @@
 #!/usr/bin/env python
-from signal import SIGINT, SIGKILL
 import os
 import re
+import psutil
+import time
+from datetime import timedelta
+
+if os.name == "nt":
+    from signal import SIGINT
+else:
+    from signal import SIGINT, SIGKILL
+
 
 from servicemanager import subprocess
 
-
 def kill_pid(context, pid, force=False):
 
-    if _is_system_or_smserver_or_test_process(pid):
+    if os.name != "nt" and _is_system_or_smserver_or_test_process(pid):
         return "Not allowed to kill system, test or smserver process (pid = %d)" % pid
 
     try:
         if force:
-            os.kill(pid, SIGKILL)
+            if os.name == "nt":
+                psutil.Process(pid).kill()
+            else:
+                os.kill(pid, SIGKILL)
         else:
             os.kill(pid, SIGINT)
 
@@ -150,21 +160,41 @@ class SmProcess:
 
     @classmethod
     def all_processes(cls):
-        command = "ps -eo ppid,pid,etime,rss,args"
-        ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        stdout, stderr = ps_command.communicate()
-        ps_output = stdout.split("\n")[:-1]
+        if os.name == "nt":
+            result = []
+            for proc in psutil.process_iter():
+                try:
+                    time_diff = time.time() - proc.create_time()
+                    smprocess = SmProcess(proc.ppid(),
+                                          proc.pid,
+                                          str(timedelta(seconds=time_diff)),
+                                          proc.memory_info().rss,
+                                          proc.cmdline())
+                except psutil.AccessDenied:
+                    pass
+                except psutil.NoSuchProcess:
+                    pass
+                else:
+                    result.append(smprocess)
+            return result
+        else:
+            command = "ps -eo ppid,pid,etime,rss,args"
+            ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+            stdout, stderr = ps_command.communicate()
+            ps_output = stdout.split("\n")[:-1]
 
-        def process_line_to_object(process_line):
-            values = process_line.strip().split()
-            return SmProcess(int(values[0]), int(values[1]), values[2], values[3], values[4:])
+            def process_line_to_object(process_line):
+                values = process_line.strip().split()
+                return SmProcess(int(values[0]), int(values[1]), values[2], values[3], values[4:])
 
-        return map(process_line_to_object, ps_output[1:])
+            return map(process_line_to_object, ps_output[1:])
 
     @staticmethod
     def find_in_command_line(process, r):
         for arg in process.args:
             if r.search(arg):
+                if os.name == "nt" and "cmd.exe" in process.args[0]:
+                    return False
                 return True
         return False
 

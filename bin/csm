@@ -1,0 +1,8 @@
+#!/bin/bash
+
+PY=$(which py)
+SM=$(cygpath -w "$(dirname $0)/sm")
+export WORKSPACE=$(cygpath -w $WORKSPACE)
+export JAVA_HOME=$(cygpath -w $JAVA_HOME)
+
+exec "$PY" "$SM" "$@"

@@ -5,8 +5,8 @@ import zipfile
 import signal
 import time
 import re
-
 import requests
+import psutil
 
 from servicemanager import subprocess
 from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
@@ -59,7 +59,10 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         cmd_with_params = self.service_data["binary"]["cmd"]
         makedirs_if_not_exists("logs")
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            return subprocess.Popen(cmd_with_params[0].split(), shell=False, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True).pid
+            if os.name == "nt":
+                return subprocess.Popen(cmd_with_params[0].split(), shell=False, env=os.environ.copy(), stdout=out, stderr=err).pid
+            else:
+                return subprocess.Popen(cmd_with_params[0].split(), shell=False, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True).pid
 
     def _start_from_sources(self):
 
@@ -132,11 +135,19 @@ class SmPythonService(SmService):
         self.pattern = SmPythonService.get_pattern(self)
 
     def stop(self):
+        if os.name == "nt":
+            pid_values = []
+            for proc in psutil.process_iter():
+                try:
+                    if SmPythonService.get_pattern(self) in proc.cmdline():
+                        pid_values += [proc.pid]
+                except psutil.NoSuchProcess:
+                    pass
+        else:
+            ps_command = "ps axo pid,command | grep '%s' | grep -v 'grep' | awk '{print $1}'" % SmPythonService.get_pattern(self)
 
-        ps_command = "ps axo pid,command | grep '%s' | grep -v 'grep' | awk '{print $1}'" % SmPythonService.get_pattern(self)
-
-        ps = subprocess.Popen(ps_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        pid_values = map(int, ps.stdout.read().split("\n")[:-1])
+            ps = subprocess.Popen(ps_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            pid_values = map(int, ps.stdout.read().split("\n")[:-1])
 
         if len(pid_values) == 0:
             return

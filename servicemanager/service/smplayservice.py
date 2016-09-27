@@ -87,7 +87,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
     def start_from_binary(self):
         microservice_target_path = self.context.get_microservice_target_path(self.service_name)
         force_chdir(microservice_target_path)
-        
+
         binaryConfig = self.service_data["binary"]
 
         if not self.context.offline:
@@ -115,10 +115,37 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         print(cmd_with_params)
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            popen_output = Popen(cmd_with_params, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True)
+            if os.name == "nt":
+                cmd_with_params = self.patch_script_and_get_new_windows_cmd(cmd_with_params)
+                popen_output = subprocess.Popen(cmd_with_params, env=os.environ.copy(), stdout=out, stderr=err)
+            else:
+                popen_output = Popen(cmd_with_params, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True)
+
             if popen_output.returncode == 1:
                 print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
+
             return popen_output.pid
+
+    def patch_script_and_get_new_windows_cmd(selfself, old_cmd_with_params):
+        old_cmd_with_params[0] = old_cmd_with_params[0].replace("/", "\\")
+        input_file = open(old_cmd_with_params[0] + ".bat", "r")
+        output_file_name = old_cmd_with_params[0] + "_new.bat"
+        output_file = open(output_file_name, "w")
+
+        for line in input_file:
+            if "set \"APP_CLASSPATH=%APP_LIB_DIR%\\" in line:
+                newline = "set \"APP_CLASSPATH=%APP_LIB_DIR%\\*\"\n"
+            elif "-cp \"%APP_CLASSPATH%\" %APP_MAIN_CLASS% %*" in line:
+                newline = line.replace(" %*", "")
+            else:
+                newline = line
+
+            output_file.write(newline)
+
+        input_file.close()
+        output_file.close()
+        old_cmd_with_params[0] = output_file_name
+        return old_cmd_with_params
 
     def _unpack_play_application(self, extension):
         service_data = self.service_data
@@ -136,9 +163,9 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         elif extension == ".tgz":
             self._untar_play_application(microservice_filename, unpacked_dir)
         else:
-            print "ERROR: unsupported atrifact extension: " + extension         
+            print "ERROR: unsupported atrifact extension: " + extension
 
-        
+
         folder = [ name for name in os.listdir(unpacked_dir) if os.path.isdir(os.path.join(unpacked_dir, name)) ][0]
         target_dir = unpacked_dir + "/" + service_data["binary"]["destinationSubdir"]
         shutil.move(unpacked_dir + "/" + folder, target_dir)
@@ -150,7 +177,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
     def _untar_play_application(self, tgz_filename, unzipped_dir):
         tfile = tarfile.open(tgz_filename, 'r:gz')
-        tfile.extractall(unzipped_dir) 
+        tfile.extractall(unzipped_dir)
 
     def sbt_extra_params(self):
         sbt_extra_params = self._build_extra_params()
@@ -187,12 +214,12 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
                 conf_string = "".join(conf.split())
                 pattern = re.compile(ur'Prod.*assets.*version="([0-9.]*)"')
                 new_assets_versions = re.findall(pattern, conf_string)
-                
+
                 # Frontends in the open do not have a Prod section in their application.conf
                 if not new_assets_versions:
                   pattern = re.compile(ur'assets.*version="([0-9.]*)"')
                   new_assets_versions = re.findall(pattern, conf_string)
-                  
+
                 assets_versions = assets_versions + new_assets_versions
         return assets_versions
 
