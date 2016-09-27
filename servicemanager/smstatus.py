@@ -4,7 +4,10 @@ from servicemanager.thirdparty.prettytable import PrettyTable
 from servicemanager.service.smservice import SmServiceStatus
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.actions.colours import BColors
-from colorama import init
+import os
+
+if os.name == "nt":
+    from colorama import init
 
 def _service_status_to_row(status):
     return [
@@ -34,7 +37,9 @@ def _format_healthcheck_status(healthcheck):
 
 
 def dostatus(context, show_down_services):
-    init()
+    if os.name == "nt":
+        init()
+
     b = BColors()
     up_processes_table = PrettyTable()
     up_processes_table.field_names = ["name", "ppid", "pid", "uptime", "mem", "port", "test id", "run from", "features", "healthcheck"]
