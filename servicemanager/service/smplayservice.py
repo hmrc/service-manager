@@ -87,7 +87,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
     def start_from_binary(self):
         microservice_target_path = self.context.get_microservice_target_path(self.service_name)
         force_chdir(microservice_target_path)
-        
+
         binaryConfig = self.service_data["binary"]
 
         if not self.context.offline:
@@ -136,9 +136,9 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         elif extension == ".tgz":
             self._untar_play_application(microservice_filename, unpacked_dir)
         else:
-            print "ERROR: unsupported atrifact extension: " + extension         
+            print "ERROR: unsupported atrifact extension: " + extension
 
-        
+
         folder = [ name for name in os.listdir(unpacked_dir) if os.path.isdir(os.path.join(unpacked_dir, name)) ][0]
         target_dir = unpacked_dir + "/" + service_data["binary"]["destinationSubdir"]
         shutil.move(unpacked_dir + "/" + folder, target_dir)
@@ -150,7 +150,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
     def _untar_play_application(self, tgz_filename, unzipped_dir):
         tfile = tarfile.open(tgz_filename, 'r:gz')
-        tfile.extractall(unzipped_dir) 
+        tfile.extractall(unzipped_dir)
 
     def sbt_extra_params(self):
         sbt_extra_params = self._build_extra_params()
@@ -185,14 +185,9 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             with file(conf_file) as conf:
                 conf = conf.read()
                 conf_string = "".join(conf.split())
-                pattern = re.compile(ur'Prod.*assets.*version="([0-9.]*)"')
+                pattern = re.compile(ur'assets.*version="([0-9.]*)"')
                 new_assets_versions = re.findall(pattern, conf_string)
-                
-                # Frontends in the open do not have a Prod section in their application.conf
-                if not new_assets_versions:
-                  pattern = re.compile(ur'assets.*version="([0-9.]*)"')
-                  new_assets_versions = re.findall(pattern, conf_string)
-                  
+
                 assets_versions = assets_versions + new_assets_versions
         return assets_versions
 
