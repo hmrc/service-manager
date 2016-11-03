@@ -185,11 +185,11 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             with file(conf_file) as conf:
                 conf = conf.read()
                 conf_string = "".join(conf.split())
-                pattern = re.compile(ur'assets.*version="([0-9.]*)"')
+                pattern = re.compile(ur'assets.*?version="([0-9.]*)"')
                 new_assets_versions = re.findall(pattern, conf_string)
 
                 assets_versions = assets_versions + new_assets_versions
-        return assets_versions
+        return list(set(assets_versions))
 
 class SmPlayService(SmJvmService):
 
