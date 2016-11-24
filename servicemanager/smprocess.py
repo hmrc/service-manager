@@ -16,6 +16,7 @@ def kill_pid(context, pid, force=False):
             os.kill(pid, SIGKILL)
         else:
             os.kill(pid, SIGINT)
+            os.waitpid(pid, 0)
 
     except Exception, e:
         error = "Could not kill pid: " + str(pid) + " because of exception: " + str(e)
@@ -213,4 +214,3 @@ class SmProcess:
             return int(arg)
 
         return default_if_none
-
