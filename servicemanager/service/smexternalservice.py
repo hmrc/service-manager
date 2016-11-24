@@ -6,7 +6,7 @@ import requests
 import types
 
 from servicemanager.service.smservice import SmServiceStarter, SmService, SmServiceStatus
-from servicemanager.smprocess import SmProcess, kill_pid
+from servicemanager.smprocess import SmProcess, kill_processes_matching
 from servicemanager import subprocess
 
 
@@ -41,7 +41,8 @@ class SmExternalServiceStarter(SmServiceStarter):
                 location = self.service_data["location"]
             microservice_path = os.path.join(self.context.application.workspace, location)
             os.chdir(microservice_path)
-            return subprocess.Popen(" ".join(self.get_start_command()), cwd=microservice_path, env=os.environ.copy(), shell=True).pid
+
+            return subprocess.Popen(self.get_start_command(), cwd=microservice_path, env=os.environ.copy(), shell=False).pid
         except Exception, e:
             self.log("Could not start service due to exception: " + str(e))
 
@@ -55,13 +56,8 @@ class SmExternalService(SmService):
     def get_pattern(self):
         return self.pattern
 
-    def stop(self):
-        processes = SmProcess.processes_matching(self.pattern)
-
-        for process in processes:
-            kill_pid(self.context, process.ppid)
-            kill_pid(self.context, process.pid)
-            print "name: %s\tppid: %s\tpid: %s\tuptime: %s" % (self.service_name, process.ppid, process.pid, process.uptime)
+    def stop(self, wait=False):
+        kill_processes_matching(self.pattern, self.context, wait == True, wait)
 
     def clean_up(self):
         pass

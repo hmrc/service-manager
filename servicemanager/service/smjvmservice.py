@@ -110,10 +110,10 @@ class SmJvmService(SmService):
     def get_default_healthcheck_port(self):
         return self.default_port
 
-    def stop(self):
+    def stop(self, wait=False):
         for process in SmProcess.processes_matching(self.pattern):
-            kill_pid(self.context, process.ppid)
-            kill_pid(self.context, process.pid)
+            kill_pid(self.context, process.ppid, wait=wait)
+            kill_pid(self.context, process.pid, wait=wait)
             print "name: %s\tppid: %s\tpid: %s\tuptime: %s" % (self.service_name, process.ppid, process.pid, process.uptime)
         self.post_stop()
 

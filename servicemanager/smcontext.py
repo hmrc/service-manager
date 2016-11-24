@@ -262,18 +262,18 @@ class SmContext():
     def assets_versions_to_start(self, version):
         self.assets_versions = self.assets_versions + version
 
-    def kill(self, service_name=None):
+    def kill(self, service_name=None, wait=False):
         if service_name:
-            self._kill_service(service_name)
+            self._kill_service(service_name, wait)
         elif self.test_id:
             self._kill_test()
         else:
             self.kill_everything()
 
-    def _kill_service(self, service_name):
+    def _kill_service(self, service_name, wait=False):
         service = self.get_service(service_name)
         print "killing service name: " + service_name
-        service.stop()
+        service.stop(wait)
 
     def _kill_test(self):
         services_stopped = kill_by_test_id(self, False)
@@ -284,9 +284,9 @@ class SmContext():
         services_stopped |= kill_by_test_id(self, True)
         self._clean_up_services(services_stopped)
 
-    def kill_everything(self):
+    def kill_everything(self, wait=False):
         for service_name in self.application.services:
-            self._kill_service(service_name)
+            self._kill_service(service_name, wait)
 
     def _clean_up_services(self, services):
         for service_name in services:

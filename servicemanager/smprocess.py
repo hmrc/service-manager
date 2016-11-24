@@ -2,26 +2,53 @@
 from signal import SIGINT, SIGKILL
 import os
 import re
+import time
 
 from servicemanager import subprocess
 
 
-def kill_pid(context, pid, force=False):
+def kill_pid(context, pid, force=False, wait=False):
 
     if _is_system_or_smserver_or_test_process(pid):
         return "Not allowed to kill system, test or smserver process (pid = %d)" % pid
 
     try:
+        print("killing pid: " + str(pid))
         if force:
             os.kill(pid, SIGKILL)
         else:
             os.kill(pid, SIGINT)
+
+        if wait:
+            os.waitpid(pid, 0)
 
     except Exception, e:
         error = "Could not kill pid: " + str(pid) + " because of exception: " + str(e)
         context.log(error)
         return error
 
+
+def kill_processes_matching(pattern, context, force=False, wait=False):
+
+    # Be polite and ask the processes to quit
+    processes = SmProcess.processes_matching(pattern)
+    for process in processes:
+        kill_pid(context, process.pid, False, False)
+
+    waited = 0.0
+    time_between_polls = 0.1
+    timeout = 15
+
+    while waited < timeout:
+        processes = SmProcess.processes_matching(pattern)
+        if len(processes) == 0:
+            return
+        time.sleep(time_between_polls)
+        waited = waited + time_between_polls
+
+    if force:
+        for process in processes:
+                kill_pid(context, process.pid, force, wait)
 
 def _is_system_or_smserver_or_test_process(pid):
 

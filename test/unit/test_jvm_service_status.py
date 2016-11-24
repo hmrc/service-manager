@@ -3,11 +3,8 @@ from mock import *
 import unittest
 from hamcrest import *
 
-from smstatus import dostatus
-from service.smservice import SmServiceStatus
 from service.smjvmservice import SmJvmService
 from smcontext import ServiceManagerException
-import time
 from smprocess import SmProcess
 
 

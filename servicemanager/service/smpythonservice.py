@@ -10,7 +10,7 @@ import requests
 
 from servicemanager import subprocess
 from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
-from servicemanager.smprocess import SmProcess
+from servicemanager.smprocess import SmProcess, kill_pid
 from servicemanager.smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
 from servicemanager.smnexus import SmNexus
 from servicemanager.smrepo import clone_repo_if_requred
@@ -131,7 +131,7 @@ class SmPythonService(SmService):
         self.healthcheck = self.required_data("healthcheck")
         self.pattern = SmPythonService.get_pattern(self)
 
-    def stop(self):
+    def stop(self, wait=False):
 
         ps_command = "ps axo pid,command | grep '%s' | grep -v 'grep' | awk '{print $1}'" % SmPythonService.get_pattern(self)
 
@@ -144,7 +144,7 @@ class SmPythonService(SmService):
         self.log("Killing service '%s' (pid = %s)..." % (self.service_data["name"], str(pid_values)))
 
         for pid_int in pid_values:
-            os.kill(pid_int, signal.SIGINT)
+            kill_pid(self.context, pid_int, wait=wait)
             self.log("PID  %d killed" % pid_int)
 
 
