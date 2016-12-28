@@ -21,7 +21,7 @@ from actions.colours import BColors
 b = BColors()
 
 
-def validate_always_run_from(value):
+def validate_run_from(value):
     if value in ["RELEASE", "SNAPSHOT", "SOURCE"]:
         return True
     return False
@@ -316,9 +316,16 @@ class SmContext():
 
     def get_run_from_service_override_value_or_use_default(self, service, original_runfrom):
         if "always_run_from" in service.service_data:
-            if validate_always_run_from(service.service_data["always_run_from"]):
+            if validate_run_from(service.service_data["always_run_from"]):
                 self.log("Service '%s' has been overridden to always use '%s' version" % (service.service_name, service.service_data["always_run_from"]))
                 return service.service_data["always_run_from"]
+
+        if original_runfrom == "DEFAULT":
+            if ("default_run_from" in service.service_data) and validate_run_from(service.service_data["default_run_from"]):
+                return service.service_data["default_run_from"]
+            else:
+                return "SOURCE"
+
         return original_runfrom
 
     def get_service_starter(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, append_args=None):
