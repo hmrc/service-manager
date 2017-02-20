@@ -23,7 +23,5 @@ def force_chdir(path):
 
 
 def force_pushdir(path):
-    curdir = os.getcwd()
     makedirs_if_not_exists(path)
     os.chdir(path)
-    return curdir
