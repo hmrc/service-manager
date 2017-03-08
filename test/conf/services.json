@@ -140,7 +140,82 @@
             ]
         }
     },
-    "PLAY_NEXUS_ZIP_TEST": {
+    "PLAY_NEXUS_END_TO_END_DEFAULT_SOURCE_TEST": {
+        "name": "A simple play application for testing",
+        "type": "play",
+        "location": "/testapps/basicplayapp",
+        "hasServiceMappings": true,
+        "defaultPort" : 8500,
+        "hasMongo" : true,
+        "default_run_from" : "SOURCE",
+        "healthcheck": {
+            "url": "http://localhost:${port}",
+            "response": ""
+        },
+        "sources": {
+            "cmd": [
+                "play",
+                "start"
+            ],
+            "extra_params": [
+                 "-DFoo=false"
+            ],
+            "repo": "git@github.com:hmrc/service-manager.git"
+        },
+        "binary": {
+             "ext": "zip",
+             "artifact": "playtest",
+             "groupId":"foo/bar/foo/",
+             "nexus": "/content/repositories/",
+             "destinationSubdir" : "basicplayapp",
+             "cmd": [
+                     "./basicplayapp/bin/basicplayapp",
+                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+                     "-J-Xmx256m",
+                     "-J-Xms256m",
+                     "-J-XX:MaxPermSize=128m"
+            ]
+        }
+    },
+    "PLAY_NEXUS_END_TO_END_DEFAULT_JAR_TEST": {
+        "name": "A simple play application for testing",
+        "type": "play",
+        "location": "/testapps/basicplayapp",
+        "hasServiceMappings": true,
+        "defaultPort" : 8500,
+        "hasMongo" : true,
+        "default_run_from" : "SNAPSHOT",
+        "healthcheck": {
+            "url": "http://localhost:${port}",
+            "response": ""
+        },
+        "sources": {
+            "cmd": [
+                "play",
+                "start"
+            ],
+            "extra_params": [
+                 "-DFoo=false"
+            ],
+            "repo": "git@github.com:hmrc/service-manager.git"
+        },
+        "binary": {
+             "ext": "zip",
+             "artifact": "playtest",
+             "groupId":"foo/bar/foo/",
+             "nexus": "/content/repositories/",
+             "destinationSubdir" : "basicplayapp",
+             "cmd": [
+                     "./basicplayapp/bin/basicplayapp",
+                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+                     "-J-Xmx256m",
+                     "-J-Xms256m",
+                     "-J-XX:MaxPermSize=128m"
+            ]
+        }
+    },    "PLAY_NEXUS_ZIP_TEST": {
         "name": "A simple play application for testing",
         "type": "play",
         "location": "/testapps/basicplayapp",

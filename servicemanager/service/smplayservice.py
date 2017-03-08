@@ -192,7 +192,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         service_data = self.context.service_data(self.service_name)
         microservice_path = self.context.application.workspace + service_data["location"]
-        curr_dir = force_pushdir(microservice_path)
+        force_pushdir(microservice_path)
 
         env_copy = os.environ.copy()
         env_copy["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params) # TODO: not needed i think anymore...
@@ -212,16 +212,10 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             with file(conf_file) as conf:
                 conf = conf.read()
                 conf_string = "".join(conf.split())
-                pattern = re.compile(ur'Prod.*assets.*version="([0-9.]*)"')
+                pattern = re.compile(ur'assets.*?version="([0-9.]*)"')
                 new_assets_versions = re.findall(pattern, conf_string)
-
-                # Frontends in the open do not have a Prod section in their application.conf
-                if not new_assets_versions:
-                  pattern = re.compile(ur'assets.*version="([0-9.]*)"')
-                  new_assets_versions = re.findall(pattern, conf_string)
-
-                assets_versions = assets_versions + new_assets_versions
-        return assets_versions
+                assets_versions += new_assets_versions
+        return list(set(assets_versions))
 
 class SmPlayService(SmJvmService):
 
