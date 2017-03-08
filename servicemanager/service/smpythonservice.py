@@ -143,6 +143,8 @@ class SmPythonService(SmService):
                         pid_values += [proc.pid]
                 except psutil.NoSuchProcess:
                     pass
+                except psutil.AccessDenied:
+                    pass
         else:
             ps_command = "ps axo pid,command | grep '%s' | grep -v 'grep' | awk '{print $1}'" % SmPythonService.get_pattern(self)
 
