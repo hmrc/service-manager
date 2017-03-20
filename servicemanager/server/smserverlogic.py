@@ -116,6 +116,17 @@ class SmRequest:
 
         return value
 
+    def _get_or_default(self, obj, key, default):
+        if key not in obj:
+            return default
+
+        value = obj[key]
+
+        if not value:
+            return default
+
+        return value
+
     def _stop_services(self, drop_databases):
 
         self._log("Stopping services (drop databases = %s)" % drop_databases)
@@ -261,6 +272,11 @@ class SmStartRequest(SmRequest):
 
         service_mapping_name = self._get_or_throw_bad_request(service_start_request, "serviceName", "Missing 'serviceName' parameter in instruction to start services")
 
+        service_mapping_override = self._get_or_default(service_start_request, "serviceOverride", service_mapping_name)
+
+        if service_mapping_override != service_mapping_name:
+            self._get_or_throw_bad_request(self.context.application.service_mappings, service_mapping_override, "Unknown service name '%s'" % service_mapping_override)
+
         mapping = self._get_or_throw_bad_request(self.context.application.service_mappings, service_mapping_name, "Unknown service name '%s'" % service_mapping_name)
 
         need_classifier = isinstance(mapping, dict)
@@ -294,7 +310,7 @@ class SmStartRequest(SmRequest):
             service_name = mapping
             classifier = None
 
-        return service_mapping_name, service_name, classifier, version, append_args
+        return service_mapping_name, service_name, classifier, version, append_args, service_mapping_override
 
     def _validate_start_request_and_assign_ports(self, services_to_start, dontrunfromsource):
 
@@ -303,7 +319,7 @@ class SmStartRequest(SmRequest):
 
         for service_start_request in services_to_start:
 
-            service_mapping_name, service_name, classifier, version, append_args = self._service_mapping_for(service_start_request)
+            service_mapping_name, service_name, classifier, version, append_args, service_mapping_override = self._service_mapping_for(service_start_request)
 
             if append_args and not isinstance(append_args, types.ListType):
                 raise self._bad_request_exception("ERROR: I was passed a non list for append args of '" + str(append_args) + "' I dont know what to do with this")
@@ -337,7 +353,7 @@ class SmStartRequest(SmRequest):
                 port = self.server.next_available_port()
                 admin_port = self.server.next_available_port() if self.context.service_type(service_name) == "dropwizard" else port
 
-                service_mapping_ports[service_mapping_name] = port
+                service_mapping_ports[service_mapping_override] = port
 
                 orchestration_services[service_name] = {
                     "port": port,
