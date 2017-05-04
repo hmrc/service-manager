@@ -98,7 +98,7 @@ def _is_upstart_process(pid):
     return _is_pid_in_list(pid, command)
 
 def _is_systemd_process(pid):
-    command = "ps -eo pid,args | grep %d | grep 'systemd' | awk '{print $1}'" % pid
+    command = "ps -eo pid,args | grep %d | grep 'systemd --user' | awk '{print $1}'" % pid
     return _is_pid_in_list(pid, command)
 
 
@@ -112,7 +112,7 @@ def kill_by_test_id(context, force):
                 context.log("Force killing %s (pid: %s)" % (service_name, pid))
             else:
                 context.log("Force killing pid: %s (unknown/missing service name)" % pid)
-	context.log("killing %s" % service_name)
+        context.log("killing %s" % service_name)
         kill_pid(context, pid, force)
         if service_name:
             services_killed.add(service_name)
