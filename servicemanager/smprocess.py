@@ -49,6 +49,9 @@ def _is_system_or_smserver_or_test_process(pid):
     if _is_upstart_process(pid):
         return True
 
+    if _is_systemd_process(pid):
+        return True
+
     return False
 
 
@@ -94,6 +97,10 @@ def _is_upstart_process(pid):
     command = "ps -eo pid,args | grep %d | grep 'upstart' | awk '{print $1}'" % pid
     return _is_pid_in_list(pid, command)
 
+def _is_systemd_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'systemd' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
+
 
 def kill_by_test_id(context, force):
     pids = _get_process_ids_for_test(context)
@@ -105,7 +112,7 @@ def kill_by_test_id(context, force):
                 context.log("Force killing %s (pid: %s)" % (service_name, pid))
             else:
                 context.log("Force killing pid: %s (unknown/missing service name)" % pid)
-        context.log("killing %s" % service_name)
+	context.log("killing %s" % service_name)
         kill_pid(context, pid, force)
         if service_name:
             services_killed.add(service_name)
