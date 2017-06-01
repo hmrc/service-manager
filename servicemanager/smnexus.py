@@ -62,7 +62,7 @@ class SmNexus():
 
     def _url_credentials(self):
         credentials = self.resolve_credentials()
-        return urllib.quote_plus(credentials['user']) + ":" + urllib.quote_plus(credentials["password"])
+        return credentials['user'] + ":" + credentials["password"]
 
     def _download_from_nexus(self, nexus_path, shaded_jar, show_progress):
         url = self._get_protocol() + "://" + self._url_credentials() + "@" + nexus_path
