@@ -13,7 +13,7 @@ import types
 from servicemanager.subprocess import Popen
 from servicemanager.service.smservice import SmMicroServiceStarter
 from servicemanager.service.smjvmservice import SmJvmService, SmJvmServiceStarter
-from servicemanager.smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
+from servicemanager.smfile import force_chdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
 from servicemanager.smartifactrepofactory import SmArtifactRepoFactory
 from servicemanager.actions.colours import BColors
 
@@ -98,7 +98,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         unzip_dir = self._unpack_play_application(SmArtifactRepoFactory.get_play_app_extension(binaryConfig))
         parent, _ = os.path.split(unzip_dir)
-        force_pushdir(parent)
+        force_chdir(parent)
 
         if "frontend" in self.service_data and self.service_data["frontend"]:
            assets_versions = self._get_assets_version(unzip_dir)
@@ -123,7 +123,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
     def _unpack_play_application(self, extension):
         service_data = self.service_data
         microservice_path = self.context.application.workspace + service_data["location"] + "/target/"
-        force_pushdir(microservice_path)
+        force_chdir(microservice_path)
         microservice_filename = service_data["binary"]["artifact"] + extension
 
         unpacked_dir = SmPlayService.unzipped_dir_path(self.context, service_data["location"])
@@ -165,7 +165,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         service_data = self.context.service_data(self.service_name)
         microservice_path = self.context.application.workspace + service_data["location"]
-        force_pushdir(microservice_path)
+        force_chdir(microservice_path)
 
         env_copy = os.environ.copy()
         env_copy["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params) # TODO: not needed i think anymore...

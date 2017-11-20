@@ -21,7 +21,3 @@ def force_chdir(path):
     makedirs_if_not_exists(path)
     os.chdir(path)
 
-
-def force_pushdir(path):
-    makedirs_if_not_exists(path)
-    os.chdir(path)

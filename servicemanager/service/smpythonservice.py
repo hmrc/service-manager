@@ -11,7 +11,7 @@ import requests
 from servicemanager import subprocess
 from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
 from servicemanager.smprocess import SmProcess, kill_pid
-from servicemanager.smfile import force_chdir, force_pushdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
+from servicemanager.smfile import force_chdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
 from servicemanager.smnexus import SmNexus
 from servicemanager.smrepo import clone_repo_if_requred
 
@@ -67,7 +67,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         assets_path = self.context.application.workspace + service_data["location"]
 
         cmd_with_params = self.service_data["sources"]["cmd"]
-        force_pushdir(assets_path)
+        force_chdir(assets_path)
         run_from_file = open("RUNNING_FROM", 'w')
         run_from_file.write(self.run_from)
         run_from_file.close()
@@ -92,7 +92,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
     def _unzip_assets(self, versions):
         service_data = self.service_data
         assets_zip_path = self.context.get_microservice_target_path(self.service_name)
-        force_pushdir(assets_zip_path)
+        force_chdir(assets_zip_path)
         unzipped_dir = "assets"
         if not os.path.exists(unzipped_dir):
             os.makedirs(unzipped_dir)
