@@ -1,5 +1,0 @@
-{
-  "test/unit/test_jvm_service_status.py": true, 
-  "test/unit/test_smplayservice.py": true, 
-  "test/unit/test_smstatus.py": true
-}
