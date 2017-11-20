@@ -1197,7 +1197,7 @@ class Popen(object):
                 args = list(args)
 
             if shell:
-                args = ["/bin/sh", "-c"] + args
+                args = ["/bin/bash", "-c"] + args
                 if executable:
                     args[0] = executable
 

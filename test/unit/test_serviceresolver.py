@@ -10,7 +10,7 @@ class TestServiceResolver(TestBase):
         service_resolver = ServiceResolver(application)
         nexus_wildcard = service_resolver.resolve_services("PLAY_NEXU*TEST")
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in nexus_wildcard)
-        self.assertEqual(3, len(nexus_wildcard))
+        self.assertEqual(5, len(nexus_wildcard))
 
         all_services = service_resolver.resolve_services("*")
         self.assertTrue("TEST_ONE" in all_services)
@@ -21,7 +21,7 @@ class TestServiceResolver(TestBase):
         self.assertTrue("DROPWIZARD_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND" in all_services)
-        self.assertEqual(14, len(all_services))
+        self.assertEqual(16, len(all_services))
 
         test_profile = service_resolver.resolve_services("TEST")
         self.assertTrue("TEST_ONE" in test_profile)

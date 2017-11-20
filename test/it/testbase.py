@@ -41,7 +41,7 @@ class TestBase(unittest.TestCase):
     def start_service_and_wait(self, context, servicetostart):
         sm_application = SmApplication(self.config_dir_override)
         service_resolver = ServiceResolver(sm_application)
-        actions.start_and_wait(service_resolver, context, [servicetostart], fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=5, append_args=None)
+        actions.start_and_wait(service_resolver, context, [servicetostart], source=False, fatjar=True, release=False, proxy=None, port=None, seconds_to_wait=5, append_args=None)
 
     def startFakeBintray(self):
         self.bintrayContext = self.createContext()
@@ -75,5 +75,5 @@ class TestBase(unittest.TestCase):
         ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         stdout, stderr = ps_command.communicate()
         print(stdout)
-        
+
         self.assertEquals(value, expected)

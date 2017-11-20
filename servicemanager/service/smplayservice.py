@@ -165,7 +165,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         service_data = self.context.service_data(self.service_name)
         microservice_path = self.context.application.workspace + service_data["location"]
-        curr_dir = force_pushdir(microservice_path)
+        force_pushdir(microservice_path)
 
         env_copy = os.environ.copy()
         env_copy["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params) # TODO: not needed i think anymore...

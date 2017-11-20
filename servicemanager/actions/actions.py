@@ -9,13 +9,15 @@ from servicemanager.smcontext import ServiceManagerException
 from servicemanager.smprocess import SmProcess
 from servicemanager.service.smplayservice import SmPlayService
 
-def start_one(context, service_name, fatjar, release, proxy, port=None, appendArgs=None):
+def start_one(context, service_name, source, fatjar, release, proxy, port=None, appendArgs=None):
     if release:
         run_from = "RELEASE"
     elif fatjar:
         run_from = "SNAPSHOT"
-    else:
+    elif source:
         run_from = "SOURCE"
+    else:
+        run_from = "DEFAULT"
 
     version = release
     if version == "LATEST":
@@ -34,13 +36,15 @@ def start_one(context, service_name, fatjar, release, proxy, port=None, appendAr
 
     return False
 
-def get_start_cmd(context, service_name, fatjar, release, proxy, port=None, append_args=None):
+def get_start_cmd(context, service_name, source, fatjar, release, proxy, port=None, append_args=None):
     if release:
         run_from = "RELEASE"
     elif fatjar:
         run_from = "SNAPSHOT"
-    else:
+    elif source:
         run_from = "SOURCE"
+    else:
+        run_from = "DEFAULT"
 
     version = release
     if version == "LATEST":
@@ -163,7 +167,7 @@ def display_info(context, service_name):
     print "| " + comments
 
 
-def start_and_wait(service_resolver, context, start, fatjar, release, proxy, port, seconds_to_wait, append_args):
+def start_and_wait(service_resolver, context, start, source, fatjar, release, proxy, port, seconds_to_wait, append_args):
 
     all_services = service_resolver.resolve_services_from_array(start)
     for service_name in all_services:
@@ -171,7 +175,7 @@ def start_and_wait(service_resolver, context, start, fatjar, release, proxy, por
             append_args_for_this_service = None
             if append_args is not None:
                 append_args_for_this_service = append_args.get(service_name, None)
-            start_one(context, service_name, fatjar, release, proxy, overridden_port(start, port), append_args_for_this_service)
+            start_one(context, service_name, source, fatjar, release, proxy, overridden_port(start, port), append_args_for_this_service)
         else:
             print "The requested service %s does not exist" % service_name
 
@@ -200,4 +204,3 @@ def get_log_file(context, service_name):
             return sorted(logs, key=mtime, reverse=True)[0]
     else:
         raise ServiceManagerException("Cannot find a location for %s" % service_name)
-

@@ -76,6 +76,9 @@ def _is_system_or_smserver_or_test_process(pid):
     if _is_upstart_process(pid):
         return True
 
+    if _is_systemd_process(pid):
+        return True
+
     return False
 
 
@@ -119,6 +122,10 @@ def _is_pycharm_related_process(pid):
 
 def _is_upstart_process(pid):
     command = "ps -eo pid,args | grep %d | grep 'upstart' | awk '{print $1}'" % pid
+    return _is_pid_in_list(pid, command)
+
+def _is_systemd_process(pid):
+    command = "ps -eo pid,args | grep %d | grep 'systemd --user' | awk '{print $1}'" % pid
     return _is_pid_in_list(pid, command)
 
 
