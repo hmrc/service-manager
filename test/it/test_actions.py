@@ -123,9 +123,7 @@ class TestActions(TestBase):
 
         context.kill_everything(True)
 
-        response1 = actions.start_one(context, "FAKE_NEXUS", False, False, False, None, port=None)
-        self.assertTrue(response1)
-        self.assertIsNotNone(context.get_service("FAKE_NEXUS").status())
+        self.startFakeNexus()
 
         source = False
         fatJar = True
