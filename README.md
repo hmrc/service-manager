@@ -45,14 +45,20 @@ Run `smserver` and it will run a service that can fire up services on demand
 |`/stop`                       |POST               |              |
 |`/version_variable`           |GET                |              |
 
+## Development setup
+To run Service Manager please install any dependencies: 
+```
+$ pip install -r requirements.txt
+```
+
+## Running the tests
+```py.test -v -s test/```
+
+Some of the tests pull down large repositories. To skip these online tests, you can use markers:
+```py.test -v -m 'not online -s test/```
+
+The unit tests and integration tests are in separate subfolders, so can also be selected independently
+
 ## License
  
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
-
-## Running the tests ##
-`py.test -v -s test/`
-
-Some of the tests pull down large repositories. To skip these online tests, you can use markers:
-`py.test -v -m 'not online -s test/`
-
-The unit tests and integration tests are in separate subfolders, so can also be selected independently
