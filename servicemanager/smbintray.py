@@ -4,6 +4,7 @@ import urllib
 import urllib2
 import base64
 import requests
+import time
 
 from servicemanager.smfile import remove_if_exists
 from actions.colours import BColors
@@ -20,7 +21,7 @@ class SmBintray():
         self.context = context
         self.service_name = service_name
         self.service_type = context.service_type(service_name)
-   
+
     def _find_latest_in_dom(self, dom):
         try:
             data = dom.getElementsByTagName("versioning")[0]
@@ -34,12 +35,27 @@ class SmBintray():
     def _get_version_info_from_bintray(self, artifact, repositoryId, groupId):
         url = self.context.config_value("bintray")["protocol"] + "://" + self.context.config_value("bintray")["host"] + "/" + repositoryId + "/" + groupId + artifact + "/maven-metadata.xml"
         request = urllib2.Request(url)
-        response = urllib2.urlopen(request)
+        self.context.log("Attempting to download metadata from Bintray at %s" % url)
+
+        for attempt_count in range(1, 6):
+          try:
+            response = urllib2.urlopen(request)
+            break
+          except Exception as error:
+            self.context.log("Attempt number " + attempt_count + " failed. Reason: " + error)
+
+            if attempt_count == 5:
+              self.context.log("Aborting download after 5 attempts")
+              raise
+
+            if attempt_count < 5:
+              time.sleep(1)
+
         dom = parse(response)
         response.close()
         return self._find_latest_in_dom(dom)
 
-    def find_latest_version(self, run_from, artifact, groupId):    
+    def find_latest_version(self, run_from, artifact, groupId):
         version_env_var = None
         if "versionEnv" in self.context.service_data(self.service_name):
             version_env_var = self.context.service_data(self.service_name)["versionEnv"]
@@ -53,11 +69,24 @@ class SmBintray():
 
     def _download_from_bintray(self, bintray_path, local_filename, repositoryId, show_progress):
         url = self.context.config_value("bintray")["protocol"] + "://" + self.context.config_value("bintray")["host"] + "/" + repositoryId + "/" + bintray_path
-        if show_progress:
-            urllib.urlretrieve(url, local_filename, SmNexus._report_hook)
-            print("\n")
-        else:
-            urllib.urlretrieve(url, local_filename)
+        self.context.log("Attempting to download artefact from Bintray at %s" % url)
+        for attempt_count in range(1, 6):
+          try:
+            if show_progress:
+              urllib.urlretrieve(url, local_filename, SmNexus._report_hook)
+              print("\n")
+            else:
+              urllib.urlretrieve(url, local_filename)
+            break
+          except Exception as error:
+            self.context.log("Attempt number " + attempt_count + " failed. Reason: " + error)
+
+            if attempt_count == 5:
+              self.context.log("Aborting download after 5 attempts")
+              raise
+
+            if attempt_count < 5:
+              time.sleep(1)
 
     def download_jar_if_necessary(self, run_from, version):
         artifact = self.context.service_data(self.service_name)["binary"]["artifact"]
@@ -89,4 +118,4 @@ class SmBintray():
                 self._download_from_bintray(bintrayFilePath, downloaded_artifact_path, repositoryId, self.context.show_progress)
             os.remove(downloaded_md5_path)
         else:
-            print b.warning + "WARNING: Due to lack of version data from Bintray you may not have an up to date version..." + b.endc    
+            print b.warning + "WARNING: Due to lack of version data from Bintray you may not have an up to date version..." + b.endc
