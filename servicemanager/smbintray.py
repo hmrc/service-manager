@@ -42,7 +42,7 @@ class SmBintray():
             response = urllib2.urlopen(request)
             break
           except Exception as error:
-            self.context.log("Attempt number " + attempt_count + " failed. Reason: " + error)
+            self.context.log("Attempt number %d failed. Reason: %s" % (attempt_count, error))
 
             if attempt_count == 5:
               self.context.log("Aborting download after 5 attempts")
@@ -79,7 +79,7 @@ class SmBintray():
               urllib.urlretrieve(url, local_filename)
             break
           except Exception as error:
-            self.context.log("Attempt number " + attempt_count + " failed. Reason: " + error)
+            self.context.log("Attempt number %d failed. Reason: %s" % (attempt_count, error))
 
             if attempt_count == 5:
               self.context.log("Aborting download after 5 attempts")
