@@ -20,7 +20,7 @@ class SmBintray():
         self.context = context
         self.service_name = service_name
         self.service_type = context.service_type(service_name)
-   
+
     def _find_latest_in_dom(self, dom):
         try:
             data = dom.getElementsByTagName("versioning")[0]
@@ -33,13 +33,14 @@ class SmBintray():
 
     def _get_version_info_from_bintray(self, artifact, repositoryId, groupId):
         url = self.context.config_value("bintray")["protocol"] + "://" + self.context.config_value("bintray")["host"] + "/" + repositoryId + "/" + groupId + artifact + "/maven-metadata.xml"
+        print "Trying request: " + url
         request = urllib2.Request(url)
         response = urllib2.urlopen(request)
         dom = parse(response)
         response.close()
         return self._find_latest_in_dom(dom)
 
-    def find_latest_version(self, run_from, artifact, groupId):    
+    def find_latest_version(self, run_from, artifact, groupId):
         version_env_var = None
         if "versionEnv" in self.context.service_data(self.service_name):
             version_env_var = self.context.service_data(self.service_name)["versionEnv"]
@@ -89,4 +90,4 @@ class SmBintray():
                 self._download_from_bintray(bintrayFilePath, downloaded_artifact_path, repositoryId, self.context.show_progress)
             os.remove(downloaded_md5_path)
         else:
-            print b.warning + "WARNING: Due to lack of version data from Bintray you may not have an up to date version..." + b.endc    
+            print b.warning + "WARNING: Due to lack of version data from Bintray you may not have an up to date version..." + b.endc
