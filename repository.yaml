@@ -1,0 +1,8 @@
+leakDetectionExemptions:
+ - ruleId: 'application_secret'
+   filePaths:
+      - '/test/testapps/openplayapp/conf/application.conf'
+      - '/test/testapps/basicplayapp/conf/application.conf'
+ - ruleId: 'credential_1'
+   filePaths:
+      - '/test/.sbt/.credentials'
