@@ -26,8 +26,13 @@ class SmNexus():
     @staticmethod
     def _report_hook(count, block_size, total_size):
         global start_time
+        global last_update
+
+        current_milli_time = lambda: int(time.time() * 1000)
+
         if count == 0:
             start_time = time.time()
+            last_update = current_milli_time()
             return
         duration = time.time() - start_time
         progress_size = int(count * block_size)
@@ -35,10 +40,13 @@ class SmNexus():
             speed = int(progress_size / (1024 * duration))
         except ZeroDivisionError:
             speed = 0
+
         percent = int(count * block_size * 100 / total_size)
-        sys.stdout.write("\r%d%%, %d MB, %d KB/s, %d seconds passed" %
+        if percent == 100 or (current_milli_time()  - last_update) > 500:
+            sys.stdout.write("\r%d%%, %d MB, %d KB/s, %d seconds passed" %
                          (percent, progress_size / (1024 * 1024), speed, duration))
-        sys.stdout.flush()
+            sys.stdout.flush()
+            last_update = current_milli_time()
 
     def _create_nexus_extension(self):
         if self.service_type == "play":

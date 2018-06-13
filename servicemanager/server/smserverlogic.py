@@ -46,7 +46,7 @@ class SmResponse:
 
 class SmRequest:
 
-    def __init__(self, server, json_body, offlineMode):
+    def __init__(self, server, json_body, offlineMode, show_progress):
         self.server = server
         self.json_body = json_body
 
@@ -60,7 +60,7 @@ class SmRequest:
         request_specific_features = SmRequest._extract_and_validate_request_specific_features(self.json_body)
 
         self.test_id = test_id
-        self.context = SmContext(server.application, self.test_id, request_specific_features=request_specific_features, offline=offlineMode)
+        self.context = SmContext(server.application, self.test_id, show_progress=show_progress, request_specific_features=request_specific_features, offline=offlineMode)
 
     @abstractmethod
     def process_request(self):
@@ -136,10 +136,10 @@ class SmRequest:
 
 class SmStartRequest(SmRequest):
 
-    def __init__(self, server, json_request_body, do_not_run_from_source, offlineMode):
+    def __init__(self, server, json_request_body, do_not_run_from_source, offlineMode, show_progress):
         self.do_not_run_from_source = do_not_run_from_source
         self.json_body = json_request_body
-        SmRequest.__init__(self, server, self.json_body, offlineMode)
+        SmRequest.__init__(self, server, self.json_body, offlineMode, show_progress)
 
     def process_request(self):
         # START REQUEST PAYLOAD:
@@ -353,8 +353,8 @@ class SmStartRequest(SmRequest):
 
 class SmStopRequest(SmRequest):
 
-    def __init__(self, server, json_request_body, offlineMode):
-        SmRequest.__init__(self, server, json_request_body, offlineMode)
+    def __init__(self, server, json_request_body, offlineMode, show_progress):
+        SmRequest.__init__(self, server, json_request_body, offlineMode, show_progress)
 
     def process_request(self):
 

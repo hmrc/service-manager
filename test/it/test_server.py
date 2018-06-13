@@ -20,7 +20,7 @@ class TestServerFunctionality(TestBase):
         request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT"},
                                {"serviceName": "DROPWIZARD_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT"},
                                {"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT"}]
-        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        smserverlogic.SmStartRequest(server, request, True, False, False).process_request()
 
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
         self.assertIsNotNone(context.get_service("DROPWIZARD_NEXUS_END_TO_END_TEST").status())
@@ -40,7 +40,7 @@ class TestServerFunctionality(TestBase):
         request = dict()
         request["testId"] = "foo"
         request["services"] = [{"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT", "appendArgs": ["-Dfoo=bar"]}]
-        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        smserverlogic.SmStartRequest(server, request, True, False, False).process_request()
 
         self.waitForCondition(lambda : len(context.get_service("PLAY_NEXUS_END_TO_END_TEST").status()), 1)
 
@@ -58,7 +58,7 @@ class TestServerFunctionality(TestBase):
         request["testId"] = "foo"
         request["services"] = [{"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT", "appendArgs": "-Dshould=be-an-array"}]
         with pytest.raises(BadRequestException):
-            smserverlogic.SmStartRequest(server, request, True, False).process_request()
+            smserverlogic.SmStartRequest(server, request, True, False, False).process_request()
 
     def test_external_with_append_args(self):
         context = self.createContext()
@@ -66,7 +66,7 @@ class TestServerFunctionality(TestBase):
         request = dict()
         request["testId"] = "foo"
         request["services"] = [{"serviceName": "TEST_FOUR", "runFrom": "SNAPSHOT", "appendArgs": ["2"]}]
-        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        smserverlogic.SmStartRequest(server, request, True, False, False).process_request()
         self.assertIsNotNone(context.get_service("TEST_FOUR").status())
         pattern = context.application.services["TEST_FOUR"]["pattern"]
 
@@ -81,7 +81,7 @@ class TestServerFunctionality(TestBase):
         request["testId"] = "foo"
         request["services"] = [{"serviceName": "TEST_FOUR", "runFrom": "SNAPSHOT", "appendArgs": "2"}]
         with pytest.raises(BadRequestException):
-            smserverlogic.SmStartRequest(server, request, True, False).process_request()
+            smserverlogic.SmStartRequest(server, request, True, False, False).process_request()
 
     def test_offline(self):
         context = self.createContext()
@@ -92,14 +92,14 @@ class TestServerFunctionality(TestBase):
         request["services"] = [{"serviceName": "TEST_ONE", "runFrom": "SNAPSHOT"},
                                {"serviceName": "DROPWIZARD_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT"},
                                {"serviceName": "PLAY_NEXUS_END_TO_END_TEST", "runFrom": "SNAPSHOT"}]
-        smserverlogic.SmStartRequest(server, request, True, False).process_request()
+        smserverlogic.SmStartRequest(server, request, True, False, False).process_request()
         self.assertIsNotNone(context.get_service("TEST_ONE").status())
         # stop does not currently work for extern
         # smserverlogic.SmStopRequest(SERVER, request).process_request()
         context.kill_everything(True)
         self.assertEqual(context.get_service("TEST_ONE").status(), [])
         request["testId"] = "foo2"
-        smserverlogic.SmStartRequest(server, request, True, True).process_request()
+        smserverlogic.SmStartRequest(server, request, True, True, False).process_request()
 
         self.waitForCondition(lambda : context.get_service("TEST_ONE").status() is not None, True)
         # stop does not currently work for extern
@@ -119,7 +119,7 @@ class TestServerFunctionality(TestBase):
         first_request = dict()
         first_request["testId"] = "multiple-instance-unit-test-1"
         first_request["services"] = test_services
-        smserverlogic.SmStartRequest(server, first_request, True, False).process_request()
+        smserverlogic.SmStartRequest(server, first_request, True, False, False).process_request()
 
         def single_service_started_successfully():
             if len(context.get_service("TEST_ONE").status()) != 1: return False
@@ -132,7 +132,7 @@ class TestServerFunctionality(TestBase):
         second_request = dict()
         second_request["testId"] = "multiple-instance-unit-test-2"
         second_request["services"] = test_services
-        smserverlogic.SmStartRequest(server, second_request, True, False).process_request()
+        smserverlogic.SmStartRequest(server, second_request, True, False, False).process_request()
 
         def multiple_services_started_successfully():
             if len(context.get_service("TEST_ONE").status()) != 2: return False

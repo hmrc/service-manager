@@ -17,6 +17,7 @@ parser.add_argument('-c', '--conf', type=str, help='Specify the folder holding s
 parser.add_argument('-n', '--nosource', action='store_true', help='Prevent services from starting if the request asks to start them from source (return an error 400)')
 parser.add_argument('-F', '--feature', action='append', help='Enable a given feature for all services started')
 parser.add_argument('-o', '--offline', action='store_true', help='Offline mode: uses existing binaries instead of looking for an updated version online')
+parser.add_argument('--noprogress', action='store_true', help='Stops file download progress from being displayed')
 args = parser.parse_args()
 
 feature_string = pretty_print_list("All requests to this server will have feature$s $list enabled.", args.feature)
@@ -47,7 +48,9 @@ def start():
 
         print str(json_body)
 
-        return smserverlogic.SmStartRequest(SERVER, json_body, args.nosource, args.offline).process_request()
+        show_progress = not args.noprogress
+
+        return smserverlogic.SmStartRequest(SERVER, json_body, args.nosource, args.offline, show_progress).process_request()
     except BadRequestException as e:
         return smserverlogic.SmResponse.bad_request(e.message)
     except Exception as e:
@@ -69,7 +72,9 @@ def stop():
 
         print str(request.json)
 
-        return smserverlogic.SmStopRequest(SERVER, json_body, args.offline).process_request()
+        show_progress = not args.noprogress
+
+        return smserverlogic.SmStopRequest(SERVER, json_body, args.offline, show_progress).process_request()
     except BadRequestException as e:
         return smserverlogic.SmResponse.bad_request(e.message)
     except Exception as e:
