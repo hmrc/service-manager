@@ -7,8 +7,8 @@ import sys
 import traceback
 import re
 import types
+import multiprocessing
 
-from multiprocessing import Pool
 from abc import abstractmethod
 from bottle import request, response
 
@@ -209,7 +209,7 @@ class SmStartRequest(SmRequest):
 
     # {"AUTH": {"port": 43124, "runFrom":"JAR", "serviceMapping" : "auth"}}
     def _start_services(self, orchestration_services, service_mapping_ports, proxy):
-        pool = Pool(processes=30)
+        pool = multiprocessing.Pool(processes=30)
         pool.map(ServiceStarter(self.context, deprecated_release_params, service_mapping_ports, proxy), orchestration_services.iteritems())
 
     def _await_service_startup(self, service_name, port, admin_port):
