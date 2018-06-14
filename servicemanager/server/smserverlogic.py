@@ -8,6 +8,7 @@ import traceback
 import re
 import types
 
+from multiprocessing import Pool
 from abc import abstractmethod
 from bottle import request, response
 
