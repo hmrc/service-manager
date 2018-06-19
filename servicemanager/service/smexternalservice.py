@@ -57,7 +57,7 @@ class SmExternalService(SmService):
         return self.pattern
 
     def stop(self, wait=False):
-        kill_processes_matching(self.pattern, self.context, wait == True, wait)
+        kill_processes_matching(self.pattern, self.context, wait)
 
     def clean_up(self):
         pass
