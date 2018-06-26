@@ -2,6 +2,7 @@
 from setuptools import setup
 
 setup(name='servicemanager',
+      python_requires='>2.7.13',
       version='1.2.0',
       description='A python tool to manage developing and testing with lots of microservices',
       url='https://github.com/hmrc/service-manager',
