@@ -213,7 +213,7 @@ class SmStartRequest(SmRequest):
         for pos, (k,v) in enumerate(orchestration_services.iteritems(), 0):
             orchestration_services[k]["position"] = pos
         pool = multiprocessing.Pool(processes=30)
-        pool.map(ServiceStarter(self.context, deprecated_release_params, service_mapping_ports, proxy), orchestration_services.iteritems())
+        pool.map_async(ServiceStarter(self.context, deprecated_release_params, service_mapping_ports, proxy), orchestration_services.iteritems()).get(9999999)
 
     def _await_service_startup(self, service_name, port, admin_port):
         seconds_remaining = SERVICE_START_TIMEOUT_SECONDS
