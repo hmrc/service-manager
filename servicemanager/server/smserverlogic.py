@@ -32,6 +32,7 @@ class ServiceStarter(object):
 
     def __call__(self, params):
         (service_name, service) = params
+        position = service["position"]
         port = service["port"]
         admin_port = service["adminPort"]
         run_from = service["runFrom"]
@@ -43,7 +44,7 @@ class ServiceStarter(object):
         if run_from in deprecated_release_params:
             run_from = deprecated_release_params[run_from]
 
-        self.context.start_service(service_name, run_from, self.proxy, classifier, self.service_mapping_ports, port, admin_port, version, append_args)
+        self.context.start_service(service_name, run_from, self.proxy, classifier, self.service_mapping_ports, port, admin_port, version, append_args, position)
 
 class BadRequestException(Exception):
     def __init__(self, message):
@@ -209,6 +210,8 @@ class SmStartRequest(SmRequest):
 
     # {"AUTH": {"port": 43124, "runFrom":"JAR", "serviceMapping" : "auth"}}
     def _start_services(self, orchestration_services, service_mapping_ports, proxy):
+        for pos, (k,v) in enumerate(orchestration_services.iteritems(), 0):
+            orchestration_services[k]["position"] = pos
         pool = multiprocessing.Pool(processes=30)
         pool.map(ServiceStarter(self.context, deprecated_release_params, service_mapping_ports, proxy), orchestration_services.iteritems())
 

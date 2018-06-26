@@ -88,7 +88,7 @@ class SmBintray():
             if attempt_count < 5:
               time.sleep(1)
 
-    def download_jar_if_necessary(self, run_from, version):
+    def download_jar_if_necessary(self, run_from, version, position=0):
         artifact = self.context.service_data(self.service_name)["binary"]["artifact"]
         groupId = self.context.service_data(self.service_name)["binary"]["groupId"]
         repo_mappings = self.context.config_value("bintray")["repoMappings"]

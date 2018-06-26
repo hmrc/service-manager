@@ -328,7 +328,7 @@ class SmContext():
 
         return original_runfrom
 
-    def get_service_starter(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, append_args=None):
+    def get_service_starter(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, append_args=None, position=0):
         service = self.get_service(service_name)
         run_from = self.get_run_from_service_override_value_or_use_default(service, run_from)
 
@@ -346,7 +346,7 @@ class SmContext():
         elif service_type == "dropwizard":
             starter = SmDropwizardServiceStarter(self, service_name, run_from, port, admin_port, classifier, service_mapping_ports, version, proxy, append_args)
         elif service_type == "play":
-            starter = SmPlayServiceStarter(self, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
+            starter = SmPlayServiceStarter(self, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args, position)
         elif service_type == "assets":
             proxy = None
             starter = SmPythonServiceStarter(self, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
@@ -355,10 +355,10 @@ class SmContext():
 
         return starter
 
-    def start_service(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, appendArgs=None):
+    def start_service(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, appendArgs=None, position=0):
         feature_string = pretty_print_list(" with feature$s $list enabled", self.features)
         self.log("Starting '%s' from %s%s..." % (service_name, run_from, feature_string))
-        service_starter = self.get_service_starter(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, appendArgs)
+        service_starter = self.get_service_starter(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, appendArgs, position)
         service_process_id = service_starter.start()
 
         if service_process_id:
