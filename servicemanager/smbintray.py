@@ -73,7 +73,7 @@ class SmBintray():
         for attempt_count in range(1, 6):
           try:
             if show_progress:
-              urllib.urlretrieve(url, local_filename, SmNexus._report_hook)
+              urllib.urlretrieve(url, local_filename, SmNexus.report_hook)
               print("\n")
             else:
               urllib.urlretrieve(url, local_filename)
