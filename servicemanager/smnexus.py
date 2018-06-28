@@ -6,6 +6,7 @@ import hashlib
 import urllib2
 import base64
 from xml.dom.minidom import parse
+from tqdm import tqdm
 
 import requests
 
@@ -15,6 +16,19 @@ from actions.colours import BColors
 
 b = BColors()
 
+class TqdmProgress(tqdm):
+    def report_hook(self, b=1, bsize=1, tsize=None):
+        """
+        b  : int, optional
+            Number of blocks transferred so far [default: 1].
+        bsize  : int, optional
+            Size of each block (in tqdm units) [default: 1].
+        tsize  : int, optional
+            Total size (in tqdm units). If [default: None] remains unchanged.
+        """
+        if tsize is not None:
+            self.total = tsize
+        self.update(b * bsize - self.n)  # will also set self.n = b * bsize
 
 class SmNexus():
 
@@ -22,31 +36,6 @@ class SmNexus():
         self.context = context
         self.service_name = service_name
         self.service_type = context.service_type(service_name)
-
-    @staticmethod
-    def _report_hook(count, block_size, total_size):
-        global start_time
-        global last_update
-
-        current_milli_time = lambda: int(time.time() * 1000)
-
-        if count == 0:
-            start_time = time.time()
-            last_update = current_milli_time()
-            return
-        duration = time.time() - start_time
-        progress_size = int(count * block_size)
-        try:
-            speed = int(progress_size / (1024 * duration))
-        except ZeroDivisionError:
-            speed = 0
-
-        percent = int(count * block_size * 100 / total_size)
-        if percent == 100 or (current_milli_time()  - last_update) > 500:
-            sys.stdout.write("\r%d%%, %d MB, %d KB/s, %d seconds passed" %
-                         (percent, progress_size / (1024 * 1024), speed, duration))
-            sys.stdout.flush()
-            last_update = current_milli_time()
 
     def _create_nexus_extension(self):
         if self.service_type == "play":
@@ -75,11 +64,11 @@ class SmNexus():
         credentials = self.resolve_credentials()
         return urllib.quote_plus(credentials['user']) + ":" + urllib.quote_plus(credentials["password"])
 
-    def _download_from_nexus(self, nexus_path, shaded_jar, show_progress):
+    def _download_from_nexus(self, nexus_path, shaded_jar, show_progress, position=0):
         url = self._get_protocol() + "://" + self._url_credentials() + "@" + nexus_path
         if show_progress:
-            urllib.urlretrieve(url, shaded_jar, SmNexus._report_hook)
-            print("\n")
+            with TqdmProgress(unit='B', unit_scale=True, unit_divisor=1024, miniters=1, desc=shaded_jar, position=position) as t:
+                urllib.urlretrieve(url, shaded_jar, t.report_hook)
         else:
             urllib.urlretrieve(url, shaded_jar)
 
@@ -160,7 +149,7 @@ class SmNexus():
         versions = self._find_all_versions_in_dom(repository, dom)
         return versions
 
-    def download_jar_if_necessary(self, run_from, version):
+    def download_jar_if_necessary(self, run_from, version, position=0):
         binary = self.context.service_data(self.service_name)["binary"]
         nexus_host = self.context.application.nexus_repo_host
         artifact = binary["artifact"]
@@ -189,12 +178,12 @@ class SmNexus():
                 if self._md5_if_exists(microservice_target_path + nexus_filename) != open(microservice_target_path + md5_filename, 'r').read():
                     remove_if_exists(microservice_target_path + filename)
                     self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
-                    self._download_from_nexus(nexus_url + nexus_filename, nexus_filename, self.context.show_progress)
+                    self._download_from_nexus(nexus_url + nexus_filename, nexus_filename, self.context.show_progress, position)
             else:
                 if self._md5_if_exists(microservice_target_path + filename) != open(microservice_target_path + md5_filename, 'r').read():
                     remove_if_exists(microservice_target_path + filename)
                     self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
-                    self._download_from_nexus(nexus_url + nexus_filename, filename, self.context.show_progress)
+                    self._download_from_nexus(nexus_url + nexus_filename, filename, self.context.show_progress, position)
             os.remove(microservice_target_path + md5_filename)
         else:
             print b.warning + "WARNING: Due to lack of version data from nexus you may not have an up to date version..." + b.endc

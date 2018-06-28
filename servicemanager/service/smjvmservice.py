@@ -15,8 +15,9 @@ class SmJvmServiceStarter(SmMicroServiceStarter):
 
     test_id_param = "service.manager.testId"
 
-    def __init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+    def __init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy, append_args, position=0):
         SmMicroServiceStarter.__init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
+        self.position = position
 
     def start(self, appendArgs=None):
         if self.run_from == "SOURCE":

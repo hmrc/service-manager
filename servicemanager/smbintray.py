@@ -8,7 +8,7 @@ import time
 
 from servicemanager.smfile import remove_if_exists
 from actions.colours import BColors
-from smnexus import SmNexus
+from smnexus import SmNexus, TqdmProgress
 from xml.dom.minidom import parse
 
 
@@ -67,14 +67,14 @@ class SmBintray():
             version = self._get_version_info_from_bintray(artifact, repo_mappings[run_from], groupId)
         return version
 
-    def _download_from_bintray(self, bintray_path, local_filename, repositoryId, show_progress):
+    def _download_from_bintray(self, bintray_path, local_filename, repositoryId, show_progress, position=0):
         url = self.context.config_value("bintray")["protocol"] + "://" + self.context.config_value("bintray")["host"] + "/" + repositoryId + "/" + bintray_path
         self.context.log("Attempting to download artefact from Bintray at %s" % url)
         for attempt_count in range(1, 6):
           try:
             if show_progress:
-              urllib.urlretrieve(url, local_filename, SmNexus._report_hook)
-              print("\n")
+                with TqdmProgress(unit='B', unit_scale=True, unit_divisor=1024, miniters=1, desc=local_filename, position=position) as t:
+                    urllib.urlretrieve(url, local_filename, t.report_hook)
             else:
               urllib.urlretrieve(url, local_filename)
             break
@@ -88,7 +88,7 @@ class SmBintray():
             if attempt_count < 5:
               time.sleep(1)
 
-    def download_jar_if_necessary(self, run_from, version):
+    def download_jar_if_necessary(self, run_from, version, position=0):
         artifact = self.context.service_data(self.service_name)["binary"]["artifact"]
         groupId = self.context.service_data(self.service_name)["binary"]["groupId"]
         repo_mappings = self.context.config_value("bintray")["repoMappings"]
@@ -107,7 +107,7 @@ class SmBintray():
             downloaded_md5_path = microservice_target_path + localFilename + ".md5"
 
              # first download the md5 file in order to determine if new artifact download is required
-            self._download_from_bintray(bintrayMD5FilePath, downloaded_md5_path, repositoryId, False)
+            self._download_from_bintray(bintrayMD5FilePath, downloaded_md5_path, repositoryId, False, position)
 
             bintray_md5 = open(downloaded_md5_path, 'r').read()
             local_md5 = SmNexus._md5_if_exists(downloaded_artifact_path)

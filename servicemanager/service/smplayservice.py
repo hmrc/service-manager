@@ -67,8 +67,9 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
 
         return extra_params
 
-    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args, position=0):
         SmMicroServiceStarter.__init__(self, context, service_name, "play", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
+        self.position = position
 
         if not self.port:
             self.port = self.service_data["defaultPort"]
@@ -94,7 +95,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
             artifactRepo = SmArtifactRepoFactory.get_repository(self.context, self.service_name, binaryConfig)
             if not self.version:
                 self.version = artifactRepo.find_latest_version(self.run_from, binaryConfig["artifact"], binaryConfig["groupId"])
-            artifactRepo.download_jar_if_necessary(self.run_from, self.version)
+            artifactRepo.download_jar_if_necessary(self.run_from, self.version, self.position)
 
         unzip_dir = self._unpack_play_application(SmArtifactRepoFactory.get_play_app_extension(binaryConfig))
         parent, _ = os.path.split(unzip_dir)

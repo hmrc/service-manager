@@ -7,6 +7,7 @@ import sys
 import traceback
 import re
 import types
+import multiprocessing
 
 from abc import abstractmethod
 from bottle import request, response
@@ -21,6 +22,29 @@ MAX_TEST_ID_LENGTH = 40
 
 deprecated_release_params = {"SNAPSHOT_JAR": "SNAPSHOT", "RELEASE_JAR": "RELEASE"}
 
+class ServiceStarter(object):
+
+    def __init__(self, context, deprecated_release_params, service_mapping_ports,  proxy):
+        self.context = context
+        self.deprecated_release_params = deprecated_release_params
+        self.service_mapping_ports = service_mapping_ports
+        self.proxy = proxy
+
+    def __call__(self, params):
+        (service_name, service) = params
+        position = service["position"]
+        port = service["port"]
+        admin_port = service["adminPort"]
+        run_from = service["runFrom"]
+        classifier = service["classifier"]
+        version = service["version"]
+        append_args = service["appendArgs"] # Allows for dynamic config overriding
+
+        # Allow for deprecated run_from values
+        if run_from in deprecated_release_params:
+            run_from = deprecated_release_params[run_from]
+
+        self.context.start_service(service_name, run_from, self.proxy, classifier, self.service_mapping_ports, port, admin_port, version, append_args, position)
 
 class BadRequestException(Exception):
     def __init__(self, message):
@@ -186,21 +210,10 @@ class SmStartRequest(SmRequest):
 
     # {"AUTH": {"port": 43124, "runFrom":"JAR", "serviceMapping" : "auth"}}
     def _start_services(self, orchestration_services, service_mapping_ports, proxy):
-
-        for service_name in orchestration_services:
-
-            port = orchestration_services[service_name]["port"]
-            admin_port = orchestration_services[service_name]["adminPort"]
-            run_from = orchestration_services[service_name]["runFrom"]
-            classifier = orchestration_services[service_name]["classifier"]
-            version = orchestration_services[service_name]["version"]
-            append_args = orchestration_services[service_name]["appendArgs"] # Allows for dynamic config overriding
-
-            # Allow for deprecated run_from values
-            if run_from in deprecated_release_params:
-                run_from = deprecated_release_params[run_from]
-
-            self.context.start_service(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, append_args)
+        for pos, (k,v) in enumerate(orchestration_services.iteritems(), 0):
+            orchestration_services[k]["position"] = pos
+        pool = multiprocessing.Pool(processes=30)
+        pool.map_async(ServiceStarter(self.context, deprecated_release_params, service_mapping_ports, proxy), orchestration_services.iteritems()).get(9999999)
 
     def _await_service_startup(self, service_name, port, admin_port):
         seconds_remaining = SERVICE_START_TIMEOUT_SECONDS

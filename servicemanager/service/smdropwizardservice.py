@@ -16,10 +16,10 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
 
     DEV_NULL = open(os.devnull, 'w')
 
-    def __init__(self, context, service_name, run_from, port, admin_port, classifier, service_mapping_ports, version, proxy, append_args=None):
+    def __init__(self, context, service_name, run_from, port, admin_port, classifier, service_mapping_ports, version, proxy, append_args=None, position=0):
         SmMicroServiceStarter.__init__(self, context, service_name, "dropwizard", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
-
         self.admin_port = admin_port
+        self.position = position
 
         self.java_options = [
             "-Dfile.encoding=UTF8",
@@ -64,7 +64,7 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
 
         if not self.context.offline:
             nexus = SmNexus(self.context, self.service_name)
-            nexus.download_jar_if_necessary(self.run_from, self.version)
+            nexus.download_jar_if_necessary(self.run_from, self.version, self.position)
 
         filename = self._get_jar_filename()
 

@@ -7,17 +7,15 @@ import time
 from servicemanager import subprocess
 
 
-def kill_pid(context, pid, force=False, wait=False):
+def kill_pid(context, pid, wait=False):
 
     if _is_system_or_smserver_or_test_process(pid):
         return "Not allowed to kill system, test or smserver process (pid = %d)" % pid
 
     try:
         print("killing pid: " + str(pid))
-        if force:
-            os.kill(pid, SIGKILL)
-        else:
-            os.kill(pid, SIGINT)
+
+        os.kill(pid, SIGKILL)
 
         if wait:
             os.waitpid(pid, 0)
@@ -28,12 +26,12 @@ def kill_pid(context, pid, force=False, wait=False):
         return error
 
 
-def kill_processes_matching(pattern, context, force=False, wait=False):
+def kill_processes_matching(pattern, context, wait=False):
 
     # Be polite and ask the processes to quit
     processes = SmProcess.processes_matching(pattern)
     for process in processes:
-        kill_pid(context, process.pid, False, False)
+        kill_pid(context, process.pid, False)
 
     waited = 0.0
     time_between_polls = 0.1
@@ -46,9 +44,8 @@ def kill_processes_matching(pattern, context, force=False, wait=False):
         time.sleep(time_between_polls)
         waited = waited + time_between_polls
 
-    if force:
-        for process in processes:
-                kill_pid(context, process.pid, force, wait)
+    for process in processes:
+        kill_pid(context, process.pid, wait)
 
 def _is_system_or_smserver_or_test_process(pid):
 
