@@ -67,7 +67,7 @@ class SmNexus():
     def _download_from_nexus(self, nexus_path, shaded_jar, show_progress, position=0):
         url = self._get_protocol() + "://" + self._url_credentials() + "@" + nexus_path
         if show_progress:
-            with TqdmProgress(unit='B', unit_scale=True, unit_divisor=1024, miniters=1, desc=shaded_jar, position=position) as t:    
+            with TqdmProgress(unit='B', unit_scale=True, unit_divisor=1024, miniters=1, desc=shaded_jar, position=position) as t:
                 urllib.urlretrieve(url, shaded_jar, t.report_hook)
         else:
             urllib.urlretrieve(url, shaded_jar)
