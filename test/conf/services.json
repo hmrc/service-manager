@@ -27,6 +27,20 @@
         },
         "pattern": ".*fakebintray.*"
     },
+    "FAKE_ARTIFACTORY": {
+        "name": "Simple artifactory mock server",
+        "type": "external",
+        "location": "../",
+        "cmd": [
+            "python",
+            "./fakeartifactory.py"
+        ],
+        "healthcheck": {
+            "url": "http://localhost:8062/ping",
+            "response": "pong"
+        },
+        "pattern": ".*fakeartifactory.*"
+    },
     "TEST_ONE": {
         "name": "Test service one",
         "type": "external",
@@ -100,6 +114,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+            "repo": "nexus",
             "ext": "zip",
             "artifact": "dwtest",
             "groupId":"foo/bar/foo/",
@@ -136,6 +151,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+             "repo": "nexus",
              "ext": "zip",
              "artifact": "playtest",
              "groupId":"foo/bar/foo/",
@@ -174,6 +190,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+             "repo": "nexus",
              "ext": "zip",
              "artifact": "playtest",
              "groupId":"foo/bar/foo/",
@@ -212,6 +229,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+             "repo": "nexus",
              "ext": "zip",
              "artifact": "playtest",
              "groupId":"foo/bar/foo/",
@@ -226,7 +244,8 @@
                      "-J-XX:MaxPermSize=128m"
             ]
         }
-    },    "PLAY_NEXUS_ZIP_TEST": {
+    },
+    "PLAY_NEXUS_ZIP_TEST": {
         "name": "A simple play application for testing",
         "type": "play",
         "location": "/testapps/basicplayapp",
@@ -248,6 +267,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+             "repo": "nexus",
              "ext": "zip",
              "artifact": "playtest",
              "groupId":"foo/bar/foo/",
@@ -285,6 +305,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+             "repo": "nexus",
              "artifact": "playtgz",
              "groupId":"foo/bar/foo/",
              "nexus": "/content/repositories/",
@@ -321,6 +342,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+             "repo": "bintray",
              "artifact": "playtest_2.11",
              "groupId":"uk/gov/hmrc/",
              "destinationSubdir" : "basicplayapp",
@@ -334,6 +356,42 @@
             ]
         }
     },
+  "PLAY_ARTIFACTORY_END_TO_END_TEST": {
+    "name": "A simple play application for testing on Bintray",
+    "type": "play",
+    "location": "/testapps/basicplayapp",
+    "hasServiceMappings": true,
+    "defaultPort" : 8500,
+    "hasMongo" : true,
+    "healthcheck": {
+      "url": "http://localhost:${port}",
+      "response": ""
+    },
+    "sources": {
+      "cmd": [
+        "play",
+        "start"
+      ],
+      "extra_params": [
+        "-DFoo=false"
+      ],
+      "repo": "git@github.com:hmrc/service-manager.git"
+    },
+    "binary": {
+      "repo": "artifactory",
+      "artifact": "playtest_2.11",
+      "groupId":"uk/gov/hmrc/",
+      "destinationSubdir" : "basicplayapp",
+      "cmd": [
+        "./basicplayapp/bin/basicplayapp",
+        "-DProd.microservice.whitelist.useWhitelist=false",
+        "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+        "-J-Xmx256m",
+        "-J-Xms256m",
+        "-J-XX:MaxPermSize=128m"
+      ]
+    }
+  },
     "BROKEN_PLAY_PROJECT": {
         "name": "A play application with a breaking healthcheck for testing",
         "type": "play",
@@ -356,6 +414,7 @@
             "repo": "git@github.com:hmrc/service-manager.git"
         },
         "binary": {
+             "repo": "nexus",
              "ext": "zip",
              "artifact": "playtest",
              "groupId":"foo/bar/foo/",
@@ -398,6 +457,7 @@
             "repo": "foo@foo.com"
         },
         "binary": {
+            "repo": "artifactory",
             "artifact": "assets-frontend",
             "groupId":"foo/bar/foo/",
             "nexus": "/content/repositories/",
