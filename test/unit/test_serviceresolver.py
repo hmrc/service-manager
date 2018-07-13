@@ -21,7 +21,7 @@ class TestServiceResolver(TestBase):
         self.assertTrue("DROPWIZARD_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PLAY_NEXUS_END_TO_END_TEST" in all_services)
         self.assertTrue("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND" in all_services)
-        self.assertEqual(16, len(all_services))
+        self.assertEqual(18, len(all_services))
 
         test_profile = service_resolver.resolve_services("TEST")
         self.assertTrue("TEST_ONE" in test_profile)

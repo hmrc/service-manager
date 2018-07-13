@@ -12,7 +12,7 @@ from servicemanager import subprocess
 from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
 from servicemanager.smprocess import SmProcess, kill_pid
 from servicemanager.smfile import force_chdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
-from servicemanager.smnexus import SmNexus
+from servicemanager.smartifactory import SmArtifactory
 from servicemanager.smrepo import clone_repo_if_requred
 
 
@@ -42,7 +42,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         force_chdir(assets_target_path)
 
         if not self.context.offline:
-            nexus = SmNexus(self.context, self.service_name)
+            artifactory = SmArtifactory(self.context, self.service_name)
 
             if self.version:
                 versions = [ self.version ]
@@ -50,10 +50,10 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
                 versions = self.context.assets_versions
                 self.log("Starting assets versions: %s" % (", ".join(versions)))
             else:
-                versions = nexus.get_all_versions(self.run_from)
+                versions = artifactory.find_all_versions(self.run_from)
 
             for version in versions:
-                nexus.download_jar_if_necessary(self.run_from, version)
+                artifactory.download_jar_if_necessary(self.run_from, version)
             self._unzip_assets(versions)
 
         cmd_with_params = self.service_data["binary"]["cmd"]

@@ -199,7 +199,7 @@ class TestActions(TestBase):
         context = SmContext(SmApplication(self.config_dir_override), None, False, False)
         context.kill_everything(True)
 
-        self.startFakeNexus()
+        self.startFakeArtifactory()
 
         actions.start_one(context, "PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND", False, True, False, None, port=None)
         self.assertIsNotNone(context.get_service("PYTHON_SIMPLE_SERVER_ASSETS_FRONTEND").status())
@@ -213,7 +213,7 @@ class TestActions(TestBase):
         service_resolver = ServiceResolver(sm_application)
         context.kill_everything(True)
 
-        self.startFakeNexus()
+        self.startFakeArtifactory()
 
         port = None
         seconds_to_wait = 5

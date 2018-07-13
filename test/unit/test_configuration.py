@@ -6,7 +6,7 @@ class TestConfiguration(TestBase):
 
     def test_config(self):
         application = SmApplication(self.config_dir_override, None)
-        self.assertEqual(len(application.services), 16)
+        self.assertEqual(len(application.services), 18)
         self.assertEqual(application.services["TEST_TEMPLATE"]["type"], "external")
         self.assertEqual(application.services["TEST_TEMPLATE"]["pattern"], "some.namespace=TEST_TEMPLATE")
         self.assertEqual(application.services["TEST_TEMPLATE"]["includeInStartAndStopAll"], False)

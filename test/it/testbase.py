@@ -21,10 +21,12 @@ class TestBase(unittest.TestCase):
     def setUp(self):
         self.set_up_and_clean_workspace()
         self.bintrayContext = None
+        self.artifactoryContext = None
         self.nexusContext = None
 
     def tearDown(self):
         self.stopFakeBintray()
+        self.stopFakeArtifactory()
         self.stopFakeNexus()
 
 
@@ -48,6 +50,11 @@ class TestBase(unittest.TestCase):
         self.start_service_and_wait(self.bintrayContext, "FAKE_BINTRAY")
         self.assertIsNotNone(self.bintrayContext.get_service("FAKE_BINTRAY").status())
 
+    def startFakeArtifactory(self):
+        self.artifactoryContext = self.createContext()
+        self.start_service_and_wait(self.artifactoryContext, "FAKE_ARTIFACTORY")
+        self.assertIsNotNone(self.artifactoryContext.get_service("FAKE_ARTIFACTORY").status())
+
     def startFakeNexus(self):
         self.nexusContext = self.createContext()
         self.start_service_and_wait(self.nexusContext, "FAKE_NEXUS")
@@ -62,6 +69,11 @@ class TestBase(unittest.TestCase):
         if self.bintrayContext is not None:
             self.bintrayContext.kill("FAKE_BINTRAY", True)
             self.assertEqual(self.bintrayContext.get_service("FAKE_BINTRAY").status(), [])
+
+    def stopFakeArtifactory(self):
+        if self.artifactoryContext is not None:
+            self.artifactoryContext.kill("FAKE_ARTIFACTORY", True)
+            self.assertEqual(self.artifactoryContext.get_service("FAKE_ARTIFACTORY").status(), [])
 
     def waitForCondition(self, f, expected, time_out_secs = default_time_out):
         dead_line = time.time() + time_out_secs

@@ -15,5 +15,13 @@
             "SNAPSHOT" : "hmrc/release-candidates"
         }
 	},
+	"artifactory" : {
+		"protocol": "http",
+		"host" : "localhost:8062",
+        "repoMappings" : {
+          "RELEASE": "artifactory/hmrc-releases",
+          "SNAPSHOT": "artifactory/hmrc-releases"
+        }
+	},
 	"playExtractionDir" : "/var/tmp"
 }
