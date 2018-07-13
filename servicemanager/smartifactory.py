@@ -110,8 +110,9 @@ class SmArtifactory():
               time.sleep(1)
 
     def download_jar_if_necessary(self, run_from, version):
-        artifact = self.context.service_data(self.service_name)["binary"]["artifact"]
-        groupId = self.context.service_data(self.service_name)["binary"]["groupId"]
+        binary_config = self.context.service_data(self.service_name)["binary"]
+        artifact = binary_config["artifact"]
+        groupId = binary_config["groupId"]
         repo_mappings = self.context.config_value("artifactory")["repoMappings"]
         repositoryId = repo_mappings[run_from]
 
@@ -120,11 +121,10 @@ class SmArtifactory():
 
         if version:
 
-            extension = ".tgz"
+            extension = "." + binary_config.get("ext", "tgz")
             localFilename = artifact + extension
 
             if self.service_type == "assets":
-                extension = ".zip"
                 localFilename = artifact + "-" + str(version) + extension
 
             artifactoryFilename = artifact + "-" + str(version) + extension
