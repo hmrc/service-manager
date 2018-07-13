@@ -457,6 +457,7 @@
             "repo": "foo@foo.com"
         },
         "binary": {
+            "ext": "zip",
             "repo": "artifactory",
             "artifact": "assets-frontend",
             "groupId":"foo/bar/foo/",
