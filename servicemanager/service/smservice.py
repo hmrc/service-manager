@@ -12,8 +12,8 @@ class SmServiceBase():
         if self.service_type != expected_service_type:
             raise context.exception("Cannot construct '%s' as type '%s', services.json states its type is: '%s'" % (service_name, expected_service_type, self.service_type))
 
-    def log(self, message):
-        self.context.log("[%s]: %s" % (self.service_name, message))
+    def log(self, message, verbose_only=False):
+        self.context.log("[%s]: %s" % (self.service_name, message), verbose_only)
 
     def required_data(self, key):
         value = self.service_data.get(key, None)

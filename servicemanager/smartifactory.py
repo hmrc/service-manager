@@ -48,7 +48,7 @@ class SmArtifactory():
         url = self.context.config_value("artifactory")["protocol"] + "://" + self.context.config_value("artifactory")["host"] + "/" + repositoryId + "/" + groupId + artifact + "/maven-metadata.xml"
         request = urllib2.Request(url)
 
-        self.context.log("Attempting to download metadata from Artifactory at %s" % url)
+        self.context.log("Downloading metadata from Artifactory at %s" % url, True)
 
         for attempt_count in range(1, 6):
           try:
@@ -90,12 +90,12 @@ class SmArtifactory():
     def _download_from_artifactory(self, artifactory_path, local_filename, repositoryId, show_progress):
         url = self.context.config_value("artifactory")["protocol"] + "://" + self.context.config_value("artifactory")["host"] + "/" + repositoryId + "/" + artifactory_path
         if show_progress:
-          self.context.log("Attempting to download artefact from Artifactory at %s" % url)
+          self.context.log("Downloading artefact from Artifactory at %s" % url, True)
         for attempt_count in range(1, 6):
           try:
             if show_progress:
               urllib.urlretrieve(url, local_filename, SmNexus._report_hook)
-              print("\n")
+              self.context.log("\n", True)
             else:
               urllib.urlretrieve(url, local_filename)
             break
@@ -142,10 +142,10 @@ class SmArtifactory():
 
             if local_md5 != artifactory_md5:
                 remove_if_exists(downloaded_artifact_path)
-                self.context.log("Downloading Artifactory binary for '" + self.service_name + "': " + artifactoryFilename)
+                self.context.log("Downloading Artifactory binary for '" + self.service_name + "': " + artifactoryFilename, True)
                 self._download_from_artifactory(artifactoryFilePath, downloaded_artifact_path, repositoryId, self.context.show_progress)
             else:
-                self.context.log("Skipped download of %s. The local copy matches the one on Artifactory" % artifactoryFilename)
+                self.context.log("Skipped download of %s. The local copy matches the one on Artifactory" % artifactoryFilename, True)
             os.remove(downloaded_md5_path)
             return artifactoryFilename
         else:

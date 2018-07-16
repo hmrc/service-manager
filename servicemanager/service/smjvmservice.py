@@ -114,7 +114,7 @@ class SmJvmService(SmService):
         for process in SmProcess.processes_matching(self.pattern):
             kill_pid(self.context, process.ppid, wait=wait)
             kill_pid(self.context, process.pid, wait=wait)
-            print "name: %s\tppid: %s\tpid: %s\tuptime: %s" % (self.service_name, process.ppid, process.pid, process.uptime)
+            self.context.log("name: %s\tppid: %s\tpid: %s\tuptime: %s" % (self.service_name, process.ppid, process.pid, process.uptime), True)
         self.post_stop()
 
     def run_healthcheck(self, process):

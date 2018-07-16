@@ -13,7 +13,7 @@ def kill_pid(context, pid, force=False, wait=False):
         return "Not allowed to kill system, test or smserver process (pid = %d)" % pid
 
     try:
-        print("killing pid: " + str(pid))
+        context.log("killing pid: " + str(pid), True)
         if force:
             os.kill(pid, SIGKILL)
         else:

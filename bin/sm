@@ -37,6 +37,7 @@ def _process_command():
     parser.add_argument('--restart', type=str, nargs='*', help='Restarts a single service/profile or a list of services/profiles').completer = ServiceCompleter
     parser.add_argument('--stop', type=str, nargs='*', help='Stops a single service by id').completer = ServiceCompleter
     parser.add_argument('--pullall', action='store_true', help='Pulls all repos that you currently have')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Logs more info while starting or stopping services')
     parser.add_argument('--noprogress', action='store_true', help='Stops file download progress from being displayed')
     parser.add_argument('--cleanlogs', action='store_true', help='Deletes the log files for all services')
     parser.add_argument('-w', '--wait', type=int, help='Wait at most the given number of seconds for services to pass healthchecks before returning')
@@ -58,7 +59,7 @@ def _process_command():
     show_progress = not args.noprogress
 
     application = SmApplication(configuration_dir_parameter=args.config, features=args.feature)
-    context = SmContext(application, None, args.offline, show_progress)
+    context = SmContext(application, None, args.offline, show_progress, None, args.verbose)
     service_resolver = ServiceResolver(application)
 
     # Actions

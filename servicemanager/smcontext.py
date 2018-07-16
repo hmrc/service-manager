@@ -177,13 +177,14 @@ class SmContext():
 
     MAX_TIME_TO_DIE_SECONDS = 3
 
-    def __init__(self, application, test_id, offline=False, show_progress=True, request_specific_features=None):
+    def __init__(self, application, test_id, offline=False, show_progress=True, request_specific_features=None, verbose=False):
         self.application = application
         self.test_id = test_id
         self.instance_id = if_not(self.test_id, "LOCAL")
         self.database_name_prefix = test_id
         self.offline = offline
         self.show_progress = show_progress
+        self.verbose = verbose
         self.is_test = test_id is not None
         self.features = unify_lists(request_specific_features, self.application.features)
         self.credentials = CredentialsResolver(self)
@@ -200,11 +201,12 @@ class SmContext():
         self.log(message)
         return ServiceManagerException(message)
 
-    def log(self, message):
-        if self.test_id:
-            print "[%s] %s" % (self.test_id, message)
-        else:
-            print message
+    def log(self, message, verbose_only=False):
+        if not verbose_only or (verbose_only and self.verbose):
+            if self.test_id:
+                print "[%s] %s" % (self.test_id, message)
+            else:
+                print message
 
     def services(self):
         return (self.get_service(service_name) for service_name in self.application.services)
@@ -272,7 +274,7 @@ class SmContext():
 
     def _kill_service(self, service_name, wait=False):
         service = self.get_service(service_name)
-        print "killing service name: " + service_name
+        self.log("Stopping '%s'" % service_name)
         service.stop(wait)
 
     def _kill_test(self):
@@ -317,7 +319,7 @@ class SmContext():
     def get_run_from_service_override_value_or_use_default(self, service, original_runfrom):
         if "always_run_from" in service.service_data:
             if validate_run_from(service.service_data["always_run_from"]):
-                self.log("Service '%s' has been overridden to always use '%s' version" % (service.service_name, service.service_data["always_run_from"]))
+                self.log("Service '%s' has been overridden to always use '%s' version" % (service.service_name, service.service_data["always_run_from"]), True)
                 return service.service_data["always_run_from"]
 
         if original_runfrom == "DEFAULT":
@@ -357,14 +359,14 @@ class SmContext():
 
     def start_service(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, appendArgs=None):
         feature_string = pretty_print_list(" with feature$s $list enabled", self.features)
-        self.log("Starting '%s' from %s%s..." % (service_name, run_from, feature_string))
+        self.log("\nStarting '%s' from %s%s... " % (service_name, run_from, feature_string))
         service_starter = self.get_service_starter(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, appendArgs)
         service_process_id = service_starter.start()
 
         if service_process_id:
             feature_string = pretty_print_list(" and feature$s $list enabled", self.features)
-            self.log("'%s' version '%s' started with PID = %d%s" % (service_name, version, service_process_id, feature_string))
+            self.log("'%s' started with PID = %d%s" % (service_name, service_process_id, feature_string), True)
         else:
-            self.log("'%s' version does not appear to have started" % service_name)
+            self.log("'%s' does not appear to have started" % service_name)
 
         return service_process_id
