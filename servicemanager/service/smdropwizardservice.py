@@ -86,6 +86,8 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
             process = Popen(cmd, env=os.environ.copy(), stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
             if process.returncode == 1:
                 print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
+            else:
+                self.context.log("'%s' version '%s' started successfully" % (self.service_name, self.version))
             return process.pid
         else:
             print "ERROR: the requested file: '" + binary_to_run + "' does not exist"

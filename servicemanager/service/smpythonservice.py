@@ -48,11 +48,13 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
                 versions = [ self.version ]
             elif self.context.assets_versions:
                 versions = self.context.assets_versions
-                self.log("Starting assets versions: %s" % (", ".join(versions)))
+                self.log("Starting assets versions: %s" % (", ".join(versions)), True)
             else:
                 versions = artifactory.find_all_versions(self.run_from)
+                self.log("Starting assets versions: %s" % (", ".join(versions)), True)
 
             for version in versions:
+                self.context.log("\nStarting assets version: %s" % version)
                 artifactory.download_jar_if_necessary(self.run_from, version)
             self._unzip_assets(versions)
 
@@ -141,11 +143,11 @@ class SmPythonService(SmService):
         if len(pid_values) == 0:
             return
 
-        self.log("Killing service '%s' (pid = %s)..." % (self.service_data["name"], str(pid_values)))
+        self.log("Stopping '%s'..." % (self.service_data["name"]), True)
 
         for pid_int in pid_values:
             kill_pid(self.context, pid_int, wait=wait)
-            self.log("PID  %d killed" % pid_int)
+            self.log("PID  %d killed" % pid_int, True)
 
 
     def clean_up(self):

@@ -18,7 +18,7 @@ class CredentialsResolver():
     def _resolve_credentials(self):
         for creds in self.credential_resolvers:
             if creds.exist():
-                self.context.log("Resolved nexus credentials from: %s" % creds.describe())
+                self.context.log("Resolved nexus credentials from: %s" % creds.describe(), True)
                 (user, password) = creds.load_creds()
                 self.credentials = {"user": user, "password": password}
                 return self.credentials

@@ -182,7 +182,7 @@ def start_and_wait(service_resolver, context, start, source, fatjar, release, pr
     if seconds_to_wait:
         _wait_for_services(context, all_services, seconds_to_wait)
 
-    print "All services passed healthcheck"
+    print "\nAll services passed healthcheck"
 
 
 def get_log_file(context, service_name):

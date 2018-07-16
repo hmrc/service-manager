@@ -35,7 +35,7 @@ class SmBintray():
     def _get_version_info_from_bintray(self, artifact, repositoryId, groupId):
         url = self.context.config_value("bintray")["protocol"] + "://" + self.context.config_value("bintray")["host"] + "/" + repositoryId + "/" + groupId + artifact + "/maven-metadata.xml"
         request = urllib2.Request(url)
-        self.context.log("Attempting to download metadata from Bintray at %s" % url)
+        self.context.log("Downloading metadata from Bintray at %s" % url, True)
 
         for attempt_count in range(1, 6):
           try:
@@ -69,12 +69,12 @@ class SmBintray():
 
     def _download_from_bintray(self, bintray_path, local_filename, repositoryId, show_progress):
         url = self.context.config_value("bintray")["protocol"] + "://" + self.context.config_value("bintray")["host"] + "/" + repositoryId + "/" + bintray_path
-        self.context.log("Attempting to download artefact from Bintray at %s" % url)
+        self.context.log("Downloading artefact from Bintray at %s" % url, True)
         for attempt_count in range(1, 6):
           try:
             if show_progress:
               urllib.urlretrieve(url, local_filename, SmNexus._report_hook)
-              print("\n")
+              self.context.log("\n", True)
             else:
               urllib.urlretrieve(url, local_filename)
             break
@@ -114,7 +114,7 @@ class SmBintray():
 
             if local_md5 != bintray_md5:
                 remove_if_exists(downloaded_artifact_path)
-                self.context.log("Downloading Bintray binary for '" + self.service_name + "': " + bintrayFilename)
+                self.context.log("Downloading Bintray binary for '" + self.service_name + "': " + bintrayFilename, True)
                 self._download_from_bintray(bintrayFilePath, downloaded_artifact_path, repositoryId, self.context.show_progress)
             os.remove(downloaded_md5_path)
         else:

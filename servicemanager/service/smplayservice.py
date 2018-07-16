@@ -108,16 +108,18 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         if os.path.exists(cmd_with_params[0]):
             os.chmod(cmd_with_params[0], stat.S_IRWXU)
         else:
-            print b.fail + "ERROR: unable to chmod on non existent file '" + parent + cmd_with_params[0] + "'" + b.endc
+            self.context.log(b.fail + "ERROR: unable to chmod on non existent file '" + parent + cmd_with_params[0] + "'" + b.endc)
 
         makedirs_if_not_exists("logs")
 
-        print(cmd_with_params)
+        self.context.log("Starting %s with parameters %s" % (self.service_name, cmd_with_params), True)
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
             popen_output = Popen(cmd_with_params, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True)
             if popen_output.returncode == 1:
-                print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
+                self.context.log(b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc)
+            else:
+                self.context.log("'%s' version '%s' started successfully" % (self.service_name, self.version))
             return popen_output.pid
 
     def _unpack_play_application(self, extension):
@@ -136,7 +138,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         elif extension == ".tgz":
             self._untar_play_application(microservice_filename, unpacked_dir)
         else:
-            print "ERROR: unsupported atrifact extension: " + extension
+            self.context.log("ERROR: unsupported atrifact extension: " + extension)
 
 
         folder = [ name for name in os.listdir(unpacked_dir) if os.path.isdir(os.path.join(unpacked_dir, name)) ][0]
