@@ -1,10 +1,9 @@
 
 from setuptools import setup
-import os
 
 setup(name='servicemanager',
       python_requires='>2.7.13',
-      version=os.environ.get("RELEASE_VERSION", "local-development-build"),
+      version='1.4.0',
       description='A python tool to manage developing and testing with lots of microservices',
       url='https://github.com/hmrc/service-manager',
       author='hmrc-web-operations',
