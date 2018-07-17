@@ -58,7 +58,7 @@ class SmArtifactory():
             self.context.log("Attempt number %d failed. Reason: %s" % (attempt_count, error))
 
             if attempt_count == 5:
-              self.context.log("Aborting download after 5 attempts")
+              self.context.log("Aborting download from Artifactory at %s" % url)
               raise
 
             if attempt_count < 5:
@@ -103,7 +103,7 @@ class SmArtifactory():
             self.context.log("Attempt number %d failed. Reason: %s" % (attempt_count, error))
 
             if attempt_count == 5:
-              self.context.log("Aborting download after 5 attempts")
+              self.context.log("Aborting download from Artifactory at %s" % url)
               raise
 
             if attempt_count < 5:
