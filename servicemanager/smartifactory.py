@@ -22,14 +22,20 @@ class SmArtifactory():
         self.service_name = service_name
         self.service_type = context.service_type(service_name)
 
-    def _find_latest_in_dom(self, dom):
+    def find_latest_in_dom(self, dom):
         try:
             data = dom.getElementsByTagName("versioning")[0]
         except:
             self.context.log("Unable to get latest version from artifactory")
             return None
 
-        return data.getElementsByTagName("latest")[0].firstChild.nodeValue
+        latest_snapshot = data.getElementsByTagName("latest")[0].firstChild
+        latest_release = data.getElementsByTagName("release")
+
+        if latest_snapshot.nodeValue == "999-SNAPSHOT" and latest_release and latest_release[0].firstChild is not None:
+          return latest_release[0].firstChild.nodeValue
+        else:
+          return latest_snapshot.nodeValue
 
     def _find_all_versions_in_dom(self, dom):
         try:
@@ -84,7 +90,7 @@ class SmArtifactory():
             version = os.environ[version_env_var]
         except Exception:
             repo_mappings = self.context.config_value("artifactory")["repoMappings"]
-            version = self._find_latest_in_dom(self._get_version_info_from_artifactory(artifact, repo_mappings[run_from], groupId))
+            version = self.find_latest_in_dom(self._get_version_info_from_artifactory(artifact, repo_mappings[run_from], groupId))
         return version
 
     def _download_from_artifactory(self, artifactory_path, local_filename, repositoryId, show_progress):
