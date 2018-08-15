@@ -152,6 +152,7 @@ def _process_command():
     if args.showcmdfor:
         print "The parameters you provided would start the following services using the following commands:"
         for service_name in service_resolver.resolve_services_from_array(args.showcmdfor):
+            context.is_test = True
             if context.has_service(service_name):
                 cmd = actions.get_start_cmd(context, service_name, args.source, args.fatjar, args.release, args.proxy, actions.overridden_port(args.showcmdfor, args.port), args.appendArgs)
                 print service_name
