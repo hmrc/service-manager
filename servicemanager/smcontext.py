@@ -65,7 +65,8 @@ class SmApplication():
         self.merge_template_config()
 
         self.nexus_repo_host = SmApplication._read_json_config(self, "config.json")["nexus"]["host"]
-        self.play_extraction_dir = SmApplication._read_json_config(self, "config.json")["playExtractionDir"]
+        self.play_extraction_dir = os.path.abspath(SmApplication._read_json_config(self, "config.json")["playExtractionDir"])
+
         self.service_mappings = SmApplication._read_json_config(self, "service_mappings.json")
         self.features = features
 
