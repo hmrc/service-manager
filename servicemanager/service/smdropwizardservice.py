@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import os
+import subprocess
 
-from servicemanager.subprocess import Popen
 from servicemanager.smfile import force_chdir
 from servicemanager.smnexus import SmNexus
 from servicemanager.service.smservice import SmMicroServiceStarter
@@ -83,7 +83,7 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
             os.system("jar xvf " + microservice_target_path + filename + " " + configuration_file + " > /dev/null")
             force_chdir(microservice_target_path)
             cmd = self.get_start_command("BINARY")
-            process = Popen(cmd, env=os.environ.copy(), stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
+            process = subprocess.Popen(cmd, env=os.environ.copy(), stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
             if process.returncode == 1:
                 print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc
             else:
@@ -132,7 +132,7 @@ class SmDropwizardServiceStarter(SmJvmServiceStarter):
             # SBT is so specific should this be in configuration?
             new_env["SBT_EXTRA_PARAMS"] = " ".join(sbt_extra_params)
             os.chdir(base_dir)
-            process = Popen(self.get_start_command("SOURCE"), env=new_env, stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
+            process = subprocess.Popen(self.get_start_command("SOURCE"), env=new_env, stdout=SmDropwizardServiceStarter.DEV_NULL, stderr=SmDropwizardServiceStarter.DEV_NULL, close_fds=True)
         except Exception, e:
             self.log("Could not start service in '%s' due to exception: %s" % (base_dir, str(e)))
 

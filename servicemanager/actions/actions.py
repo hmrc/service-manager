@@ -3,8 +3,8 @@ import os
 import time
 import calendar
 import glob
+import subprocess
 
-from servicemanager import subprocess
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.smprocess import SmProcess
 from servicemanager.service.smplayservice import SmPlayService

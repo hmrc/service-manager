@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import os
 import re
+import subprocess
 
 import requests
 import types
 
 from servicemanager.service.smservice import SmServiceStarter, SmService, SmServiceStatus
 from servicemanager.smprocess import SmProcess, kill_processes_matching
-from servicemanager import subprocess
 
 
 class SmExternalServiceStarter(SmServiceStarter):

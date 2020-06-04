@@ -5,10 +5,10 @@ import zipfile
 import signal
 import time
 import re
+import subprocess
 
 import requests
 
-from servicemanager import subprocess
 from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
 from servicemanager.smprocess import SmProcess, kill_pid
 from servicemanager.smfile import force_chdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists

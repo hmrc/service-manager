@@ -10,8 +10,8 @@ from servicemanager.smcontext import SmApplication, SmContext
 
 import time
 import shutil
+import subprocess
 import unittest
-from servicemanager import subprocess
 
 class TestBase(unittest.TestCase):
 

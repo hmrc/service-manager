@@ -2,9 +2,8 @@
 from signal import SIGINT, SIGKILL
 import os
 import re
+import subprocess
 import time
-
-from servicemanager import subprocess
 
 
 def kill_pid(context, pid, force=False, wait=False):

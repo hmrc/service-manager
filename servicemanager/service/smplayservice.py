@@ -9,15 +9,13 @@ import tarfile
 import stat
 import copy
 import types
+import subprocess
 
-from servicemanager.subprocess import Popen
 from servicemanager.service.smservice import SmMicroServiceStarter
 from servicemanager.service.smjvmservice import SmJvmService, SmJvmServiceStarter
 from servicemanager.smfile import force_chdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
 from servicemanager.smartifactrepofactory import SmArtifactRepoFactory
 from servicemanager.actions.colours import BColors
-
-from servicemanager import subprocess
 
 
 b = BColors()
@@ -115,7 +113,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         self.context.log("Starting %s with parameters %s" % (self.service_name, cmd_with_params), True)
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            popen_output = Popen(cmd_with_params, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True)
+            popen_output = subprocess.Popen(cmd_with_params, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True)
             if popen_output.returncode == 1:
                 self.context.log(b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc)
             else:
@@ -175,7 +173,7 @@ class SmPlayServiceStarter(SmJvmServiceStarter):
         makedirs_if_not_exists("logs")
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            process = Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err, stdin=subprocess.PIPE)
+            process = subprocess.Popen(self.get_start_command("SOURCE"), env=env_copy, stdout=out, stderr=err, stdin=subprocess.PIPE)
             process.stdin.close()
             if process.returncode == 1:
                 print b.fail + "ERROR: could not start '" + self.service_name + "' " + b.endc

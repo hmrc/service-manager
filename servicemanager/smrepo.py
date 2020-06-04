@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import os
+import subprocess
 
 from actions.colours import BColors
-from servicemanager import subprocess
 
 
 b = BColors()
@@ -10,14 +10,14 @@ b = BColors()
 
 def pull_rebase_repo(context, name, project_info):
     if "sources" in project_info and "repo" in project_info["sources"]:
-        print "pulling '" + name + "' from repo '" + project_info["sources"]["repo"] + "'" 
+        print "pulling '" + name + "' from repo '" + project_info["sources"]["repo"] + "'"
         path = context.application.workspace + project_info["location"]
         if not os.path.exists(path):
             print b.fail + "Nothing was pulled, it appears you have not cloned this repo yet: '" + name + "'" + b.endc + "\n"
         else:
             os.chdir(path)
             command = 'git pull --rebase'
-            print "running: '" + command + "' from: '" + os.getcwd() + "'" 
+            print "running: '" + command + "' from: '" + os.getcwd() + "'"
             ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
             stdout, stderr = ps_command.communicate()
             if ps_command.returncode is not 0:
