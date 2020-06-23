@@ -59,6 +59,12 @@ Some of the tests pull down large repositories. To skip these online tests, you 
 
 The unit tests and integration tests are in separate subfolders, so can also be selected independently
 
+You can also run the tests via [tox](https://tox.readthedocs.io/en/latest/), with simply:
+
+```bash
+tox
+```
+
 ## License
  
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
