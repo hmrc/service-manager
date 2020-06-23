@@ -52,18 +52,21 @@ $ pip install -r requirements.txt
 ```
 
 ## Running the tests
+
+The easiest way to run the tests is via [tox](https://tox.readthedocs.io/en/latest/), with simply:
+
+```bash
+tox
+```
+
+Alternatively, you can launch pytest manually with:
+
 ```py.test -v -s test/```
 
 Some of the tests pull down large repositories. To skip these online tests, you can use markers:
 ```py.test -v -m 'not online -s test/```
 
 The unit tests and integration tests are in separate subfolders, so can also be selected independently
-
-You can also run the tests via [tox](https://tox.readthedocs.io/en/latest/), with simply:
-
-```bash
-tox
-```
 
 ## License
  
