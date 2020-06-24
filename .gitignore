@@ -44,3 +44,5 @@ dist/
 servicemanager.egg-info/
 venv
 .cache
+
+.tox
