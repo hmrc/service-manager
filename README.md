@@ -46,18 +46,55 @@ Run `smserver` and it will run a service that can fire up services on demand
 |`/version_variable`           |GET                |              |
 
 ## Development setup
-To run Service Manager please install any dependencies: 
+
+This repo uses [tox](https://tox.readthedocs.io/en/latest/install.html) to simplify testing and packaging.
+
+First, ensure you have tox installed:
+
 ```
-$ pip install -r requirements.txt
+pip install tox
 ```
 
+> You can check with `tox --version`
+
 ## Running the tests
+
+To run the tests is simply:
+
+```bash
+tox
+```
+
+Alternatively, you can launch pytest manually (without tox) with:
+
 ```py.test -v -s test/```
+
+> N.B. As tox handles installing the dependencies from the `requirements.txt` file, you will need to install these
+> first if using this method: `pip install -r requirements.txt`
+`
 
 Some of the tests pull down large repositories. To skip these online tests, you can use markers:
 ```py.test -v -m 'not online -s test/```
 
 The unit tests and integration tests are in separate subfolders, so can also be selected independently
+
+## Releasing a new version
+
+> If in the HMRC org, there are build jobs setup to handle the release for you, see here: https://github.com/hmrc/service-manager/wiki/Releasing-servicemanager
+> These notes are just for completeness.
+
+Releasing is also setup via `tox`, and using [twine](https://pypi.org/project/twine/)
+
+First set env vars for the release repository:
+```
+export TWINE_REPOSITORY_URL=<yourrepo>
+export TWINE_USERNAME=<username>
+export TWINE_PASSWORD=<password>
+tox -e release
+```
+
+> N.B. for uploading to test.pypi.org and pypi.org, the username will always be `__token__` and the password should be
+> an API token that you have generated in the account
 
 ## License
  

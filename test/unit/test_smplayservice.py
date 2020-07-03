@@ -14,7 +14,7 @@ class TestSmPlayService(unittest.TestCase):
     self.sm_play_service = SmPlayServiceStarter(sm_context, "PLAY_NEXUS_END_TO_END_TEST", "", "", 9000, "", "", "", "")
 
   def test_closed_assets_config(self):
-    assert_that(self.sm_play_service._get_assets_version(self.test_dir + "testapps/basicplayapp"), equal_to(["2.149.0", "2.150.0"]))
+    assert_that(self.sm_play_service._get_assets_version(self.test_dir + "testapps/basicplayapp"), contains_inanyorder("2.149.0", "2.150.0"))
 
   def test_open_assets_config(self):
     assert_that(self.sm_play_service._get_assets_version(self.test_dir + "testapps/openplayapp"), has_item("2.150.0"))
