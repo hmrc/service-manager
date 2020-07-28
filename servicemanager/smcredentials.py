@@ -3,11 +3,13 @@ import os
 from abc import abstractmethod
 
 
-class CredentialsResolver():
-
+class CredentialsResolver:
     def __init__(self, context):
         self.context = context
-        self.credential_resolvers = [EnvNexusCredentials(context), SbtNexusCredentials(context)]
+        self.credential_resolvers = [
+            EnvNexusCredentials(context),
+            SbtNexusCredentials(context),
+        ]
         self.credentials = None
 
     def resolve_nexus_credentials(self):
@@ -26,8 +28,7 @@ class CredentialsResolver():
         return None
 
 
-class NexusCredentials():
-
+class NexusCredentials:
     def __init__(self, context):
         self.context = context
         pass
@@ -46,13 +47,15 @@ class NexusCredentials():
 
 
 class SbtNexusCredentials(NexusCredentials):
-
     def __init__(self, context):
         NexusCredentials.__init__(self, context)
         self.sbt_location = context.config_value("sbtCredentialsFile", os.environ["HOME"] + "/.sbt/.credentials")
 
     def load_creds(self):
-        creds = {key.strip(): value.strip() for (key, value) in map(lambda x: x.split("="), open(self.sbt_location, 'r').readlines())}
+        creds = {
+            key.strip(): value.strip()
+            for (key, value) in [x.split("=") for x in open(self.sbt_location, "r").readlines()]
+        }
         return creds["user"], creds["password"]
 
     def exist(self):
@@ -67,14 +70,16 @@ class SbtNexusCredentials(NexusCredentials):
 
 
 class EnvNexusCredentials(NexusCredentials):
-
     def __init__(self, context):
         NexusCredentials.__init__(self, context)
-        self.nexus_pass_env_var = context.config_value("nexusPasswordEnvironmentVar",  "NEXUS_PASS")
-        self.nexus_user_env_var = context.config_value("nexusUserEnvironmentVar",  "NEXUS_USER")
+        self.nexus_pass_env_var = context.config_value("nexusPasswordEnvironmentVar", "NEXUS_PASS")
+        self.nexus_user_env_var = context.config_value("nexusUserEnvironmentVar", "NEXUS_USER")
 
     def load_creds(self):
-        return os.environ.get(self.nexus_user_env_var, None), os.environ.get(self.nexus_pass_env_var, None)
+        return (
+            os.environ.get(self.nexus_user_env_var, None),
+            os.environ.get(self.nexus_pass_env_var, None),
+        )
 
     def exist(self):
         (nexus_user, nexus_password) = self.load_creds()
@@ -82,4 +87,4 @@ class EnvNexusCredentials(NexusCredentials):
         return found
 
     def describe(self):
-        return "environment variables (%s and %s)" % (self.nexus_user_env_var, self.nexus_pass_env_var)
+        return "environment variables (%s and %s)" % (self.nexus_user_env_var, self.nexus_pass_env_var,)

@@ -20,4 +20,3 @@ def makedirs_if_not_exists(path):
 def force_chdir(path):
     makedirs_if_not_exists(path)
     os.chdir(path)
-

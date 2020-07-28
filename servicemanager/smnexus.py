@@ -1,23 +1,19 @@
 import os
 import sys
 import time
-import urllib
-import hashlib
-import urllib2
-import base64
-from xml.dom.minidom import parse
-
 import requests
+from requests.auth import HTTPBasicAuth
+import hashlib
+from xml.dom.minidom import parseString
 
 from servicemanager.smfile import remove_if_exists
-from actions.colours import BColors
-
+from .actions.colours import BColors
+from servicemanager.smdownload import download
 
 b = BColors()
 
 
-class SmNexus():
-
+class SmNexus:
     def __init__(self, context, service_name):
         self.context = context
         self.service_name = service_name
@@ -42,15 +38,16 @@ class SmNexus():
             speed = 0
 
         percent = int(count * block_size * 100 / total_size)
-        if percent == 100 or (current_milli_time()  - last_update) > 500:
-            sys.stdout.write("\r%d%%, %d MB, %d KB/s, %d seconds passed" %
-                         (percent, progress_size / (1024 * 1024), speed, duration))
+        if percent == 100 or (current_milli_time() - last_update) > 500:
+            sys.stdout.write(
+                "\r%d%%, %d MB, %d KB/s, %d seconds passed" % (percent, progress_size / (1024 * 1024), speed, duration)
+            )
             sys.stdout.flush()
             last_update = current_milli_time()
 
     def _create_nexus_extension(self):
         if self.service_type == "play":
-            ext = self.context.service_data(self.service_name)["binary"].get('ext', 'tgz')
+            ext = self.context.service_data(self.service_name)["binary"].get("ext", "tgz")
             return "." + ext
         elif self.service_type == "assets":
             return ".zip"
@@ -60,7 +57,7 @@ class SmNexus():
     @staticmethod
     def _md5_if_exists(path):
         if os.path.exists(path):
-            return hashlib.md5(open(path, 'rb').read()).hexdigest()
+            return hashlib.md5(open(path, "rb").read()).hexdigest()
         else:
             return 0
 
@@ -69,25 +66,18 @@ class SmNexus():
 
     def _header_credentials(self):
         credentials = self.resolve_credentials()
-        return credentials["user"] + ":" + credentials["password"]
-
-    def _url_credentials(self):
-        credentials = self.resolve_credentials()
-        return urllib.quote_plus(credentials['user']) + ":" + urllib.quote_plus(credentials["password"])
+        return HTTPBasicAuth(credentials["user"], credentials["password"])
 
     def _download_from_nexus(self, nexus_path, shaded_jar, show_progress):
-        url = self._get_protocol() + "://" + self._url_credentials() + "@" + nexus_path
-        if show_progress:
-            urllib.urlretrieve(url, shaded_jar, SmNexus._report_hook)
-            print("\n")
-        else:
-            urllib.urlretrieve(url, shaded_jar)
+        url = self._get_protocol() + "://" + nexus_path
+        credentials = self._header_credentials()
+        download(url, shaded_jar, show_progress, credentials)
 
     def _is_valid_repository(self, repository, data):
         repository_id = data.getElementsByTagName("latest" + repository + "RepositoryId")[0].firstChild.nodeValue
         repo_mappings = self.context.config_value("nexus")["repoMappings"]
-        if not repository_id in repo_mappings.values():
-            self.context.log("The repositoryId " + repository_id + " is not in: " + str(repo_mappings.values()))
+        if not repository_id in list(repo_mappings.values()):
+            self.context.log("The repositoryId " + repository_id + " is not in: " + str(list(repo_mappings.values())))
             sys.exit(-1)
 
     def _find_version_in_dom(self, repository, dom):
@@ -122,12 +112,18 @@ class SmNexus():
         return protocol
 
     def _get_version_info_from_nexus(self, artifact, repository_id):
-        lucene_nexus = self._get_protocol() + "://" + self.context.config_value("nexus")["host"] + "/service/local/lucene/search?a=" + artifact + "&repositoryId=" + repository_id
-        request = urllib2.Request(lucene_nexus)
-        base64string = base64.encodestring(self._header_credentials()).replace('\n', '')
-        request.add_header("Authorization", "Basic %s" % base64string)
-        response = urllib2.urlopen(request)
-        dom = parse(response)
+        lucene_nexus = (
+            self._get_protocol()
+            + "://"
+            + self.context.config_value("nexus")["host"]
+            + "/service/local/lucene/search?a="
+            + artifact
+            + "&repositoryId="
+            + repository_id
+        )
+
+        response = requests.get(lucene_nexus, self._header_credentials())
+        dom = parseString(response.text)
         response.close()
         return dom
 
@@ -182,19 +178,33 @@ class SmNexus():
             nexus_extension = self._create_nexus_extension()
             nexus_filename = artifact + "-" + version + nexus_extension
             md5_filename = nexus_filename + ".md5"
-            nexus_url = nexus_host + binary["nexus"] + url_type_repository + "/" + group_id + artifact + "/" + version + "/"
+            nexus_url = (
+                nexus_host + binary["nexus"] + url_type_repository + "/" + group_id + artifact + "/" + version + "/"
+            )
             # first download the md5 file in order to determine if new artifact download is required
             self._download_from_nexus(nexus_url + md5_filename, microservice_target_path + md5_filename, False)
             if self.service_type == "assets":
-                if self._md5_if_exists(microservice_target_path + nexus_filename) != open(microservice_target_path + md5_filename, 'r').read():
+                if (
+                    self._md5_if_exists(microservice_target_path + nexus_filename)
+                    != open(microservice_target_path + md5_filename, "r").read()
+                ):
                     remove_if_exists(microservice_target_path + filename)
                     self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
-                    self._download_from_nexus(nexus_url + nexus_filename, nexus_filename, self.context.show_progress)
+                    self._download_from_nexus(
+                        nexus_url + nexus_filename, nexus_filename, self.context.show_progress,
+                    )
             else:
-                if self._md5_if_exists(microservice_target_path + filename) != open(microservice_target_path + md5_filename, 'r').read():
+                if (
+                    self._md5_if_exists(microservice_target_path + filename)
+                    != open(microservice_target_path + md5_filename, "r").read()
+                ):
                     remove_if_exists(microservice_target_path + filename)
                     self.context.log("Downloading Nexus binary for '" + self.service_name + "': " + nexus_filename)
                     self._download_from_nexus(nexus_url + nexus_filename, filename, self.context.show_progress)
             os.remove(microservice_target_path + md5_filename)
         else:
-            print b.warning + "WARNING: Due to lack of version data from nexus you may not have an up to date version..." + b.endc
+            print(
+                b.warning
+                + "WARNING: Due to lack of version data from nexus you may not have an up to date version..."
+                + b.endc
+            )

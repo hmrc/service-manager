@@ -23,10 +23,10 @@ args = parser.parse_args()
 
 feature_string = pretty_print_list("All requests to this server will have feature$s $list enabled.", args.feature)
 if feature_string:
-    print feature_string
+    print(feature_string)
 
 if args.nosource:
-    print "No-source is specified, 'SOURCE' will not be accepted as a 'runFrom' parameter"
+    print("No-source is specified, 'SOURCE' will not be accepted as a 'runFrom' parameter")
 
 SERVER = smserverlogic.SmServer(SmApplication(args.conf, args.feature))
 
@@ -40,14 +40,14 @@ def ping():
 @route('/start', method='POST')
 def start():
     try:
-        print SERVER
+        print(SERVER)
 
         try:
             json_body = request.json
         except Exception:
             raise BadRequestException("Invalid JSON")
 
-        print str(json_body)
+        print(str(json_body))
 
         show_progress = not args.noprogress
 
@@ -71,7 +71,7 @@ def stop():
         except Exception:
             raise BadRequestException("Invalid JSON")
 
-        print str(request.json)
+        print(str(request.json))
 
         show_progress = not args.noprogress
 
@@ -108,7 +108,7 @@ class BadRequestException(Exception):
 #DO NOT REMOVE UNUSED FRAME PARAM - it's need for signal handler
 def signal_handler(sig, frame):
     try:
-        print "Signal received: %s" % sig
+        print("Signal received: %s" % sig)
         smserverlogic.SmShutdownRequest(SERVER).process_request()
     finally:
         sys.stdout.flush()

@@ -22,16 +22,20 @@ DUMMY_RESPONSE = """<DOCMAP>
     </Topic>
 </DOCMAP>"""
 
-@route('/ping')
+
+@route("/ping")
 def ping():
     return "pong"
 
-@route('/service/local/lucene/search')
-def xml():
-        return DUMMY_RESPONSE
 
-@route('/content/<filepath:path>')
+@route("/service/local/lucene/search")
+def xml():
+    return DUMMY_RESPONSE
+
+
+@route("/content/<filepath:path>")
 def server_static(filepath):
     return static_file(filepath, root="./static/")
 
-run(host='localhost', port=8060)
+
+run(host="localhost", port=8060)

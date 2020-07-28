@@ -8,10 +8,15 @@ import re
 
 import requests
 
-from servicemanager import subprocess
-from smservice import SmService, SmMicroServiceStarter, SmServiceStatus
+import subprocess
+from .smservice import SmService, SmMicroServiceStarter, SmServiceStatus
 from servicemanager.smprocess import SmProcess, kill_pid
-from servicemanager.smfile import force_chdir, remove_if_exists, remove_folder_if_exists, makedirs_if_not_exists
+from servicemanager.smfile import (
+    force_chdir,
+    remove_if_exists,
+    remove_folder_if_exists,
+    makedirs_if_not_exists,
+)
 from servicemanager.smartifactory import SmArtifactory
 from servicemanager.smrepo import clone_repo_if_requred
 
@@ -20,8 +25,31 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
 
     PROCESS_STARTUP_TIMEOUT_SECONDS = 90
 
-    def __init__(self, context, service_name, run_from, port, classifier, service_mapping_ports, version, proxy=None, append_args=None):
-        SmMicroServiceStarter.__init__(self, context, service_name, "assets", run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
+    def __init__(
+        self,
+        context,
+        service_name,
+        run_from,
+        port,
+        classifier,
+        service_mapping_ports,
+        version,
+        proxy=None,
+        append_args=None,
+    ):
+        SmMicroServiceStarter.__init__(
+            self,
+            context,
+            service_name,
+            "assets",
+            run_from,
+            port,
+            classifier,
+            service_mapping_ports,
+            version,
+            proxy,
+            append_args,
+        )
 
         if not self.port:
             self.port = self.service_data["defaultPort"]
@@ -45,7 +73,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
             artifactory = SmArtifactory(self.context, self.service_name)
 
             if self.version:
-                versions = [ self.version ]
+                versions = [self.version]
             elif self.context.assets_versions:
                 versions = self.context.assets_versions
                 self.log("Starting assets versions: %s" % (", ".join(versions)), True)
@@ -61,7 +89,15 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         cmd_with_params = self.service_data["binary"]["cmd"]
         makedirs_if_not_exists("logs")
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            return subprocess.Popen(cmd_with_params[0].split(), shell=False, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True).pid
+            return subprocess.Popen(
+                cmd_with_params[0].split(),
+                shell=False,
+                env=os.environ.copy(),
+                stdout=out,
+                stderr=err,
+                close_fds=True,
+                universal_newlines=True,
+            ).pid
 
     def _start_from_sources(self):
 
@@ -70,7 +106,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
 
         cmd_with_params = self.service_data["sources"]["cmd"]
         force_chdir(assets_path)
-        run_from_file = open("RUNNING_FROM", 'w')
+        run_from_file = open("RUNNING_FROM", "w")
         run_from_file.write(self.run_from)
         run_from_file.close()
 
@@ -78,18 +114,22 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         seconds_remaining = SmPythonServiceStarter.PROCESS_STARTUP_TIMEOUT_SECONDS
 
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
-            subprocess.Popen(cmd_with_params, shell=False, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True)
+            subprocess.Popen(
+                cmd_with_params, shell=False, env=os.environ.copy(), stdout=out, stderr=err, close_fds=True,
+            )
 
         while seconds_remaining > 0 and not len(SmProcess.processes_matching("grunt")) > 0:
             time.sleep(1)
             seconds_remaining -= 1
             if seconds_remaining < 10 or seconds_remaining % 5 == 0:
-                self.log("Waiting for Assets service to start: %s second%s before timeout" % (
-                    seconds_remaining, "s" if seconds_remaining > 1 else ""))
+                self.log(
+                    "Waiting for Assets service to start: %s second%s before timeout"
+                    % (seconds_remaining, "s" if seconds_remaining > 1 else "")
+                )
         if len(SmProcess.processes_matching("grunt")) == 1:
             process = SmProcess.processes_matching("grunt")
             for i, v in enumerate(process):
-                    return v.pid
+                return v.pid
 
     def _unzip_assets(self, versions):
         service_data = self.service_data
@@ -104,7 +144,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
             extracted_dir = version
             if not os.path.exists(assets_zip_path + "/assets/" + extracted_dir):
                 os.makedirs(extracted_dir)
-                zipfile.ZipFile(zip_filename, 'r').extractall(extracted_dir)
+                zipfile.ZipFile(zip_filename, "r").extractall(extracted_dir)
                 shutil.move(extracted_dir, unzipped_dir)
         target_dir = unzipped_dir
         return target_dir
@@ -121,7 +161,6 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
 
 
 class SmPythonService(SmService):
-
     @staticmethod
     def unzipped_dir_path(context, location):
         return context.application.play_extraction_dir + location + "_" + context.instance_id
@@ -135,10 +174,14 @@ class SmPythonService(SmService):
 
     def stop(self, wait=False):
 
-        ps_command = "ps axo pid,command | grep '%s' | grep -v 'grep' | awk '{print $1}'" % SmPythonService.get_pattern(self)
+        ps_command = "ps axo pid,command | grep '%s' | grep -v 'grep' | awk '{print $1}'" % SmPythonService.get_pattern(
+            self
+        )
 
-        ps = subprocess.Popen(ps_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        pid_values = map(int, ps.stdout.read().split("\n")[:-1])
+        ps = subprocess.Popen(
+            ps_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
+        )
+        pid_values = list(map(int, ps.stdout.read().split("\n")[:-1]))
 
         if len(pid_values) == 0:
             return
@@ -148,7 +191,6 @@ class SmPythonService(SmService):
         for pid_int in pid_values:
             kill_pid(self.context, pid_int, wait=wait)
             self.log("PID  %d killed" % pid_int, True)
-
 
     def clean_up(self):
         unzip_path = SmPythonService.unzipped_dir_path(self.context, self.service_data["location"])
@@ -168,10 +210,12 @@ class SmPythonService(SmService):
             self.log("POSSIBLE PROBLEM: Found more than one process")
 
         def _status_for_process(process):
-            healthcheck = SmServiceStatus.HEALTHCHECK_PASS if self.run_healthcheck(None) else SmServiceStatus.HEALTHCHECK_BOOT
+            healthcheck = (
+                SmServiceStatus.HEALTHCHECK_PASS if self.run_healthcheck(None) else SmServiceStatus.HEALTHCHECK_BOOT
+            )
             return SmServiceStatus.for_process(self.service_name, process, self.default_port, "", "", "", healthcheck)
 
-        return map(_status_for_process, processes)
+        return list(map(_status_for_process, processes))
 
     def run_healthcheck(self, process):
         port = self.default_port

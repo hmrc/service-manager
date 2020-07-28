@@ -70,17 +70,17 @@ def _process_command():
             elif context.is_profile(service_name):
                 actions.stop_profile(context, service_name)
             else:
-                print "The requested service %s does not exist" % service_name
+                print("The requested service %s does not exist" % service_name)
 
     if args.status is not None:
             for status_line in dostatus(context, args.shownotrunning):
-                print status_line
+                print(status_line)
 
     if args.autorefresh is not None:
         while True:
             os.system("clear")
             for status_line in dostatus(context, args.shownotrunning):
-                print status_line
+                print(status_line)
             time.sleep(3)
 
     if args.describe:
@@ -89,7 +89,7 @@ def _process_command():
     if args.restart:
         for service_name in service_resolver.resolve_services_from_array(args.restart):
             if service_name not in context.application.services:
-                print "The requested service %s does not exist" % service_name
+                print("The requested service %s does not exist" % service_name)
             else:
                 context.kill(service_name)
         time.sleep(5)
@@ -107,9 +107,9 @@ def _process_command():
     if args.printconfig is not None:
         if len(args.printconfig) > 0:
             for service_name in args.printconfig:
-                print json.dumps(context.application.services[service_name], indent=2, separators=(',', ': '))
+                print(json.dumps(context.application.services[service_name], indent=2, separators=(',', ': ')))
         else:
-            print json.dumps(context.application.services, indent=2, separators=(',', ': '))
+            print(json.dumps(context.application.services, indent=2, separators=(',', ': ')))
 
     if args.info:
         for service_name in context.application.services:
@@ -121,8 +121,8 @@ def _process_command():
 
     if args.ports:
         ports_used = context.get_ports_used()
-        for port in OrderedDict(sorted(ports_used.items(), key=lambda t: t[0])):
-            print str(port) + " -> " + ports_used[port]
+        for port in OrderedDict(sorted(list(ports_used.items()), key=lambda t: t[0])):
+            print(str(port) + " -> " + ports_used[port])
 
     if args.checkports:
         ports_used = {}
@@ -150,15 +150,15 @@ def _process_command():
                 smrepo.clone_repo_if_required_raw(service_name, service_data["sources"]["repo"], path, context)
 
     if args.showcmdfor:
-        print "The parameters you provided would start the following services using the following commands:"
+        print("The parameters you provided would start the following services using the following commands:")
         for service_name in service_resolver.resolve_services_from_array(args.showcmdfor):
             context.is_test = True
             if context.has_service(service_name):
                 cmd = actions.get_start_cmd(context, service_name, args.source, args.fatjar, args.release, args.proxy, actions.overridden_port(args.showcmdfor, args.port), args.appendArgs)
-                print service_name
-                print " ".join(cmd)
+                print(service_name)
+                print(" ".join(cmd))
             else:
-                print "The requested service %s does not exist" % service_name
+                print("The requested service %s does not exist" % service_name)
 
     if args.logs:
         if context.has_service(args.logs):
@@ -174,10 +174,10 @@ def _process_command():
             args.append(logfile)
             os.execvp(pager, args)
         else:
-            print "The requested service %s does not exist" % args.logs
+            print("The requested service %s does not exist" % args.logs)
 
 try:
     _process_command()
 except ServiceManagerException as e:
-    print e.message
+    print(e.message)
     sys.exit(-1)

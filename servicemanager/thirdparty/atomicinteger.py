@@ -10,8 +10,7 @@ import threading
 
 
 class AtomicInteger:
-
-    def __init__(self, integer, minimum=0, maximum=sys.maxint):
+    def __init__(self, integer, minimum=0, maximum=sys.maxsize):
         self.counter = integer
         self.min = minimum
         self.max = maximum
@@ -51,6 +50,7 @@ class AtomicInteger:
 
     def get(self):
         return self.counter
+
 
 if __name__ == r"__main__":
     sys.exit(0)

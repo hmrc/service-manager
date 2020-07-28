@@ -9,14 +9,23 @@ import copy
 
 from pymongo import MongoClient
 
-from smcredentials import CredentialsResolver
-from smprocess import kill_by_test_id, test_has_running_processes, SmProcess
+from .smcredentials import CredentialsResolver
+from .smprocess import kill_by_test_id, test_has_running_processes, SmProcess
 from servicemanager.service.smplayservice import SmPlayService, SmPlayServiceStarter
-from service.smdropwizardservice import SmDropwizardService, SmDropwizardServiceStarter
-from service.smexternalservice import SmExternalService, SmExternalServiceStarter
-from service.smpythonservice import SmPythonServiceStarter, SmPythonService
-from smutil import pretty_print_list, if_not, unify_lists
-from actions.colours import BColors
+from servicemanager.service.smdropwizardservice import (
+    SmDropwizardService,
+    SmDropwizardServiceStarter,
+)
+from servicemanager.service.smexternalservice import (
+    SmExternalService,
+    SmExternalServiceStarter,
+)
+from servicemanager.service.smpythonservice import (
+    SmPythonServiceStarter,
+    SmPythonService,
+)
+from .smutil import pretty_print_list, if_not, unify_lists
+from servicemanager.actions.colours import BColors
 
 b = BColors()
 
@@ -33,10 +42,9 @@ def merge_dict(d1, d2):
     in d1 is a dictionary (or dict-like), *and* the corresponding
     value in d2 is also a dictionary, then merge them in-place.
     """
-    for k,v2 in d2.items():
-        v1 = d1.get(k) # returns None if v1 has no value for this key
-        if ( isinstance(v1, collections.Mapping) and
-             isinstance(v2, collections.Mapping) ):
+    for k, v2 in list(d2.items()):
+        v1 = d1.get(k)  # returns None if v1 has no value for this key
+        if isinstance(v1, collections.Mapping) and isinstance(v2, collections.Mapping):
             merge_dict(v1, v2)
         else:
             d1[k] = v2
@@ -47,7 +55,7 @@ class ServiceManagerException(Exception):
         Exception.__init__(self, message)
 
 
-class SmApplication():
+class SmApplication:
     # Application context object - loads, validates and stores global configuration
 
     def __init__(self, configuration_dir_parameter=None, features=None, process_manager=SmProcess):
@@ -65,7 +73,9 @@ class SmApplication():
         self.merge_template_config()
 
         self.nexus_repo_host = SmApplication._read_json_config(self, "config.json")["nexus"]["host"]
-        self.play_extraction_dir = os.path.abspath(SmApplication._read_json_config(self, "config.json")["playExtractionDir"])
+        self.play_extraction_dir = os.path.abspath(
+            SmApplication._read_json_config(self, "config.json")["playExtractionDir"]
+        )
 
         self.service_mappings = SmApplication._read_json_config(self, "service_mappings.json")
         self.features = features
@@ -74,7 +84,14 @@ class SmApplication():
 
         for profile in self.profiles:
             if profile in self.services:
-                print b.warning + "WARNING: The profile %s conflicts with a service of the same name, this hides the profile and makes it unusable!!!" % profile + b.endc
+                print(
+                    (
+                        b.warning
+                        + "WARNING: The profile %s conflicts with a service of the same name, this hides the profile and makes it unusable!!!"
+                        % profile
+                        + b.endc
+                    )
+                )
 
     def service_data(self, service_name):
         if not service_name in self.services:
@@ -102,24 +119,26 @@ class SmApplication():
             if template_key in self.services[service]:
                 template_to_use = self.services[service][template_key]
                 if template_to_use in self.templates:
-                    copied = copy.deepcopy(self.templates[template_to_use]) #merge_dict(self.templates[template_to_use], self.services[service])
+                    copied = copy.deepcopy(
+                        self.templates[template_to_use]
+                    )  # merge_dict(self.templates[template_to_use], self.services[service])
                     original_config = copy.deepcopy(self.services[service])
                     merge_dict(copied, original_config)
                     str_version = json.dumps(copied)
                     str_replaced = str_version.replace("${SERVICE-ID}", service)
                     new_config = json.loads(str_replaced)
-                    self.services[service] = new_config #hehe, take that recursion! (O)1
+                    self.services[service] = new_config  # hehe, take that recursion! (O)1
 
     def describe(self):
-        print "Services:"
+        print("Services:")
 
         for service_name in collections.OrderedDict(sorted(self.services.items())):
-            print "\t" + service_name.ljust(12) + " =>\t" + self.services[service_name]["name"]
+            print(("\t" + service_name.ljust(12) + " =>\t" + self.services[service_name]["name"]))
 
-        print "Profiles:"
+        print("Profiles:")
 
         for profile_name in collections.OrderedDict(sorted(self.profiles.items())):
-            print "\t" + profile_name.ljust(12) + " =>\t" + ", ".join(self.profiles[profile_name])
+            print(("\t" + profile_name.ljust(12) + " =>\t" + ", ".join(self.profiles[profile_name])))
 
     def _read_json_config(self, filename):
         config_file = os.path.join(self.configuration_dir, filename)
@@ -131,7 +150,9 @@ class SmApplication():
             with open(config_file) as f:
                 return json.load(f)
         except Exception as e:
-            SmApplication.exit_with_error("Unable to load configuration file '%s' due to exception: %s" % (config_file, str(e)))
+            SmApplication.exit_with_error(
+                "Unable to load configuration file '%s' due to exception: %s" % (config_file, str(e))
+            )
 
     def _get_configuration_dir(self, configuration_dir_parameter):
 
@@ -156,29 +177,35 @@ class SmApplication():
         directory = os.environ.get(environment_variable, None)
 
         if not directory:
-            SmApplication.exit_with_error("'%s' environment variable is required. You can add this to your ~/.bash_profile by adding the line %s=[%s]" %
-                                          (environment_variable, environment_variable, description_for_error))
+            SmApplication.exit_with_error(
+                "'%s' environment variable is required. You can add this to your ~/.bash_profile by adding the line %s=[%s]"
+                % (environment_variable, environment_variable, description_for_error)
+            )
 
         directory = os.path.abspath(directory)
 
         if not os.path.isdir(directory):
-            SmApplication.exit_with_error("'%s' environment variable points to non-existent directory: %s" % (environment_variable, directory))
+            SmApplication.exit_with_error(
+                "'%s' environment variable points to non-existent directory: %s" % (environment_variable, directory)
+            )
 
         return directory
 
     @staticmethod
     def exit_with_error(message):
-        print "Error: " + message
+        print(("Error: " + message))
         sys.exit(1)
 
 
-class SmContext():
+class SmContext:
 
     # Invocation context object - representing a call to sm.py, or a request received by SmServer
 
     MAX_TIME_TO_DIE_SECONDS = 3
 
-    def __init__(self, application, test_id, offline=False, show_progress=True, request_specific_features=None, verbose=False):
+    def __init__(
+        self, application, test_id, offline=False, show_progress=True, request_specific_features=None, verbose=False,
+    ):
         self.application = application
         self.test_id = test_id
         self.instance_id = if_not(self.test_id, "LOCAL")
@@ -205,9 +232,9 @@ class SmContext():
     def log(self, message, verbose_only=False):
         if not verbose_only or (verbose_only and self.verbose):
             if self.test_id:
-                print "[%s] %s" % (self.test_id, message)
+                print(("[%s] %s" % (self.test_id, message)))
             else:
-                print message
+                print(message)
 
     def services(self):
         return (self.get_service(service_name) for service_name in self.application.services)
@@ -224,7 +251,9 @@ class SmContext():
         elif service_type == "assets":
             return SmPythonService(self, service_name)
         else:
-            raise self.exception("Unknown service type '%s' for service '%s' - please check services.json" % (service_type, service_name))
+            raise self.exception(
+                "Unknown service type '%s' for service '%s' - please check services.json" % (service_type, service_name)
+            )
 
     def drop_database_for_service(self, service_name):
         self._drop_database(self.database_name_prefix + "-" + service_name)
@@ -250,7 +279,7 @@ class SmContext():
 
     def _create_extension(self, service_name, run_from):
         if self.service_type(service_name) == "play" or self.service_type(service_name) == "assets":
-            ext = self.service_data(service_name)["binary"].get('ext', 'tgz')
+            ext = self.service_data(service_name)["binary"].get("ext", "tgz")
             return "." + ext
         else:
             return "-%s-shaded.jar" % run_from
@@ -301,7 +330,9 @@ class SmContext():
     def service_type(self, service_name):
         service_type = self.service_data(service_name)["type"]
         if service_type not in ["dropwizard", "play", "external", "assets"]:
-            raise self.exception("Unknown service type '%s' in services.json for service '%s'" % (service_type, service_name))
+            raise self.exception(
+                "Unknown service type '%s' in services.json for service '%s'" % (service_type, service_name)
+            )
         return service_type
 
     def get_ports_used(self):
@@ -320,18 +351,35 @@ class SmContext():
     def get_run_from_service_override_value_or_use_default(self, service, original_runfrom):
         if "always_run_from" in service.service_data:
             if validate_run_from(service.service_data["always_run_from"]):
-                self.log("Service '%s' has been overridden to always use '%s' version" % (service.service_name, service.service_data["always_run_from"]), True)
+                self.log(
+                    "Service '%s' has been overridden to always use '%s' version"
+                    % (service.service_name, service.service_data["always_run_from"]),
+                    True,
+                )
                 return service.service_data["always_run_from"]
 
         if original_runfrom == "DEFAULT":
-            if ("default_run_from" in service.service_data) and validate_run_from(service.service_data["default_run_from"]):
+            if ("default_run_from" in service.service_data) and validate_run_from(
+                service.service_data["default_run_from"]
+            ):
                 return service.service_data["default_run_from"]
             else:
                 return "SOURCE"
 
         return original_runfrom
 
-    def get_service_starter(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, append_args=None):
+    def get_service_starter(
+        self,
+        service_name,
+        run_from,
+        proxy,
+        classifier=None,
+        service_mapping_ports=None,
+        port=None,
+        admin_port=None,
+        version=None,
+        append_args=None,
+    ):
         service = self.get_service(service_name)
         run_from = self.get_run_from_service_override_value_or_use_default(service, run_from)
 
@@ -341,32 +389,64 @@ class SmContext():
         service_type = self.service_type(service_name)
 
         if (not self.is_test) and service.is_started_on_default_port():
-            print service_name + " is already running on its default port, not starting a new one"
+            print((service_name + " is already running on its default port, not starting a new one"))
             return None
 
         if service_type == "external":
             starter = SmExternalServiceStarter(self, service_name, append_args)
         elif service_type == "dropwizard":
-            starter = SmDropwizardServiceStarter(self, service_name, run_from, port, admin_port, classifier, service_mapping_ports, version, proxy, append_args)
+            starter = SmDropwizardServiceStarter(
+                self,
+                service_name,
+                run_from,
+                port,
+                admin_port,
+                classifier,
+                service_mapping_ports,
+                version,
+                proxy,
+                append_args,
+            )
         elif service_type == "play":
-            starter = SmPlayServiceStarter(self, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
+            starter = SmPlayServiceStarter(
+                self, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args,
+            )
         elif service_type == "assets":
             proxy = None
-            starter = SmPythonServiceStarter(self, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args)
+            starter = SmPythonServiceStarter(
+                self, service_name, run_from, port, classifier, service_mapping_ports, version, proxy, append_args,
+            )
         else:
-            raise self.exception("Unknown service type '%s' for service '%s' - please check services.json" % (service_type, service_name))
+            raise self.exception(
+                "Unknown service type '%s' for service '%s' - please check services.json" % (service_type, service_name)
+            )
 
         return starter
 
-    def start_service(self, service_name, run_from, proxy, classifier=None, service_mapping_ports=None, port=None, admin_port=None, version=None, appendArgs=None):
+    def start_service(
+        self,
+        service_name,
+        run_from,
+        proxy,
+        classifier=None,
+        service_mapping_ports=None,
+        port=None,
+        admin_port=None,
+        version=None,
+        appendArgs=None,
+    ):
         feature_string = pretty_print_list(" with feature$s $list enabled", self.features)
         self.log("\nStarting '%s' from %s%s... " % (service_name, run_from, feature_string))
-        service_starter = self.get_service_starter(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, appendArgs)
+        service_starter = self.get_service_starter(
+            service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, appendArgs,
+        )
         service_process_id = service_starter.start()
 
         if service_process_id:
             feature_string = pretty_print_list(" and feature$s $list enabled", self.features)
-            self.log("'%s' started with PID = %d%s" % (service_name, service_process_id, feature_string), True)
+            self.log(
+                "'%s' started with PID = %d%s" % (service_name, service_process_id, feature_string), True,
+            )
         else:
             self.log("'%s' does not appear to have started" % service_name)
 

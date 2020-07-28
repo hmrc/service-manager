@@ -3,7 +3,7 @@
 from bottle import route, run, request
 from bottle import static_file
 
-MAVEN_METADATA="""<?xml version="1.0" encoding="UTF-8"?>
+MAVEN_METADATA = """<?xml version="1.0" encoding="UTF-8"?>
 <metadata>
   <groupId>uk.gov.hmrc</groupId>
   <artifactId>help-frontend_2.11</artifactId>
@@ -21,20 +21,24 @@ MAVEN_METADATA="""<?xml version="1.0" encoding="UTF-8"?>
 </metadata>"""
 
 
-@route('/ping')
+@route("/ping")
 def ping():
     return "pong"
 
-@route('/hmrc/release-candidates/uk/gov/hmrc/playtest_2.11/maven-metadata.xml')
+
+@route("/hmrc/release-candidates/uk/gov/hmrc/playtest_2.11/maven-metadata.xml")
 def maven_metadata():
     return MAVEN_METADATA
 
-@route('/hmrc/release-candidates/uk/gov/hmrc/playtest_2.11/1.26.0-3-gd7ed03c/playtest_2.11-1.26.0-3-gd7ed03c.tgz')
+
+@route("/hmrc/release-candidates/uk/gov/hmrc/playtest_2.11/1.26.0-3-gd7ed03c/playtest_2.11-1.26.0-3-gd7ed03c.tgz")
 def server_static_tgz():
     return static_file("bintray/playtest.tgz", root="./static/")
 
-@route('/hmrc/release-candidates/uk/gov/hmrc/playtest_2.11/1.26.0-3-gd7ed03c/playtest_2.11-1.26.0-3-gd7ed03c.tgz.md5')
+
+@route("/hmrc/release-candidates/uk/gov/hmrc/playtest_2.11/1.26.0-3-gd7ed03c/playtest_2.11-1.26.0-3-gd7ed03c.tgz.md5")
 def server_static_md5():
     return static_file("bintray/playtest.tgz.md5", root="./static/")
 
-run(host='localhost', port=8061)
+
+run(host="localhost", port=8061)

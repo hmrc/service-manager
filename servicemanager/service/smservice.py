@@ -2,7 +2,8 @@
 
 from abc import abstractmethod
 
-class SmServiceBase():
+
+class SmServiceBase:
     def __init__(self, context, service_name, expected_service_type):
         self.context = context
         self.service_name = service_name
@@ -10,7 +11,10 @@ class SmServiceBase():
         self.service_type = context.service_type(service_name)
 
         if self.service_type != expected_service_type:
-            raise context.exception("Cannot construct '%s' as type '%s', services.json states its type is: '%s'" % (service_name, expected_service_type, self.service_type))
+            raise context.exception(
+                "Cannot construct '%s' as type '%s', services.json states its type is: '%s'"
+                % (service_name, expected_service_type, self.service_type)
+            )
 
     def log(self, message, verbose_only=False):
         self.context.log("[%s]: %s" % (self.service_name, message), verbose_only)
@@ -27,7 +31,6 @@ class SmServiceBase():
 
 
 class SmService(SmServiceBase):
-
     def __init__(self, context, service_name, expected_service_type):
         SmServiceBase.__init__(self, context, service_name, expected_service_type)
 
@@ -53,7 +56,6 @@ class SmService(SmServiceBase):
 
 
 class SmServiceStarter(SmServiceBase):
-
     def __init__(self, context, service_name, expected_service_type, append_args):
         SmServiceBase.__init__(self, context, service_name, expected_service_type)
         self.append_args = append_args
@@ -71,13 +73,24 @@ class SmServiceStarter(SmServiceBase):
         return False
 
     @abstractmethod
-    def get_start_command(self, context = None):
+    def get_start_command(self, context=None):
         return ["get_start_command() not implemented for this type of service - fork and make a pull request :)"]
 
 
 class SmMicroServiceStarter(SmServiceStarter):
-
-    def __init__(self, context, service_name, expected_service_type, run_from, port, classifier, service_mapping_ports, version, proxy, append_args):
+    def __init__(
+        self,
+        context,
+        service_name,
+        expected_service_type,
+        run_from,
+        port,
+        classifier,
+        service_mapping_ports,
+        version,
+        proxy,
+        append_args,
+    ):
         SmServiceStarter.__init__(self, context, service_name, expected_service_type, append_args)
 
         self.run_from = run_from
@@ -88,7 +101,10 @@ class SmMicroServiceStarter(SmServiceStarter):
         self.proxy = proxy
 
         if "sources" not in self.service_data:
-            raise context.exception("Invalid services.json entry for %s service '%s', missing 'sources'" % (self.service_type, self.service_name))
+            raise context.exception(
+                "Invalid services.json entry for %s service '%s', missing 'sources'"
+                % (self.service_type, self.service_name)
+            )
 
         self.sources = self.service_data["sources"]
 
@@ -101,13 +117,15 @@ class SmMicroServiceStarter(SmServiceStarter):
         pass
 
 
-class SmServiceStatus():
+class SmServiceStatus:
 
     HEALTHCHECK_NONE = "NONE"
     HEALTHCHECK_PASS = "PASS"
     HEALTHCHECK_BOOT = "BOOT"
 
-    def __init__(self, service_name, ppid, pid, uptime, mem, port, test_id, run_from, features, healthcheck):
+    def __init__(
+        self, service_name, ppid, pid, uptime, mem, port, test_id, run_from, features, healthcheck,
+    ):
         self.service_name = service_name
         self.ppid = ppid
         self.pid = pid
@@ -121,4 +139,15 @@ class SmServiceStatus():
 
     @staticmethod
     def for_process(service_name, process, port, test_id, run_from, features, healthcheck):
-        return SmServiceStatus(service_name, process.ppid, process.pid, process.uptime, process.mem, port, test_id, run_from, features, healthcheck)
+        return SmServiceStatus(
+            service_name,
+            process.ppid,
+            process.pid,
+            process.uptime,
+            process.mem,
+            port,
+            test_id,
+            run_from,
+            features,
+            healthcheck,
+        )

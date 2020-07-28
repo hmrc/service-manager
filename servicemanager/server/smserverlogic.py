@@ -15,7 +15,7 @@ from ..smcontext import SmContext, ServiceManagerException
 from ..smport import PortProvider
 
 RUN_ON_PORT = 8085
-RUN_ON_HOST = 'localhost'
+RUN_ON_HOST = "localhost"
 SERVICE_START_TIMEOUT_SECONDS = 90
 MAX_TEST_ID_LENGTH = 40
 
@@ -28,13 +28,12 @@ class BadRequestException(Exception):
 
 
 class SmResponse:
-
     def __init__(self):
         pass  # Do nothing
 
     @staticmethod
     def bad_request(message):
-        print "Bad Request: " + message
+        print("Bad Request: " + message)
         response.status = 400
         return json.dumps({"statusCode": 400, "errorMessage": message})
 
@@ -45,7 +44,6 @@ class SmResponse:
 
 
 class SmRequest:
-
     def __init__(self, server, json_body, offlineMode, show_progress, verbose):
         self.server = server
         self.json_body = json_body
@@ -60,7 +58,14 @@ class SmRequest:
         request_specific_features = SmRequest._extract_and_validate_request_specific_features(self.json_body)
 
         self.test_id = test_id
-        self.context = SmContext(server.application, self.test_id, show_progress=show_progress, request_specific_features=request_specific_features, offline=offlineMode, verbose=verbose)
+        self.context = SmContext(
+            server.application,
+            self.test_id,
+            show_progress=show_progress,
+            request_specific_features=request_specific_features,
+            offline=offlineMode,
+            verbose=verbose,
+        )
 
     @abstractmethod
     def process_request(self):
@@ -81,7 +86,7 @@ class SmRequest:
             raise BadRequestException("'features' must be a list of strings")
 
         for feature in request_specific_features:
-            if not isinstance(feature, basestring):
+            if not isinstance(feature, str):
                 raise BadRequestException("'features' must be a list of strings")
 
         return request_specific_features
@@ -97,13 +102,19 @@ class SmRequest:
         regex = re.compile("^[a-zA-Z0-9\-_]+$")
 
         if not regex.match(test_id):
-            raise BadRequestException("Invalid parameter 'testId' with value '%s', valid characters are 'a-z', 'A-Z', '0-9', '-' and '_'" % test_id)
+            raise BadRequestException(
+                "Invalid parameter 'testId' with value '%s', valid characters are 'a-z', 'A-Z', '0-9', '-' and '_'"
+                % test_id
+            )
 
         if test_id.upper() == "LOCAL":
             raise BadRequestException("'%s' is not a valid value for testId" % test_id)
 
         if len(test_id) > MAX_TEST_ID_LENGTH:
-            raise BadRequestException("Test id '%s' is too long (%d characters) (maximum is %d characters)" % (test_id, len(test_id), MAX_TEST_ID_LENGTH))
+            raise BadRequestException(
+                "Test id '%s' is too long (%d characters) (maximum is %d characters)"
+                % (test_id, len(test_id), MAX_TEST_ID_LENGTH)
+            )
 
     def _get_or_throw_bad_request(self, obj, key, message):
         if key not in obj:
@@ -135,8 +146,9 @@ class SmRequest:
 
 
 class SmStartRequest(SmRequest):
-
-    def __init__(self, server, json_request_body, do_not_run_from_source, offlineMode, show_progress, verbose):
+    def __init__(
+        self, server, json_request_body, do_not_run_from_source, offlineMode, show_progress, verbose,
+    ):
         self.do_not_run_from_source = do_not_run_from_source
         self.json_body = json_request_body
         SmRequest.__init__(self, server, self.json_body, offlineMode, show_progress, verbose)
@@ -162,11 +174,15 @@ class SmStartRequest(SmRequest):
 
         self.server.starting_test(self.test_id)
 
-        services_to_start = self._get_or_throw_bad_request(self.json_body, "services", "'services' missing from request")
+        services_to_start = self._get_or_throw_bad_request(
+            self.json_body, "services", "'services' missing from request"
+        )
 
         self._log("Service(s) to start: " + str(services_to_start))
 
-        (orchestration_services, service_mapping_ports) = self._validate_start_request_and_assign_ports(services_to_start, self.do_not_run_from_source)
+        (orchestration_services, service_mapping_ports,) = self._validate_start_request_and_assign_ports(
+            services_to_start, self.do_not_run_from_source
+        )
 
         try:
             self._start_services_for_test(orchestration_services, service_mapping_ports)
@@ -174,15 +190,20 @@ class SmStartRequest(SmRequest):
             sm_response = []
 
             for service_mapping_name in service_mapping_ports:
-                sm_response += [{"serviceName": service_mapping_name, "port": service_mapping_ports[service_mapping_name]}]
+                sm_response += [
+                    {"serviceName": service_mapping_name, "port": service_mapping_ports[service_mapping_name],}
+                ]
 
-            self._log("All services started! To kill the running processes for this test, POST {\"testId\":\"%s\"} to http://%s:%s/stop" % (self.test_id, RUN_ON_HOST, RUN_ON_PORT))
+            self._log(
+                'All services started! To kill the running processes for this test, POST {"testId":"%s"} to http://%s:%s/stop'
+                % (self.test_id, RUN_ON_HOST, RUN_ON_PORT)
+            )
 
             return json.dumps(sm_response)
 
         except Exception as e:
             traceback.print_exc(file=sys.stdout)
-            return self._stop_services_and_return_500("Unexpected exception: " + e.message)
+            return self._stop_services_and_return_500("Unexpected exception: %s" % e)
 
     # {"AUTH": {"port": 43124, "runFrom":"JAR", "serviceMapping" : "auth"}}
     def _start_services(self, orchestration_services, service_mapping_ports, proxy):
@@ -194,13 +215,23 @@ class SmStartRequest(SmRequest):
             run_from = orchestration_services[service_name]["runFrom"]
             classifier = orchestration_services[service_name]["classifier"]
             version = orchestration_services[service_name]["version"]
-            append_args = orchestration_services[service_name]["appendArgs"] # Allows for dynamic config overriding
+            append_args = orchestration_services[service_name]["appendArgs"]  # Allows for dynamic config overriding
 
             # Allow for deprecated run_from values
             if run_from in deprecated_release_params:
                 run_from = deprecated_release_params[run_from]
 
-            self.context.start_service(service_name, run_from, proxy, classifier, service_mapping_ports, port, admin_port, version, append_args)
+            self.context.start_service(
+                service_name,
+                run_from,
+                proxy,
+                classifier,
+                service_mapping_ports,
+                port,
+                admin_port,
+                version,
+                append_args,
+            )
 
     def _await_service_startup(self, service_name, port, admin_port):
         seconds_remaining = SERVICE_START_TIMEOUT_SECONDS
@@ -212,7 +243,10 @@ class SmStartRequest(SmRequest):
 
             while seconds_remaining > 0:
                 if (seconds_remaining < 10 or seconds_remaining % 5 == 0) and seconds_remaining != 1:
-                    self._log("Waiting for %s to start on port %d, %d seconds before timeout" % (service_name, port, seconds_remaining))
+                    self._log(
+                        "Waiting for %s to start on port %d, %d seconds before timeout"
+                        % (service_name, port, seconds_remaining)
+                    )
                 elif seconds_remaining == 1:
                     self._log("Waiting for %s to start on port %d, 1 second before timeout" % (service_name, port))
 
@@ -231,9 +265,15 @@ class SmStartRequest(SmRequest):
                     time.sleep(1)
 
                 if seconds_remaining <= 0:
-                    raise self.context.exception("Service %s - healthcheck did not pass within allocated time (%d seconds)" % (service_name, SERVICE_START_TIMEOUT_SECONDS))
+                    raise self.context.exception(
+                        "Service %s - healthcheck did not pass within allocated time (%d seconds)"
+                        % (service_name, SERVICE_START_TIMEOUT_SECONDS)
+                    )
         else:
-            self._log("There is no health check for '%s'. This is not really advisable we can only assume it has started correctly" % service_name)
+            self._log(
+                "There is no health check for '%s'. This is not really advisable we can only assume it has started correctly"
+                % service_name
+            )
 
     def _start_services_for_test(self, orchestration_services, service_mapping_ports):
 
@@ -259,9 +299,15 @@ class SmStartRequest(SmRequest):
 
     def _service_mapping_for(self, service_start_request):
 
-        service_mapping_name = self._get_or_throw_bad_request(service_start_request, "serviceName", "Missing 'serviceName' parameter in instruction to start services")
+        service_mapping_name = self._get_or_throw_bad_request(
+            service_start_request, "serviceName", "Missing 'serviceName' parameter in instruction to start services",
+        )
 
-        mapping = self._get_or_throw_bad_request(self.context.application.service_mappings, service_mapping_name, "Unknown service name '%s'" % service_mapping_name)
+        mapping = self._get_or_throw_bad_request(
+            self.context.application.service_mappings,
+            service_mapping_name,
+            "Unknown service name '%s'" % service_mapping_name,
+        )
 
         need_classifier = isinstance(mapping, dict)
         have_classifier = "classifier" in service_start_request and service_start_request["classifier"]
@@ -274,22 +320,30 @@ class SmStartRequest(SmRequest):
 
         if need_classifier:
 
-            valid_classifiers = "[" + (",".join(str(x) for x in mapping.keys())) + "]"
+            valid_classifiers = "[" + (",".join(str(x) for x in list(mapping.keys()))) + "]"
 
             if not have_classifier:
-                raise self._bad_request_exception("Service '%s' requires a classifier (one of: %s)" % (service_mapping_name, valid_classifiers))
+                raise self._bad_request_exception(
+                    "Service '%s' requires a classifier (one of: %s)" % (service_mapping_name, valid_classifiers)
+                )
 
             classifier = service_start_request["classifier"]
 
             if classifier not in mapping:
-                raise self._bad_request_exception("Unknown classifier '%s' for service '%s' (expected one of: %s)" % (classifier, service_mapping_name, valid_classifiers))
+                raise self._bad_request_exception(
+                    "Unknown classifier '%s' for service '%s' (expected one of: %s)"
+                    % (classifier, service_mapping_name, valid_classifiers)
+                )
 
             service_name = mapping[classifier]
 
         else:
 
             if have_classifier:
-                raise self._bad_request_exception("Service '%s' does not take classifiers (found: '%s')" % (service_mapping_name, service_start_request["classifier"]))
+                raise self._bad_request_exception(
+                    "Service '%s' does not take classifiers (found: '%s')"
+                    % (service_mapping_name, service_start_request["classifier"])
+                )
 
             service_name = mapping
             classifier = None
@@ -303,24 +357,44 @@ class SmStartRequest(SmRequest):
 
         for service_start_request in services_to_start:
 
-            service_mapping_name, service_name, classifier, version, append_args = self._service_mapping_for(service_start_request)
+            (service_mapping_name, service_name, classifier, version, append_args,) = self._service_mapping_for(
+                service_start_request
+            )
 
-            if append_args and not isinstance(append_args, types.ListType):
-                raise self._bad_request_exception("ERROR: I was passed a non list for append args of '" + str(append_args) + "' I dont know what to do with this")
+            if append_args and not isinstance(append_args, list):
+                raise self._bad_request_exception(
+                    "ERROR: I was passed a non list for append args of '"
+                    + str(append_args)
+                    + "' I dont know what to do with this"
+                )
 
             if service_mapping_name in service_mapping_ports:
-                raise self._bad_request_exception("Duplicate entry for service '%s' in start request" % service_mapping_name)
+                raise self._bad_request_exception(
+                    "Duplicate entry for service '%s' in start request" % service_mapping_name
+                )
 
-            run_from = self._get_or_throw_bad_request(service_start_request, "runFrom", "Missing 'runFrom' parameter in instruction to start '%s'" % service_mapping_name)
+            run_from = self._get_or_throw_bad_request(
+                service_start_request,
+                "runFrom",
+                "Missing 'runFrom' parameter in instruction to start '%s'" % service_mapping_name,
+            )
 
-            if run_from not in ["SOURCE", "SNAPSHOT", "RELEASE"] + deprecated_release_params.keys():
-                raise self._bad_request_exception("runFrom parameter has invalid value '%s' (should be 'SOURCE', 'SNAPSHOT' or 'RELEASE')" % run_from)
+            if run_from not in ["SOURCE", "SNAPSHOT", "RELEASE"] + list(deprecated_release_params.keys()):
+                raise self._bad_request_exception(
+                    "runFrom parameter has invalid value '%s' (should be 'SOURCE', 'SNAPSHOT' or 'RELEASE')" % run_from
+                )
 
             if dontrunfromsource:
                 if run_from == "SOURCE":
-                    raise self._bad_request_exception("runFrom parameter has value '%s', however --nosource was specified when smserver started" % run_from)
+                    raise self._bad_request_exception(
+                        "runFrom parameter has value '%s', however --nosource was specified when smserver started"
+                        % run_from
+                    )
 
-            if append_args and not self.context.get_service_starter(service_name, run_from, None).supports_append_args():
+            if (
+                append_args
+                and not self.context.get_service_starter(service_name, run_from, None).supports_append_args()
+            ):
                 raise BadRequestException("The service type for '" + service_name + "' does not support append args")
 
             if service_name in orchestration_services:
@@ -328,14 +402,24 @@ class SmStartRequest(SmRequest):
                 service_mapping_ports[service_mapping_name] = existing_entry["port"]
 
                 if run_from != existing_entry["runFrom"]:
-                    raise self._bad_request_exception("Conflicting runFrom values (%s and %s) for underlying service '%s'" % (run_from, existing_entry["runFrom"], service_name))
+                    raise self._bad_request_exception(
+                        "Conflicting runFrom values (%s and %s) for underlying service '%s'"
+                        % (run_from, existing_entry["runFrom"], service_name)
+                    )
 
                 if classifier and existing_entry["classifier"] and classifier != existing_entry["classifier"]:
-                    raise self._bad_request_exception("Conflicting classifier values (%s and %s) for underlying service '%s'" % (classifier, existing_entry["classifier"], service_name))
+                    raise self._bad_request_exception(
+                        "Conflicting classifier values (%s and %s) for underlying service '%s'"
+                        % (classifier, existing_entry["classifier"], service_name)
+                    )
 
             else:
                 port = self.server.next_available_port()
-                admin_port = self.server.next_available_port() if self.context.service_type(service_name) == "dropwizard" else port
+                admin_port = (
+                    self.server.next_available_port()
+                    if self.context.service_type(service_name) == "dropwizard"
+                    else port
+                )
 
                 service_mapping_ports[service_mapping_name] = port
 
@@ -345,14 +429,13 @@ class SmStartRequest(SmRequest):
                     "runFrom": run_from,
                     "classifier": classifier,
                     "version": version,
-                    "appendArgs": append_args
+                    "appendArgs": append_args,
                 }
 
         return orchestration_services, service_mapping_ports
 
 
 class SmStopRequest(SmRequest):
-
     def __init__(self, server, json_request_body, offlineMode, show_progress, verbose):
         SmRequest.__init__(self, server, json_request_body, offlineMode, show_progress, verbose)
 
@@ -366,7 +449,9 @@ class SmStopRequest(SmRequest):
         drop_databases = self.json_body.get("dropDatabases", True)
 
         if type(drop_databases) is not bool:
-            raise self._bad_request_exception("dropDatabases parameter must be boolean (value was: %s)" % drop_databases)
+            raise self._bad_request_exception(
+                "dropDatabases parameter must be boolean (value was: %s)" % drop_databases
+            )
 
         errors = self._stop_services(drop_databases)
 
@@ -379,13 +464,12 @@ class SmStopRequest(SmRequest):
             response.status = 204
 
 
-class SmShutdownRequest():
-
+class SmShutdownRequest:
     def __init__(self, server):
         self.server = server
 
     def process_request(self):
-        print "shutting down..."
+        print("shutting down...")
         for test_id in self.server.running_tests:
             context = SmContext(self.server.application, test_id)
             context.log("Killing everything for testId %s..." % test_id)
@@ -397,11 +481,10 @@ class SmShutdownRequest():
             context.drop_database_for_test()
             context.log("Successfully stopped all services for testId %s..." % test_id)
 
-        print "finished shutting down..."
+        print("finished shutting down...")
 
 
 class SmServer:
-
     def __init__(self, application):
 
         self.application = application
@@ -437,17 +520,22 @@ class SmServer:
 
 
 class SmVersionRequest:
-
     def __init__(self, server):
         self.application = server.application
 
     def process_request(self):
-        service = request.query['service']
+        service = request.query["service"]
         if not service in self.application.service_mappings:
-            raise BadRequestException("Service '%s' cannot be found in 'service_mappings.json', please update this file" % service)
+            raise BadRequestException(
+                "Service '%s' cannot be found in 'service_mappings.json', please update this file" % service
+            )
         service_alias = self.application.service_mappings[service]
         if not service_alias in self.application.services:
-            raise BadRequestException("Service '%s' cannot be found in 'services.json', please update this file" % service_alias)
+            raise BadRequestException(
+                "Service '%s' cannot be found in 'services.json', please update this file" % service_alias
+            )
         if not "versionEnv" in self.application.services[service_alias]:
-            raise BadRequestException("'versionEnv' cannot be found for service '%s', please update 'services.json'" % service_alias)
+            raise BadRequestException(
+                "'versionEnv' cannot be found for service '%s', please update 'services.json'" % service_alias
+            )
         return {"variable": self.application.services[service_alias]["versionEnv"]}
