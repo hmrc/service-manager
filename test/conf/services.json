@@ -363,6 +363,7 @@
     "hasServiceMappings": true,
     "defaultPort" : 8500,
     "hasMongo" : true,
+    "always_run_from": "RELEASE",
     "healthcheck": {
       "url": "http://localhost:${port}",
       "response": ""

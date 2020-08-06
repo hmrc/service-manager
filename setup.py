@@ -16,7 +16,7 @@ setup(
     ],
     install_requires=[
         "requests~=2.24.0",
-        "pymongo==3.0.1",
+        "pymongo==3.11.0",
         "bottle==0.12.18",
         "pytest==5.4.3",
         "pyhamcrest==2.0.2",

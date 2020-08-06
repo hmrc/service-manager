@@ -25,7 +25,7 @@ def _process_command():
     parser = argparse.ArgumentParser(description='Service Manager - Start, Stop and View services')
     parser.add_argument('-r', '--release', type=str, nargs="?", const="LATEST", help='Used with start to run services using the specified release version, or the latest if unspecified')
     parser.add_argument('-src', '--source', action='store_true', help='Used with start to run services from source')
-    parser.add_argument('-f', '--fatjar', action='store_true', help='Used with start to run services using fatjars')
+    parser.add_argument('-f', '--fatjar', action='store_true', help='Deprecated: Used with start to run services using fatjars')
     parser.add_argument('-F', '--feature', action='append', help='Enable a given feature for all services started')
     parser.add_argument('-s', '--status', nargs='*', help='Get the status of a single service or a list of services')
     parser.add_argument('--autorefresh', nargs='*', help='Get the status of a single service or a list of services and refreshes until killed')
@@ -98,7 +98,10 @@ def _process_command():
                 actions.start_one(context, service_name, args.source, args.fatjar, args.release, args.proxy, actions.overridden_port(args.restart, args.port), args.appendArgs)
 
     if args.start:
-        actions.start_and_wait(service_resolver, context, args.start, args.source, args.fatjar, args.release, args.proxy, args.port, args.wait, args.appendArgs)
+        if args.fatjar is True:
+            print("-f is no longer supported!")
+        else:
+            actions.start_and_wait(service_resolver, context, args.start, args.source, args.fatjar, args.release, args.proxy, args.port, args.wait, args.appendArgs)
 
     if args.cleanlogs:
         for service_name in context.application.services:
