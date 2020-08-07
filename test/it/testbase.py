@@ -21,6 +21,7 @@ class TestBase(unittest.TestCase):
 
     def setUp(self):
         self.set_up_and_clean_workspace()
+        self.setup_local_git()
         self.bintrayContext = None
         self.artifactoryContext = None
         self.nexusContext = None
@@ -29,6 +30,7 @@ class TestBase(unittest.TestCase):
         self.stopFakeBintray()
         self.stopFakeArtifactory()
         self.stopFakeNexus()
+        self.tear_down_local_git()
 
     def set_up_and_clean_workspace(self):
         workspace_dir = os.path.join(os.path.dirname(__file__), "workspace")
@@ -37,6 +39,23 @@ class TestBase(unittest.TestCase):
         os.mkdir(workspace_dir)
         os.environ["WORKSPACE"] = workspace_dir
         os.chdir(workspace_dir)
+
+    def setup_local_git(self):
+        workspace_dir = os.path.join(os.path.dirname(__file__), "workspace")
+        testapp_dir = os.path.join(os.path.dirname(__file__), "../testapps/basicplayapp")
+        os.makedirs(os.path.join(workspace_dir,  "git"))
+        shutil.copytree(testapp_dir, os.path.join(workspace_dir,  "git", "basicplayapp"))
+        os.chdir(os.path.join(workspace_dir, "git", "basicplayapp"))
+        command = "git init && git add . && git commit -m 'test'"
+        ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
+        ps_command.communicate()
+        os.chdir(workspace_dir)
+
+    def tear_down_local_git(self):
+        workspace_dir = os.path.join(os.path.dirname(__file__), "workspace")
+        git_dir = os.path.join(workspace_dir,  "git", "basicplayapp")
+        if os.path.exists(git_dir):
+            shutil.rmtree(git_dir)
 
     def createContext(self):
         return SmContext(SmApplication(self.config_dir_override), None, False, False)

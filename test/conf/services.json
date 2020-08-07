@@ -111,7 +111,7 @@
             "cmd": [
                 "./startappfromcode.sh"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
             "repo": "nexus",
@@ -148,7 +148,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
              "repo": "nexus",
@@ -187,7 +187,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
              "repo": "nexus",
@@ -226,7 +226,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
              "repo": "nexus",
@@ -264,7 +264,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
              "repo": "nexus",
@@ -302,7 +302,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
              "repo": "nexus",
@@ -339,7 +339,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
              "repo": "bintray",
@@ -376,7 +376,7 @@
       "extra_params": [
         "-DFoo=false"
       ],
-      "repo": "git@github.com:hmrc/service-manager.git"
+      "repo": "testapps/basicplayapp"
     },
     "binary": {
       "repo": "artifactory",
@@ -412,7 +412,7 @@
             "extra_params": [
                  "-DFoo=false"
             ],
-            "repo": "git@github.com:hmrc/service-manager.git"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
              "repo": "nexus",
@@ -455,7 +455,7 @@
                 "./server.sh",
                 "dev"
             ],
-            "repo": "foo@foo.com"
+            "repo": "testapps/basicplayapp"
         },
         "binary": {
             "ext": "zip",
