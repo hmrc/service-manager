@@ -17,7 +17,8 @@ A set of utilities to run applications and micro services during the development
 
 - For a list of commands type `sm --help`
 - For current run status type `sm -s`
-- To start all services using binaries: `sm --start "*" -f`
+- Start service using binaries: `sm --start SERIVCE_NAME`
+- Start a specific version using binaries: `sm --start SERIVCE_NAME -r 1.2.3`
 
 ## Adding a new application
 
