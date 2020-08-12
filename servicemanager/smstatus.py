@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-from servicemanager.thirdparty.prettytable import PrettyTable
+from prettytable import PrettyTable
 from servicemanager.service.smservice import SmServiceStatus
 from servicemanager.smcontext import ServiceManagerException
 from servicemanager.actions.colours import BColors
+
 
 def _service_status_to_row(status):
     return [
@@ -16,7 +17,7 @@ def _service_status_to_row(status):
         status.test_id,
         status.run_from,
         status.features,
-        _format_healthcheck_status(status.healthcheck)
+        _format_healthcheck_status(status.healthcheck),
     ]
 
 
@@ -35,7 +36,18 @@ def _format_healthcheck_status(healthcheck):
 def dostatus(context, show_down_services):
     b = BColors()
     up_processes_table = PrettyTable()
-    up_processes_table.field_names = ["name", "ppid", "pid", "uptime", "mem", "port", "test id", "run from", "features", "healthcheck"]
+    up_processes_table.field_names = [
+        "name",
+        "ppid",
+        "pid",
+        "uptime",
+        "mem",
+        "port",
+        "test id",
+        "run from",
+        "features",
+        "healthcheck",
+    ]
     up_processes_table.align = "r"
     up_processes_table.align["name"] = "l"
     up_processes_table.sortby = "name"
@@ -48,7 +60,6 @@ def dostatus(context, show_down_services):
     down_processes_table.align = "r"
     down_processes_table.align["name"] = "l"
     down_processes_table.sortby = "name"
-
 
     all_processes = context.process_manager.all_processes()
     for service in context.services():

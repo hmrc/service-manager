@@ -1,10 +1,10 @@
 from servicemanager.smcontext import SmApplication
 from servicemanager.serviceresolver import ServiceResolver
 
-from testbase import TestBase
+from .testbase import TestBase
+
 
 class TestServiceResolver(TestBase):
-
     def test_config(self):
         application = SmApplication(self.config_dir_override, None)
         service_resolver = ServiceResolver(application)

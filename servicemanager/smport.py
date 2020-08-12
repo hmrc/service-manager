@@ -6,7 +6,6 @@ from servicemanager.thirdparty.atomicinteger import AtomicInteger
 
 
 class PortProvider:
-
     def __init__(self):
         self._port_counter = AtomicInteger(10000, 10000, 65535)
 

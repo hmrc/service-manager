@@ -1,11 +1,12 @@
-from mock import *
-
-import unittest
 from hamcrest import *
+import unittest
 
-from service.smjvmservice import SmJvmService
-from smcontext import ServiceManagerException
-from smprocess import SmProcess
+
+from unittest.mock import *
+
+from servicemanager.service.smjvmservice import SmJvmService
+from servicemanager.smcontext import ServiceManagerException
+from servicemanager.smprocess import SmProcess
 
 
 class JvmServiceMock(SmJvmService):
@@ -29,7 +30,7 @@ class TestSmJvmServiceStatus(unittest.TestCase):
     def setUp(self):
         self.context = MagicMock()
         self.context.exception = lambda message: ServiceManagerException(message)
-        self.context.service_type = lambda x: ''
+        self.context.service_type = lambda x: ""
 
     def process(self, cmdline):
         return SmProcess(ppid=10, pid=1, uptime=30, mem=10, args=cmdline.split())
@@ -53,7 +54,8 @@ class TestSmJvmServiceStatus(unittest.TestCase):
     def test_fails_to_match_service_with_multiple_cmdline_args(self):
         mock = JvmServiceMock(self.context, "TEST")
         status = mock.status(
-            [self.process("-Dhttp.port=9051 -Dservice.manager.serviceName=TEST -Dservice.manager.runFrom=SOURCE")])
+            [self.process("-Dhttp.port=9051 -Dservice.manager.serviceName=TEST -Dservice.manager.runFrom=SOURCE")]
+        )
         assert_that(status, is_not(empty()))
 
     def test_return_pass_when_healthcheck_passes(self):

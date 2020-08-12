@@ -1,7 +1,7 @@
-from testbase import TestBase
+from .testbase import TestBase
+
 
 class TestNexus(TestBase):
-
     def test_nexus_zip(self):
         self.startFakeNexus()
         context = self.createContext()
@@ -21,4 +21,3 @@ class TestNexus(TestBase):
         context.kill(servicetostart, True)
 
         self.assertEqual(context.get_service(servicetostart).status(), [])
-

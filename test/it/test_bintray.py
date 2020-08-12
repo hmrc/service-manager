@@ -1,4 +1,5 @@
-from testbase import TestBase
+from .testbase import TestBase
+
 
 class TestBintray(TestBase):
     def test_bintray(self):

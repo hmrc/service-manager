@@ -1,4 +1,5 @@
-from testbase import TestBase
+from .testbase import TestBase
+
 
 class TestArtifactory(TestBase):
     def test_artifactory(self):
