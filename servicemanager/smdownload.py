@@ -8,10 +8,10 @@ def _current_milli_time():
 
 
 def _report_hook(count, block_size, total_size, start_time, last_update):
-    duration = time.time() - start_time
-    progress_size = _current_milli_time()
+    duration = (_current_milli_time() - start_time) / 1000
+    progress_size = int(count * block_size)
     try:
-        speed = int(progress_size / (1024 * duration))
+        speed = int(progress_size / duration / 1024)
     except ZeroDivisionError:
         speed = 0
 
@@ -22,12 +22,13 @@ def _report_hook(count, block_size, total_size, start_time, last_update):
         )
         sys.stdout.flush()
         last_update = _current_milli_time()
+
     return start_time, last_update
 
 
 def download(url, targetfile, show_progress=False, credentials=None):
-    start_time = time.time()
-    last_update = _current_milli_time()
+    start_time = _current_milli_time()
+    last_update = start_time
     with requests.get(url, stream=True, auth=credentials) as r:
         with open(targetfile, "wb") as f:
             total_size = int(r.headers["Content-length"])
