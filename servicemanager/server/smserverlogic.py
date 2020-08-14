@@ -33,14 +33,14 @@ class SmResponse:
 
     @staticmethod
     def bad_request(message):
-        print("Bad Request: " + message)
+        print("Bad Request: " + str(message))
         response.status = 400
-        return json.dumps({"statusCode": 400, "errorMessage": message})
+        return json.dumps({"statusCode": 400, "errorMessage": str(message)})
 
     @staticmethod
     def error_500(message):
         response.status = 500
-        return json.dumps({"statusCode": 500, "errorMessage": message})
+        return json.dumps({"statusCode": 500, "errorMessage": str(message)})
 
 
 class SmRequest:
