@@ -10,7 +10,7 @@ from bottle import route, run, request, response
 from servicemanager.server import smserverlogic
 from servicemanager.smcontext import SmApplication
 from servicemanager.smutil import pretty_print_list
-
+from servicemanager.server.smserverlogic import BadRequestException
 
 parser = argparse.ArgumentParser(description='Service Manager Server - Start, Stop and View services')
 parser.add_argument('-c', '--conf', type=str, help='Specify the folder holding service configuration files')
@@ -53,10 +53,10 @@ def start():
 
         return smserverlogic.SmStartRequest(SERVER, json_body, args.nosource, args.offline, show_progress, args.verbose).process_request()
     except BadRequestException as e:
-        return smserverlogic.SmResponse.bad_request(e.message)
+        return smserverlogic.SmResponse.bad_request(e)
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
-        return smserverlogic.SmResponse.error_500(e.message)
+        return smserverlogic.SmResponse.error_500(e)
     finally:
         sys.stdout.flush()
         sys.stderr.flush()
@@ -77,10 +77,10 @@ def stop():
 
         return smserverlogic.SmStopRequest(SERVER, json_body, args.offline, show_progress, args.verbose).process_request()
     except BadRequestException as e:
-        return smserverlogic.SmResponse.bad_request(e.message)
+        return smserverlogic.SmResponse.bad_request(e)
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
-        return smserverlogic.SmResponse.error_500(e.message)
+        return smserverlogic.SmResponse.error_500(e)
     finally:
         sys.stdout.flush()
         sys.stderr.flush()
@@ -91,18 +91,14 @@ def get_version_variable():
     try:
         return smserverlogic.SmVersionRequest(SERVER).process_request()
     except BadRequestException as e:
-        return smserverlogic.SmResponse.bad_request(e.message)
+        return smserverlogic.SmResponse.bad_request(e)
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
-        return smserverlogic.SmResponse.error_500(e.message)
+
+        return smserverlogic.SmResponse.error_500(e)
     finally:
         sys.stdout.flush()
         sys.stderr.flush()
-
-
-class BadRequestException(Exception):
-    def __init__(self, message):
-        Exception.__init__(self, message)
 
 
 #DO NOT REMOVE UNUSED FRAME PARAM - it's need for signal handler
@@ -114,6 +110,7 @@ def signal_handler(sig, frame):
         sys.stdout.flush()
         sys.stderr.flush()
         sys.exit()
+
 
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)

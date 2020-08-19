@@ -165,7 +165,6 @@ def _get_process_ids_for_processes_matching(regex):
     ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
     stdout, _ = ps_command.communicate()
     rv = list(map(int, stdout.split("\n")[:-1]))
-    stdout.close()
     return rv
 
 
