@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="servicemanager",
-    version="2.0.1",
+    version="2.0.2",
     description="A python tool to manage developing and testing with lots of microservices",
     url="https://github.com/hmrc/service-manager",
     author="hmrc-web-operations",
