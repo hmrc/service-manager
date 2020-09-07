@@ -5,6 +5,7 @@ import zipfile
 import signal
 import time
 import re
+import sys
 
 import requests
 
@@ -54,6 +55,10 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         if not self.port:
             self.port = self.service_data["defaultPort"]
 
+    @staticmethod
+    def is_python_3():
+        return sys.version_info.major == 3
+
     def process_arguments(self):
         pass
 
@@ -87,6 +92,11 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
             self._unzip_assets(versions)
 
         cmd_with_params = self.service_data["binary"]["cmd"]
+        if self.is_python_3():
+            py3cmd = self.service_data["binary"].get("py3_cmd")
+            if py3cmd is not None:
+                cmd_with_params = py3cmd
+
         makedirs_if_not_exists("logs")
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
             return subprocess.Popen(
@@ -174,23 +184,16 @@ class SmPythonService(SmService):
 
     def stop(self, wait=False):
 
-        ps_command = "ps axo pid,command | grep '%s' | grep -v 'grep' | awk '{print $1}'" % SmPythonService.get_pattern(
-            self
-        )
+        procs = SmProcess.processes_matching(SmPythonService.get_pattern(self), None)
 
-        ps = subprocess.Popen(
-            ps_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
-        )
-        pid_values = list(map(int, ps.stdout.read().split("\n")[:-1]))
-
-        if len(pid_values) == 0:
+        if len(procs) == 0:
             return
 
         self.log("Stopping '%s'..." % (self.service_data["name"]), True)
 
-        for pid_int in pid_values:
-            kill_pid(self.context, pid_int, wait=wait)
-            self.log("PID  %d killed" % pid_int, True)
+        for proc in procs:
+            kill_pid(self.context, proc.pid, wait=wait)
+            self.log("PID  %d killed" % proc.pid, True)
 
     def clean_up(self):
         unzip_path = SmPythonService.unzipped_dir_path(self.context, self.service_data["location"])
@@ -234,4 +237,4 @@ class SmPythonService(SmService):
         return len(SmProcess.processes_matching(SmPythonService.get_pattern(self))) > 0
 
     def get_pattern(self):
-        return self.service_data["pattern"]
+        return self.service_data.get("py3_pattern") or self.service_data["pattern"]

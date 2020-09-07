@@ -13,7 +13,7 @@ class TestSmProcess(unittest.TestCase):
         )
 
     def test_single_arg_is_matched(self):
-      args = ["foo", "bar", "baz"]
-      assert_that(
-        SmProcess.find_in_command_line(args, re.compile("\\war")), is_(True)
-      )
+        args = ["foo", "bar", "baz"]
+        assert_that(
+          SmProcess.find_in_command_line(args, re.compile("\\war")), is_(True)
+        )
