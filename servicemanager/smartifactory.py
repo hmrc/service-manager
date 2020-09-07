@@ -6,7 +6,7 @@ from servicemanager.smfile import remove_if_exists
 from .actions.colours import BColors
 from .smnexus import SmNexus
 from xml.dom.minidom import parseString
-from servicemanager.smdownload import download
+from servicemanager.smdownload import download, header
 
 b = BColors()
 
@@ -127,6 +127,22 @@ class SmArtifactory:
                 if attempt_count < 5:
                     time.sleep(1)
 
+    def _download_md5(self, artifactory_path, repositoryId):
+        try:
+            url = (
+              self.context.config_value("artifactory")["protocol"]
+              + "://"
+              + self.context.config_value("artifactory")["host"]
+              + "/"
+              + repositoryId
+              + "/"
+              + artifactory_path
+            )
+            return header(url, "x-checksum-md5")
+        except Exception as error:
+            self.context.log("Failed to download md5 checksum from Artifactory at %s" % url)
+            return ""
+
     def download_jar_if_necessary(self, run_from, version):
         binary_config = self.context.service_data(self.service_name)["binary"]
         artifact = binary_config["artifact"]
@@ -147,15 +163,11 @@ class SmArtifactory:
 
             artifactoryFilename = artifact + "-" + str(version) + extension
             artifactoryFilePath = groupId + artifact + "/" + str(version) + "/" + artifactoryFilename
-            artifactoryMD5FilePath = artifactoryFilePath + ".md5"
             microservice_target_path = self.context.get_microservice_target_path(self.service_name)
             downloaded_artifact_path = microservice_target_path + localFilename
-            downloaded_md5_path = microservice_target_path + localFilename + ".md5"
 
             # first download the md5 file in order to determine if new artifact download is required
-            self._download_from_artifactory(artifactoryMD5FilePath, downloaded_md5_path, repositoryId, False)
-
-            artifactory_md5 = open(downloaded_md5_path, "r").read()
+            artifactory_md5 = self._download_md5(artifactoryFilePath, repositoryId)
             local_md5 = SmNexus._md5_if_exists(downloaded_artifact_path)
 
             if local_md5 != artifactory_md5:
@@ -170,7 +182,6 @@ class SmArtifactory:
                 self.context.log(
                     "Skipped download of %s. The local copy matches the one on Artifactory" % artifactoryFilename, True,
                 )
-            os.remove(downloaded_md5_path)
             return artifactoryFilename
         else:
             print(

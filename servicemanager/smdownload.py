@@ -42,3 +42,10 @@ def download(url, targetfile, show_progress=False, credentials=None):
                         progress = progress + 1
     if show_progress:
         print("\n")
+
+
+def header(url, header_name):
+    value = None
+    with requests.head(url) as r:
+        value = r.headers.get(header_name)
+    return value
