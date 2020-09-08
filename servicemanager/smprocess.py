@@ -200,10 +200,12 @@ class SmProcess:
         return list(map(process_line_to_object, ps_output[1:]))
 
     @staticmethod
-    def find_in_command_line(process, r):
-        for arg in process.args:
+    def find_in_command_line(args, r):
+        for arg in args:
             if r.search(arg):
                 return True
+        if r.search(" ".join(args)):
+            return True
         return False
 
     def __init__(self, ppid, pid, uptime, mem, args):
@@ -217,7 +219,7 @@ class SmProcess:
     def processes_matching(regex, processes=None):
         processes = processes or SmProcess.all_processes()
         r = re.compile(regex)
-        return [p for p in processes if SmProcess.find_in_command_line(p, r)]
+        return [p for p in processes if SmProcess.find_in_command_line(p.args, r)]
 
     def has_argument(self, argument):
         return argument in self.args
