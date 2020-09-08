@@ -100,8 +100,8 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         makedirs_if_not_exists("logs")
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
             return subprocess.Popen(
-                cmd_with_params[0].split(),
-                shell=False,
+                cmd_with_params[0],
+                shell=True,
                 env=os.environ.copy(),
                 stdout=out,
                 stderr=err,
