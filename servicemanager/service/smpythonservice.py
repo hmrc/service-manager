@@ -55,9 +55,16 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
         if not self.port:
             self.port = self.service_data["defaultPort"]
 
-    @staticmethod
-    def is_python_3():
-        return sys.version_info.major == 3
+    def is_python_3(self):
+        proc = subprocess.Popen(["python", "--version"],
+                                shell=False,
+                                env=os.environ.copy(),
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                close_fds=True,
+                                universal_newlines=True)
+        pyver = proc.stdout.readline().lower()
+        return pyver.startswith("python 3")
 
     def process_arguments(self):
         pass
@@ -97,11 +104,13 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
             if py3cmd is not None:
                 cmd_with_params = py3cmd
 
+        self.log("starting %s..." % cmd_with_params)
+
         makedirs_if_not_exists("logs")
         with open("logs/stdout.txt", "wb") as out, open("logs/stderr.txt", "wb") as err:
             return subprocess.Popen(
-                cmd_with_params[0],
-                shell=True,
+                cmd_with_params[0].split(),
+                shell=False,
                 env=os.environ.copy(),
                 stdout=out,
                 stderr=err,
