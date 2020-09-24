@@ -442,6 +442,7 @@
         "versionEnv": "FRONTEND_VERSION",
         "location": "/assets-frontend",
         "pattern": "SimpleHTTPServer",
+        "py3_pattern": "http.server.+9032",
         "source_pattern": "grunt",
         "defaultPort" : 9032,
         "hasMongo": false,
@@ -467,6 +468,9 @@
             "destinationSubdir": "assets-frontend",
             "cmd": [
                 "python -m SimpleHTTPServer 9032"
+            ],
+            "py3_cmd": [
+                "python -m http.server 9032"
             ]
         }
     }
