@@ -22,6 +22,17 @@ from servicemanager.smartifactory import SmArtifactory
 from servicemanager.smrepo import clone_repo_if_requred
 
 
+def _is_python_3():
+    proc = subprocess.Popen(["python", "--version"],
+                          shell=False,
+                          env=os.environ.copy(),
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          close_fds=True,
+                          universal_newlines=True)
+    pyver = proc.stdout.readline().lower()
+    return pyver.startswith("python 3")
+
 class SmPythonServiceStarter(SmMicroServiceStarter):
 
     PROCESS_STARTUP_TIMEOUT_SECONDS = 90
@@ -54,17 +65,6 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
 
         if not self.port:
             self.port = self.service_data["defaultPort"]
-
-    def is_python_3(self):
-        proc = subprocess.Popen(["python", "--version"],
-                                shell=False,
-                                env=os.environ.copy(),
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                close_fds=True,
-                                universal_newlines=True)
-        pyver = proc.stdout.readline().lower()
-        return pyver.startswith("python 3")
 
     def process_arguments(self):
         pass
@@ -99,7 +99,7 @@ class SmPythonServiceStarter(SmMicroServiceStarter):
             self._unzip_assets(versions)
 
         cmd_with_params = self.service_data["binary"]["cmd"]
-        if self.is_python_3():
+        if _is_python_3():
             py3cmd = self.service_data["binary"].get("py3_cmd")
             if py3cmd is not None:
                 cmd_with_params = py3cmd
@@ -246,4 +246,7 @@ class SmPythonService(SmService):
         return len(SmProcess.processes_matching(SmPythonService.get_pattern(self))) > 0
 
     def get_pattern(self):
-        return self.service_data.get("py3_pattern") or self.service_data["pattern"]
+        if _is_python_3():
+            return self.service_data.get("py3_pattern")
+        else:
+            return self.service_data["pattern"]
