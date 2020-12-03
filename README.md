@@ -1,6 +1,5 @@
 # Service Manager
 
-[![Build Status](https://travis-ci.org/hmrc/service-manager.svg?branch=master)](https://travis-ci.org/hmrc/service-manager)
 [![Join the chat at https://gitter.im/hmrc/service-manager](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hmrc/service-manager?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Developing with lots of microservices often draws complaints from the eventual complexity for the developer. i.e. 10 different services to start that are constantly evolving, owned by different teams and using different technologies... What if there was a way to manage this so you can just get on with your work...
