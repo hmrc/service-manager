@@ -159,7 +159,7 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.microservice.allowlist.useAllowlist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
@@ -198,7 +198,7 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.microservice.allowlist.useAllowlist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
@@ -237,7 +237,7 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.microservice.allowlist.useAllowlist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
@@ -275,7 +275,7 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.microservice.allowlist.useAllowlist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
@@ -312,7 +312,7 @@
              "destinationSubdir" : "playtgz",
              "cmd": [
                      "./playtgz/bin/basicplayapp",
-                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.microservice.allowlist.useAllowlist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
@@ -348,7 +348,7 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.microservice.allowlist.useAllowlist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
@@ -385,7 +385,7 @@
       "destinationSubdir" : "basicplayapp",
       "cmd": [
         "./basicplayapp/bin/basicplayapp",
-        "-DProd.microservice.whitelist.useWhitelist=false",
+        "-DProd.microservice.allowlist.useAllowlist=false",
         "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
         "-J-Xmx256m",
         "-J-Xms256m",
@@ -423,7 +423,7 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                     "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.whitelist.useWhitelist=false",
+                     "-DProd.microservice.allowlist.useAllowlist=false",
                      "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
