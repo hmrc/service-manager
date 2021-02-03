@@ -4,9 +4,9 @@ import os
 import json
 import time
 import sys
-import collections
 import copy
 
+from collections.abc import Mapping
 from pymongo import MongoClient
 
 from .smcredentials import CredentialsResolver
@@ -44,7 +44,7 @@ def merge_dict(d1, d2):
     """
     for k, v2 in list(d2.items()):
         v1 = d1.get(k)  # returns None if v1 has no value for this key
-        if isinstance(v1, collections.Mapping) and isinstance(v2, collections.Mapping):
+        if isinstance(v1, Mapping) and isinstance(v2, Mapping):
             merge_dict(v1, v2)
         else:
             d1[k] = v2
