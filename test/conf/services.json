@@ -159,8 +159,7 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.allowlist.useAllowlist=false",
-                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+                     "-Dsome.application.config.param=abc123",
                      "-J-Xmx256m",
                      "-J-Xms256m",
                      "-J-XX:MaxPermSize=128m"
@@ -198,8 +197,6 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.allowlist.useAllowlist=false",
-                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
                      "-J-XX:MaxPermSize=128m"
@@ -237,46 +234,6 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.allowlist.useAllowlist=false",
-                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
-                     "-J-Xmx256m",
-                     "-J-Xms256m",
-                     "-J-XX:MaxPermSize=128m"
-            ]
-        }
-    },
-    "PLAY_NEXUS_ZIP_TEST": {
-        "name": "A simple play application for testing",
-        "type": "play",
-        "location": "/testapps/basicplayapp",
-        "hasServiceMappings": true,
-        "defaultPort" : 8500,
-        "hasMongo" : true,
-        "healthcheck": {
-            "url": "http://localhost:${port}",
-            "response": ""
-        },
-        "sources": {
-            "cmd": [
-                "play",
-                "start"
-            ],
-            "extra_params": [
-                 "-DFoo=false"
-            ],
-            "repo": "testapps/basicplayapp"
-        },
-        "binary": {
-             "repo": "nexus",
-             "ext": "zip",
-             "artifact": "playtest",
-             "groupId":"foo/bar/foo/",
-             "nexus": "/content/repositories/",
-             "destinationSubdir" : "basicplayapp",
-             "cmd": [
-                     "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.allowlist.useAllowlist=false",
-                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
                      "-J-XX:MaxPermSize=128m"
@@ -312,8 +269,6 @@
              "destinationSubdir" : "playtgz",
              "cmd": [
                      "./playtgz/bin/basicplayapp",
-                     "-DProd.microservice.allowlist.useAllowlist=false",
-                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
                      "-J-XX:MaxPermSize=128m"
@@ -348,8 +303,6 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                      "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.allowlist.useAllowlist=false",
-                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
                      "-J-XX:MaxPermSize=128m"
@@ -385,8 +338,6 @@
       "destinationSubdir" : "basicplayapp",
       "cmd": [
         "./basicplayapp/bin/basicplayapp",
-        "-DProd.microservice.allowlist.useAllowlist=false",
-        "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
         "-J-Xmx256m",
         "-J-Xms256m",
         "-J-XX:MaxPermSize=128m"
@@ -423,8 +374,6 @@
              "destinationSubdir" : "basicplayapp",
              "cmd": [
                     "./basicplayapp/bin/basicplayapp",
-                     "-DProd.microservice.allowlist.useAllowlist=false",
-                     "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
                      "-J-Xmx256m",
                      "-J-Xms256m",
                      "-J-XX:MaxPermSize=128m"
