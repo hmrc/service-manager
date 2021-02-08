@@ -8,8 +8,7 @@ class TestStartCommands(TestBase):
         # starter = SmPlayServiceStarter(context, "PLAY_NEXUS_END_TO_END_TEST", True, False, None, None, None, None)
         expected = [
             "./basicplayapp/bin/basicplayapp",
-            "-DProd.microservice.whitelist.useWhitelist=false",
-            "-DProd.mongodb.uri=mongodb://localhost:27017/auth",
+            "-Dsome.application.config.param=abc123",
             "-J-Xmx256m",
             "-J-Xms256m",
             "-J-XX:MaxPermSize=128m",

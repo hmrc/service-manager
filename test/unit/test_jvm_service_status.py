@@ -39,7 +39,7 @@ class TestSmJvmServiceStatus(unittest.TestCase):
         mock = JvmServiceMock(self.context, "TEST")
         status = mock.status([self.process("service.manager.serviceName=TEST")])
         assert_that(status, is_not(empty()))
-        assert_that(status, contains(has_property("service_name", "TEST")))
+        assert_that(status, contains_exactly(has_property("service_name", "TEST")))
 
     def test_fails_to_match_other_service(self):
         mock = JvmServiceMock(self.context, "TEST")
@@ -62,10 +62,10 @@ class TestSmJvmServiceStatus(unittest.TestCase):
         mock = JvmServiceMock(self.context, "TEST")
         mock.run_healthcheck = lambda x: True
         status = mock.status([self.process("service.manager.serviceName=TEST")])
-        assert_that(status, contains(has_property("healthcheck", "PASS")))
+        assert_that(status, contains_exactly(has_property("healthcheck", "PASS")))
 
     def test_return_boot_when_healthcheck_is_booting(self):
         mock = JvmServiceMock(self.context, "TEST")
         mock.run_healthcheck = lambda x: False
         status = mock.status([self.process("service.manager.serviceName=TEST")])
-        assert_that(status, contains(has_property("healthcheck", "BOOT")))
+        assert_that(status, contains_exactly(has_property("healthcheck", "BOOT")))

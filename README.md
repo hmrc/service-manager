@@ -74,7 +74,9 @@ Alternatively, you can launch pytest manually (without tox) with:
 `
 
 Some of the tests pull down large repositories. To skip these online tests, you can use markers:
-```py.test -v -m 'not online -s test/```
+```py.test -v -m "not online" -s test/```
+
+If you are using `tox` for local development, you can similarly edit the `py.test` command in `tox.ini` with suitable marker flags.
 
 The unit tests and integration tests are in separate subfolders, so can also be selected independently
 
