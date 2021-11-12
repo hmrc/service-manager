@@ -99,7 +99,7 @@ class SmRequest:
 
     @staticmethod
     def _validate_test_id(test_id):
-        regex = re.compile("^[a-zA-Z0-9\-_]+$")
+        regex = re.compile(r"^[a-zA-Z0-9\-_]+$")
 
         if not regex.match(test_id):
             raise BadRequestException(

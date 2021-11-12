@@ -27,7 +27,7 @@ def pull_rebase_repo(context, name, project_info):
             print("running: '" + command + "' from: '" + os.getcwd() + "'")
             ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
             stdout, _ = ps_command.communicate()
-            if ps_command.returncode is not 0:
+            if ps_command.returncode != 0:
                 print(b.fail + "Nothing was pulled, see output for: '" + name + "'" + b.endc)
             else:
                 print(b.okgreen + "Pulled: '" + name + "'" + b.endc)
@@ -43,7 +43,7 @@ def clone_repo_if_required_raw(service_name, repo, path, context):
         command = "git clone --depth 1 %s" % repo
         ps_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, universal_newlines=True)
         ps_command.communicate()
-        if ps_command.returncode is not 0:
+        if ps_command.returncode != 0:
             print(b.fail + "ERROR: Unable to clone repo for '" + service_name + "'" + b.endc)
         if os.path.exists(path):
             path_exists = True

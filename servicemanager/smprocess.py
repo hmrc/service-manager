@@ -175,7 +175,7 @@ def _get_service_name_for_pid(pid):
     stdout, _ = ps_command.communicate()
     ps_output = stdout.split()
 
-    p = re.compile("-Dservice\.manager\.serviceName=([A-Z_]+)")
+    p = re.compile(r"-Dservice\.manager\.serviceName=([A-Z_]+)")
 
     for i in ps_output:
         t = p.match(i)
