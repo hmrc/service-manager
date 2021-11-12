@@ -4,6 +4,7 @@ import os
 import json
 import time
 import sys
+import collections
 import copy
 
 from collections.abc import Mapping
