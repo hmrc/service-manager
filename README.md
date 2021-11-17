@@ -69,8 +69,8 @@ Alternatively, you can launch pytest manually (without tox) with:
 
 ```py.test -v -s test/```
 
-> N.B. As tox handles installing the dependencies from the `requirements.txt` file, you will need to install these
-> first if using this method: `pip install -r requirements.txt`
+> N.B. As tox handles installing the test dependencies, you will need to install these
+> first if using this method: `pipenv install`
 `
 
 Some of the tests pull down large repositories. To skip these online tests, you can use markers:
