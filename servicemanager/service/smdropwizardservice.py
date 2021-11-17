@@ -202,4 +202,4 @@ class SmDropwizardService(SmJvmService):
         return "dw.http.port"
 
     def get_running_healthcheck_port(self, process):
-        return process.extract_integer_argument("-Ddw.http.adminPort=(\d*)", self.default_admin_port)
+        return process.extract_integer_argument(r"-Ddw.http.adminPort=(\d*)", self.default_admin_port)

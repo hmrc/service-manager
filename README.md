@@ -49,32 +49,28 @@ Run `smserver` and it will run a service that can fire up services on demand
 
 This repo uses [tox](https://tox.readthedocs.io/en/latest/install.html) to simplify testing and packaging.
 
-First, ensure you have tox installed:
+First, ensure you have tox and all other dependencies installed:
 
 ```
-pip install tox
+pipenv install
 ```
 
-> You can check with `tox --version`
+> You can check with `pipenv run tox --version`
 
 ## Running the tests
 
 To run the tests is simply:
 
 ```bash
-tox
+pipenv run tox
 ```
 
 Alternatively, you can launch pytest manually (without tox) with:
 
-```py.test -v -s test/```
-
-> N.B. As tox handles installing the dependencies from the `requirements.txt` file, you will need to install these
-> first if using this method: `pip install -r requirements.txt`
-`
+```pipenv run python py.test -v -s test/```
 
 Some of the tests pull down large repositories. To skip these online tests, you can use markers:
-```py.test -v -m "not online" -s test/```
+```pipenv run python py.test -v -m "not online" -s test/```
 
 If you are using `tox` for local development, you can similarly edit the `py.test` command in `tox.ini` with suitable marker flags.
 

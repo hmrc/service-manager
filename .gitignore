@@ -46,3 +46,4 @@ venv
 .cache
 
 .tox
+Pipfile.lock

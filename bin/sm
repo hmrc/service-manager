@@ -183,5 +183,5 @@ def _process_command():
 try:
     _process_command()
 except ServiceManagerException as e:
-    print(e.message)
+    print(e)
     sys.exit(-1)

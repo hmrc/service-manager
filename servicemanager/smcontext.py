@@ -4,6 +4,7 @@ import os
 import json
 import time
 import sys
+import collections
 import copy
 
 from collections.abc import Mapping
@@ -264,7 +265,7 @@ class SmContext:
     def _drop_database(self, database_name):
         c = MongoClient()
         try:
-            if database_name in c.database_names():
+            if database_name in c.list_database_names:
                 self.log("Dropping database: %s" % database_name)
                 c.drop_database(database_name)
         finally:

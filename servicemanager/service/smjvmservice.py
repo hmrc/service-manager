@@ -106,7 +106,7 @@ class SmJvmService(SmService):
         processes = SmProcess.processes_matching(self.pattern, all_processes)
 
         def _status_for_process(process):
-            port = process.extract_integer_argument("-D%s=(\d*)" % self.get_port_argument(), self.default_port)
+            port = process.extract_integer_argument(r"-D%s=(\d*)" % self.get_port_argument(), self.default_port)
             test_id = process.extract_argument("-Dservice.manager.testId=([^ ]+)", "")
             run_from = process.extract_argument("-Dservice.manager.runFrom=([^ ]+)", "")
             features = process.extract_arguments("-Dfeature.([^ =]+)=true", "")

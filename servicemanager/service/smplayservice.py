@@ -256,4 +256,4 @@ class SmPlayService(SmJvmService):
         return "http.port"
 
     def get_running_healthcheck_port(self, process):
-        return process.extract_integer_argument("-D%s=(\d*)" % self.get_port_argument(), self.default_port)
+        return process.extract_integer_argument(r"-D%s=(\d*)" % self.get_port_argument(), self.default_port)
