@@ -93,9 +93,7 @@ def _process_command():
             else:
                 context.kill(service_name)
         time.sleep(5)
-        for service_name in service_resolver.resolve_services_from_array(args.restart):
-            if context.has_service(service_name):
-                actions.start_one(context, service_name, args.source, False, args.release, args.proxy, actions.overridden_port(args.restart, args.port), args.appendArgs)
+        actions.start_and_wait(service_resolver, context, args.restart, args.source, False, args.release, args.proxy, args.port, args.wait, args.appendArgs)
 
     if args.start:
         if args.fatjar is True:
