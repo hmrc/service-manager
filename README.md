@@ -18,6 +18,7 @@ A set of utilities to run applications and micro services during the development
 - For current run status type `sm -s`
 - Start service using binaries: `sm --start SERVICE_NAME`
 - Start a specific version using binaries: `sm --start SERVICE_NAME -r 1.2.3`
+- Open service log file: `sm --logs SERVICE_NAME` (stderr.txt can be found in the same directory)
 
 ## Adding a new application
 
@@ -27,7 +28,7 @@ The application automatically looks for your config in `$WORKSPACE/service-manag
 
 You can change this directly in `$WORKSPACE/service-manager-config` to test your changes locally
 
-Add a new application at the bottom of the `services.json`. 
+Add a new application at the bottom of the `services.json`.
 There are plenty of examples of how to do this by looking at existing entries
 
 ## SM Server
@@ -95,5 +96,5 @@ tox -e release
 > an API token that you have generated in the account
 
 ## License
- 
+
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
