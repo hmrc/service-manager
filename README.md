@@ -10,8 +10,6 @@ A set of utilities to run applications and micro services during the development
 
 #### [How do I install?](https://github.com/hmrc/service-manager/wiki/Install#install-service-manager)
 
-#### [How do I setup?](https://github.com/hmrc/service-manager/wiki/Required-Environment-Settings)
-
 ### Common use cases / Getting started
 
 - For a list of commands type `sm --help`
