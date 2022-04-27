@@ -3,7 +3,7 @@ leakDetectionExemptions:
    filePaths:
       - '/test/testapps/openplayapp/conf/application.conf'
       - '/test/testapps/basicplayapp/conf/application.conf'
+   text: 'XB?X?o=u78Xcw605pWg2iRlB7UXj^hJVJ]1<FI2wdpwQ0n63upL@Ktf_iTMcKv<D'
  - ruleId: 'credential_1'
-   filePaths:
-      - '/test/.sbt/.credentials'
+   filePath: '/test/.sbt/.credentials'
 repoVisibility: public_0C3F0CE3E6E6448FAD341E7BFA50FCD333E06A20CFF05FCACE61154DDBBADF71
