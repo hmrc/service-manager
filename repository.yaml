@@ -7,3 +7,4 @@ leakDetectionExemptions:
  - ruleId: 'credential_1'
    filePath: '/test/.sbt/.credentials'
 repoVisibility: public_0C3F0CE3E6E6448FAD341E7BFA50FCD333E06A20CFF05FCACE61154DDBBADF71
+deprecated: true
