@@ -18,7 +18,7 @@ setup(
         "requests~=2.24.0",
         "pymongo==3.11.0",
         "bottle==0.12.18",
-        "pytest==5.4.3",
+        "pytest==6.2.5",
         "pyhamcrest==2.0.2",
         "argcomplete~=1.12.0",
         "prettytable==0.7.2"
